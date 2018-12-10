@@ -6,7 +6,7 @@ use App\Http\Requests\LoginRequest;
 use App\Http\Requests\RegisterRequest;
 use App\Services\User\Contracts\UserServiceContract;
 use Tymon\JWTAuth\Exceptions\JWTException;
-use Tymon\JWTAuth\Facades\JWTAuth;
+use JWTAuth;
 
 class AuthController extends Controller
 {
@@ -58,6 +58,24 @@ class AuthController extends Controller
         $token = JWTAuth::fromUser($user);
 
         return response()->json(compact('token'));
+    }
+
+
+    /**
+     * METHOD: get
+     * URL: /api/logout
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function logout()
+    {
+        try {
+            JWTAuth::invalidate(JWTAuth::getToken());
+            return response()->json(['User logged out successfully']);
+        } catch (JWTException $e) {
+            return abort(500, 'Sorry, the user cannot be logged out');
+        }
+
     }
 
     public function forgotPassword()

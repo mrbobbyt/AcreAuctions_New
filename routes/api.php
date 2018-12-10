@@ -23,6 +23,8 @@ Route::post('login', 'AuthController@login');
 
 Route::get('profile', 'UserController@profile')
     ->name('profile')
-    ->middleware('jwt.verify')
-;
+    ->middleware('jwt.verify');
 
+Route::get('logout', 'AuthController@logout')
+    ->name('logout')
+    ->middleware('jwt.verify');
