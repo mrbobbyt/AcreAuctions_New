@@ -29,10 +29,10 @@ class AppServiceProvider extends ServiceProvider
             UserServiceContract::class,
             UserService::class
         );
-//
-//        $this->app->bind(
-//            'App\Repositories\User\UserRepository',
-//            'App\Repositories\User\Contracts\UserRepoContract'
-//        );
+
+        $this->app->bind(
+            'App\Repositories\User\Contracts\UserRepoContract',
+            'App\Repositories\User\UserRepository'
+        );
     }
 }
