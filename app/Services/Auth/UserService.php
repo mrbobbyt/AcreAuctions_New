@@ -54,4 +54,38 @@ class UserService implements UserServiceContract
     {
         return JWTAuth::attempt($data);
     }
+
+
+    /**
+     * Create token for new User
+     *
+     * @param User $user
+     * @return string
+     */
+    public function createToken(User $user)
+    {
+        return JWTAuth::fromUser($user);
+    }
+
+
+    /**
+     * Logout user and break token
+     *
+     * @return $this
+     */
+    public function breakToken()
+    {
+        return JWTAuth::invalidate(JWTAuth::getToken());
+    }
+
+
+    /**
+     * Return authenticate user
+     *
+     * @return \Tymon\JWTAuth\Contracts\JWTSubject|false
+     */
+    public function authenticate()
+    {
+        return JWTAuth::parseToken()->authenticate();
+    }
 }

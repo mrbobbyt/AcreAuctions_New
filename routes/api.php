@@ -17,7 +17,7 @@ Route::post('register', 'API\v1\AuthController@register');
 
 Route::post('login', 'API\v1\AuthController@login');
 
-Route::get('profile', 'API\v1\UserController@profile')
+Route::get('profile', 'API\v1\AuthController@profile')
     ->name('profile')
     ->middleware('jwt.verify');
 

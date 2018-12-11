@@ -143,6 +143,9 @@ return [
     |
     */
 
-    'attributes' => [],
+    'attributes' => [
+        'fname' => 'First name',
+        'lname' => 'Last name',
+    ],
 
 ];
