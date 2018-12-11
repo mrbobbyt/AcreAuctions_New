@@ -1,9 +1,9 @@
 <?php
 
-namespace App\Services\User;
+namespace App\Services\Auth;
 
 use App\Models\User;
-use App\Services\User\Contracts\UserServiceContract;
+use App\Services\Auth\Contracts\UserServiceContract;
 use Illuminate\Auth\AuthenticationException;
 
 class UserService implements UserServiceContract
@@ -23,7 +23,8 @@ class UserService implements UserServiceContract
     public function create(array $data)
     {
         $user = $this->model->query()->make()->fill([
-            'name' => array_get($data, 'name'),
+            'fname' => array_get($data, 'fname'),
+            'lname' => array_get($data, 'lname'),
             'email' => array_get($data, 'email'),
             'password' => bcrypt(array_get($data, 'password')),
         ]);

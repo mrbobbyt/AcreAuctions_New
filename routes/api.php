@@ -13,18 +13,14 @@ use Illuminate\Http\Request;
 |
 */
 
-/*Route::get('/', function (Request $request) {
-    return 132;
-});*/
+Route::post('register', 'API\v1\AuthController@register');
 
-Route::post('register', 'AuthController@register');
+Route::post('login', 'API\v1\AuthController@login');
 
-Route::post('login', 'AuthController@login');
-
-Route::get('profile', 'UserController@profile')
+Route::get('profile', 'API\v1\UserController@profile')
     ->name('profile')
     ->middleware('jwt.verify');
 
-Route::get('logout', 'AuthController@logout')
+Route::get('logout', 'API\v1\AuthController@logout')
     ->name('logout')
     ->middleware('jwt.verify');

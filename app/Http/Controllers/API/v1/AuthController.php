@@ -1,10 +1,11 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\API\v1;
 
+use App\Http\Controllers\Controller;
 use App\Http\Requests\LoginRequest;
 use App\Http\Requests\RegisterRequest;
-use App\Services\User\Contracts\UserServiceContract;
+use App\Services\Auth\Contracts\UserServiceContract;
 use Tymon\JWTAuth\Exceptions\JWTException;
 use JWTAuth;
 
@@ -30,12 +31,19 @@ class AuthController extends Controller
         $credentials = $request->only('email', 'password');
 
         try {
+
+            /*$data = (new LoginRequestUserServiceValidator($request))->attempt();
+            $result = $this->service->method($data['data']);*/
+
             if (! $token = JWTAuth::attempt($credentials)) {
                 return abort(401, 'invalid credentials');
             }
         } catch (JWTException $e) {
             return abort(500, 'could not create token');
+        } catch (\Throwable $e) {
+
         }
+
         return response()->json(compact('token'));
     }
 

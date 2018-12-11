@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Services\User\Contracts;
+namespace App\Services\Auth\Contracts;
 
 
 interface UserServiceContract
