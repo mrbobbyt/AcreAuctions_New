@@ -8,4 +8,5 @@ interface UserServiceContract
 
     public function create(array $data);
 
+    public function getToken(array $data);
 }

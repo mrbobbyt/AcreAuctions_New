@@ -3,11 +3,15 @@
 namespace App\Http\Controllers\API\v1;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\LoginRequest;
-use App\Http\Requests\RegisterRequest;
+use Illuminate\Http\Request;
 use App\Services\Auth\Contracts\UserServiceContract;
-use Tymon\JWTAuth\Exceptions\JWTException;
+
 use JWTAuth;
+
+use Throwable;
+use Tymon\JWTAuth\Exceptions\JWTException;
+use Illuminate\Validation\ValidationException;
+use App\Services\Auth\Validators\LoginRequestUserServiceValidator;
 
 class AuthController extends Controller
 {
@@ -23,25 +27,31 @@ class AuthController extends Controller
      * METHOD: post
      * URL: /api/login
      *
-     * @param LoginRequest $request
+     * @param Request $request
      * @return \Illuminate\Http\JsonResponse
      */
-    public function login(LoginRequest $request)
+    public function login(Request $request)
     {
-        $credentials = $request->only('email', 'password');
-
         try {
+            $data = (new LoginRequestUserServiceValidator())->attempt($request);
+            $token = $this->userService->getToken($data['body']);
 
-            /*$data = (new LoginRequestUserServiceValidator($request))->attempt();
-            $result = $this->service->method($data['data']);*/
-
-            if (! $token = JWTAuth::attempt($credentials)) {
-                return abort(401, 'invalid credentials');
+            if (!$token) {
+                return response()->json([
+                    'status' => 'Error',
+                    'message' => 'The email or the password is wrong.',
+                ], 400);
             }
         } catch (JWTException $e) {
-            return abort(500, 'could not create token');
-        } catch (\Throwable $e) {
-
+            return abort(500, 'Could not create token.');
+        } catch (ValidationException $e) {
+            return response()->json([
+                'status' => 'Error',
+                'message' => $e->validator->errors()->first(),
+            ], 400);
+        }
+        catch (Throwable $e) {
+            return abort(401, $e->getMessage());
         }
 
         return response()->json(compact('token'));
@@ -52,10 +62,10 @@ class AuthController extends Controller
      * METHOD: post
      * URL: /api/register
      *
-     * @param RegisterRequest $request
+     * @param Request $request
      * @return \Illuminate\Http\JsonResponse
      */
-    public function register(RegisterRequest $request)
+    public function register(Request $request)
     {
         $user = $this->userService->create($request->validated());
 

@@ -4,7 +4,7 @@ namespace App\Services\Auth;
 
 use App\Models\User;
 use App\Services\Auth\Contracts\UserServiceContract;
-use Illuminate\Auth\AuthenticationException;
+use JWTAuth;
 
 class UserService implements UserServiceContract
 {
@@ -17,6 +17,8 @@ class UserService implements UserServiceContract
     }
 
     /**
+     * Create User
+     *
      * @param array $data
      * @return \Illuminate\Database\Eloquent\Model | bool
      */
@@ -39,5 +41,17 @@ class UserService implements UserServiceContract
             return $user;
         }
         return false;
+    }
+
+
+    /**
+     * Create token for auth User
+     *
+     * @param array $data
+     * @return string
+     */
+    public function getToken(array $data): string
+    {
+        return JWTAuth::attempt($data);
     }
 }

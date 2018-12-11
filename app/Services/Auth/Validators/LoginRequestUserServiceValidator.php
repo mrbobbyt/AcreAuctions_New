@@ -2,28 +2,48 @@
 
 namespace App\Services\Auth\Validators;
 
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
 
 class LoginRequestUserServiceValidator
 {
-    public $request;
 
-    public function __construct(Request $request) {
-        $this->request = $request;
-    }
-
-
-    public function attempt() {
-
-
-        $company = null;
+    /**
+     * Return validated array of data
+     *
+     * @param Request $request
+     * @return array
+     */
+    public function attempt(Request $request): array
+    {
+        // Can include into returned data some another data like
+        /*return [
+            'company' => $company,
+            'body' => $this->validateBody($request)
+        ];*/
 
         return [
-            'company' => $company,
-            'body' => $this->validateBody()
+            'body' => $this->validateBody($request)
         ];
     }
 
-    public function validateBody():array {
-     // validator
+
+    /**
+     * Validate given data
+     *
+     * @param Request $request
+     * @return array
+     */
+    public function validateBody(Request $request): array
+    {
+        $validator = Validator::make( $request->all(), [
+                'email' => 'required|string|email|max:255|exists:users,email',
+                'password'=> 'required'
+            ], [
+                'email.exists' => 'The email or the password is wrong.',
+            ]
+        );
+
+        return $validator->validate();
     }
 }
