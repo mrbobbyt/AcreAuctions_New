@@ -4,6 +4,7 @@ namespace App\Http\Controllers\API\v1;
 
 use App\Http\Controllers\Controller;
 use App\Services\Auth\Validators\RegisterRequestUserServiceValidator;
+use App\Services\Auth\Validators\ResetPasswordRequestValidator;
 use Illuminate\Http\Request;
 use App\Services\Auth\Contracts\UserServiceContract;
 use App\Http\Resources\UserResource;
@@ -74,11 +75,6 @@ class AuthController extends Controller
         try {
             $data = (new RegisterRequestUserServiceValidator())->attempt($request);
             $user = $this->userService->create($data['body']);
-
-            if ($user === false) {
-                return abort(422, 'Failed to create new user.');
-            }
-
             $token = $this->userService->createToken($user);
 
         } catch (ValidationException $e) {
@@ -105,13 +101,13 @@ class AuthController extends Controller
         try {
             $this->userService->breakToken();
 
-            return response()->json(['User logged out successfully.']);
         } catch (JWTException $e) {
             return abort(401, $e->getMessage());
         } catch (Throwable $e) {
-            return abort(418, 'Sorry, the user cannot be logged out.');
+            return abort(500, 'Sorry, the user cannot be logged out.');
         }
 
+        return response()->json(['User logged out successfully.']);
     }
 
     public function forgotPassword()
@@ -119,9 +115,37 @@ class AuthController extends Controller
 
     }
 
-    public function resetPassword()
+    public function resetPassword(Request $request)
     {
 
+        try {
+            $data = app(ResetPasswordRequestValidator::class)->attempt($request);
+//            dd(0);
+            $token = $this->userService->getToken($data['body']);
+
+            // When email + pass does not match with user
+            if (!$token) {
+                return response()->json([
+                    'status' => 'Error',
+                    'message' => 'The current password is wrong.',
+                ], 400);
+            }
+
+            $this->userService->resetPassword($data['body']);
+
+        }catch (ValidationException $e) {
+            return response()->json([
+                'status' => 'Error',
+                'message' => $e->validator->errors()->first(),
+            ], 400);
+        } catch (Throwable $e) {
+            return abort(401, $e->getMessage());
+        }
+
+//        have to sent new token
+//        maybe need to sent email with access token
+
+        return response()->json(['The reset password has been sent! Please check your email.']);
     }
 
 
@@ -136,7 +160,7 @@ class AuthController extends Controller
     public function profile(): UserResource
     {
         try {
-            $user = JWTAuth::parseToken()->authenticate();
+            $user = $this->userService->authenticate();
 
             if (!$user) {
                 return abort(404, "User not found.");

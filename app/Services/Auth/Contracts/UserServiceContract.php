@@ -17,4 +17,6 @@ interface UserServiceContract
 
     public function authenticate();
 
+    public function resetPassword(array $data);
+
 }

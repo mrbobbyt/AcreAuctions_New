@@ -21,6 +21,7 @@ class UserService implements UserServiceContract
      *
      * @param array $data
      * @return \Illuminate\Database\Eloquent\Model | bool
+     * @throws \Throwable
      */
     public function create(array $data)
     {
@@ -37,7 +38,7 @@ class UserService implements UserServiceContract
 
         }*/
 
-        if ($user->save()) {
+        if ($user->saveOrFail()) {
             return $user;
         }
         return false;
@@ -52,7 +53,8 @@ class UserService implements UserServiceContract
      */
     public function getToken(array $data): string
     {
-        return JWTAuth::attempt($data);
+        $pwd = $data['current_password'] ? $data['current_password'] : $data['password'];
+        return JWTAuth::attempt(['email' => $data['email'], 'password' => $pwd]);
     }
 
 
@@ -71,7 +73,6 @@ class UserService implements UserServiceContract
     /**
      * Logout user and break token
      *
-     * @return $this
      */
     public function breakToken()
     {
@@ -82,10 +83,29 @@ class UserService implements UserServiceContract
     /**
      * Return authenticate user
      *
-     * @return \Tymon\JWTAuth\Contracts\JWTSubject|false
      */
     public function authenticate()
     {
         return JWTAuth::parseToken()->authenticate();
+    }
+
+
+    /**
+     * Reset user password
+     *
+     * @param array $data
+     */
+    public function resetPassword(array $data)
+    {
+        dd($data);
+        try {
+            $user = $this->model->query()
+                ->where('email', '=', $data['email'])
+                ->update([
+                    'password' => bcrypt($data['password'])
+                ]);
+        } catch (\Throwable $e) {
+            return abort(500, $e->getMessage());
+        }
     }
 }

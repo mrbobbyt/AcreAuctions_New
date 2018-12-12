@@ -24,3 +24,7 @@ Route::get('profile', 'API\v1\AuthController@profile')
 Route::get('logout', 'API\v1\AuthController@logout')
     ->name('logout')
     ->middleware('jwt.verify');
+
+Route::post('reset', 'API\v1\AuthController@resetPassword')
+    ->name('reset')
+    ->middleware('jwt.verify');

@@ -3,6 +3,7 @@
 namespace App\Services\Auth\Validators;
 
 use Illuminate\Http\Request;
+use Validator;
 
 interface AbstractValidator
 {
