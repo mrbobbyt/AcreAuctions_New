@@ -9,8 +9,6 @@ use Illuminate\Http\Request;
 use App\Services\Auth\Contracts\UserServiceContract;
 use App\Http\Resources\UserResource;
 
-use JWTAuth;
-
 use Throwable;
 use Tymon\JWTAuth\Exceptions\TokenExpiredException;
 use Tymon\JWTAuth\Exceptions\TokenInvalidException;
@@ -48,15 +46,14 @@ class AuthController extends Controller
                 ], 400);
             }
         } catch (JWTException $e) {
-            return abort(500, 'Could not create token.');
+            return abort(500, 'Sorry, could not create token.');
         } catch (ValidationException $e) {
             return response()->json([
                 'status' => 'Error',
                 'message' => $e->validator->errors()->first(),
             ], 400);
-        }
-        catch (Throwable $e) {
-            return abort(500, 'Something went wrong.');
+        } catch (Throwable $e) {
+            return abort(500, 'Sorry, the user could not login.');
         }
 
         return response()->json(compact('token'));
@@ -82,8 +79,10 @@ class AuthController extends Controller
                 'status' => 'Error',
                 'message' => $e->validator->errors()->first(),
             ], 400);
+        } catch (JWTException $e) {
+            return abort(500, 'Sorry, could not create token.');
         } catch (Throwable $e) {
-            return abort(500, 'Something went wrong.');
+            return abort(500, 'Sorry, the user could not register.');
         }
 
         return response()->json(compact('token'));
@@ -115,16 +114,23 @@ class AuthController extends Controller
 
     }
 
+
+    /**
+     * METHOD: post
+     * URL: /api/reset
+     *
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function resetPassword(Request $request)
     {
 
         try {
             $data = app(ResetPasswordRequestValidator::class)->attempt($request);
-//            dd(0);
-            $token = $this->userService->getToken($data['body']);
+            $tokenOld = $this->userService->getResetToken($data['body']);
 
             // When email + pass does not match with user
-            if (!$token) {
+            if (!$tokenOld) {
                 return response()->json([
                     'status' => 'Error',
                     'message' => 'The current password is wrong.',
@@ -133,24 +139,33 @@ class AuthController extends Controller
 
             $this->userService->resetPassword($data['body']);
 
-        }catch (ValidationException $e) {
+        } catch (ValidationException $e) {
             return response()->json([
                 'status' => 'Error',
                 'message' => $e->validator->errors()->first(),
             ], 400);
+        } catch (JWTException $e) {
+            return abort(401, $e->getMessage());
         } catch (Throwable $e) {
             return abort(401, $e->getMessage());
         }
 
 //        have to sent new token
 //        maybe need to sent email with access token
+//        return response()->json(['The reset password has been sent! Please check your email.']);
 
-        return response()->json(['The reset password has been sent! Please check your email.']);
+        try {
+            $token = $this->userService->getToken($data['body']);
+        } catch (JWTException $e) {
+            return abort(401, $e->getMessage());
+        }
+
+        return response()->json(compact('token'));
     }
 
 
     /**
-     * Return user profile
+     * Return auth user profile
      *
      * METHOD: get
      * URL: /api/profile

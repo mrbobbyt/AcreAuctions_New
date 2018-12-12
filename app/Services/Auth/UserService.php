@@ -4,9 +4,12 @@ namespace App\Services\Auth;
 
 use App\Models\User;
 use App\Services\Auth\Contracts\UserServiceContract;
+use Illuminate\Auth\AuthenticationException;
 use JWTAuth;
+use Throwable;
 
 class UserService implements UserServiceContract
+
 {
 
     protected $model;
@@ -20,28 +23,21 @@ class UserService implements UserServiceContract
      * Create User
      *
      * @param array $data
-     * @return \Illuminate\Database\Eloquent\Model | bool
+     * @return \Illuminate\Database\Eloquent\Model
      * @throws \Throwable
      */
-    public function create(array $data)
+    public function create(array $data): \Illuminate\Database\Eloquent\Model
     {
-        $user = $this->model->query()->make()->fill([
-            'fname' => array_get($data, 'fname'),
-            'lname' => array_get($data, 'lname'),
-            'email' => array_get($data, 'email'),
-            'password' => bcrypt(array_get($data, 'password')),
-        ]);
+        $data['password'] = bcrypt(array_get($data, 'password'));
+        $user = $this->model->query()->make()->fill($data);
 
-        /*try {
-            $user->save();
+        try {
+            $user->saveOrFail();
         } catch (AuthenticationException $e){
-
-        }*/
-
-        if ($user->saveOrFail()) {
-            return $user;
+            return abort(401, $e->getMessage());
         }
-        return false;
+
+        return $user;
     }
 
 
@@ -53,10 +49,20 @@ class UserService implements UserServiceContract
      */
     public function getToken(array $data): string
     {
-        $pwd = $data['current_password'] ? $data['current_password'] : $data['password'];
-        return JWTAuth::attempt(['email' => $data['email'], 'password' => $pwd]);
+        return JWTAuth::attempt(['email' => $data['email'], 'password' => $data['password']]);
     }
 
+
+    /**
+     * Create token for auth User
+     *
+     * @param array $data
+     * @return string
+     */
+    public function getResetToken(array $data): string
+    {
+        return JWTAuth::attempt(['email' => $data['email'], 'password' => $data['current_password']]);
+    }
 
     /**
      * Create token for new User
@@ -64,7 +70,7 @@ class UserService implements UserServiceContract
      * @param User $user
      * @return string
      */
-    public function createToken(User $user)
+    public function createToken(User $user): string
     {
         return JWTAuth::fromUser($user);
     }
@@ -83,6 +89,7 @@ class UserService implements UserServiceContract
     /**
      * Return authenticate user
      *
+     * @throws \Tymon\JWTAuth\Exceptions\JWTException
      */
     public function authenticate()
     {
@@ -94,18 +101,20 @@ class UserService implements UserServiceContract
      * Reset user password
      *
      * @param array $data
+     * @return bool
      */
-    public function resetPassword(array $data)
+    public function resetPassword(array $data): bool
     {
-        dd($data);
         try {
             $user = $this->model->query()
                 ->where('email', '=', $data['email'])
                 ->update([
                     'password' => bcrypt($data['password'])
                 ]);
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             return abort(500, $e->getMessage());
         }
+
+        return $user;
     }
 }

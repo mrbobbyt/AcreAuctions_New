@@ -2,22 +2,12 @@
 
 namespace App\Services\Auth\Validators;
 
-use App\Http\Resources\UserResource;
-use App\Repositories\Auth\Contracts\UserRepoContract;
 use App\Rules\CheckPasswordMatch;
 use Illuminate\Http\Request;
 use Validator;
 
 class ResetPasswordRequestValidator implements AbstractValidator
 {
-
-    protected $userRepo;
-
-    public function __construct(UserRepoContract $userRepo)
-    {
-        $this->userRepo = $userRepo;
-    }
-
 
     /**
      * Return validated array of data
@@ -27,10 +17,7 @@ class ResetPasswordRequestValidator implements AbstractValidator
      */
     public function attempt(Request $request): array
     {
-        $user = $this->userRepo->findByEmail($request->input('email'));
-
         return [
-            'user' => UserResource::make($user),
             'body' => $this->validateBody($request)
         ];
     }
