@@ -1,7 +1,5 @@
 <?php
 
-use Illuminate\Http\Request;
-
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -17,10 +15,6 @@ Route::post('register', 'API\v1\AuthController@register');
 
 Route::post('login', 'API\v1\AuthController@login');
 
-Route::get('profile', 'API\v1\AuthController@profile')
-    ->name('profile')
-    ->middleware('jwt.verify');
-
 Route::get('logout', 'API\v1\AuthController@logout')
     ->name('logout')
     ->middleware('jwt.verify');
@@ -28,3 +22,16 @@ Route::get('logout', 'API\v1\AuthController@logout')
 Route::post('reset', 'API\v1\AuthController@resetPassword')
     ->name('reset')
     ->middleware('jwt.verify');
+
+Route::post('forgot', 'API\v1\AuthController@forgotPassword')
+    ->name('forgot');
+
+Route::get('profile', 'API\v1\AuthController@profile')
+    ->name('profile')
+    ->middleware('jwt.verify');
+
+Route::get('{token}', function($token) {
+
+    $model = \App\Models\PasswordResets::where('token', '=', $token)->first();
+    return new \App\Http\Resources\UserResource($model->user);
+});

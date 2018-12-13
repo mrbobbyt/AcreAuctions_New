@@ -3,8 +3,10 @@
 namespace App\Http\Controllers\API\v1;
 
 use App\Http\Controllers\Controller;
+use App\Services\Auth\Validators\ForgotRequestUserServiceValidator;
 use App\Services\Auth\Validators\RegisterRequestUserServiceValidator;
 use App\Services\Auth\Validators\ResetPasswordRequestValidator;
+use App\Services\Auth\Validators\LoginRequestUserServiceValidator;
 use Illuminate\Http\Request;
 use App\Services\Auth\Contracts\UserServiceContract;
 use App\Http\Resources\UserResource;
@@ -14,7 +16,6 @@ use Tymon\JWTAuth\Exceptions\TokenExpiredException;
 use Tymon\JWTAuth\Exceptions\TokenInvalidException;
 use Tymon\JWTAuth\Exceptions\JWTException;
 use Illuminate\Validation\ValidationException;
-use App\Services\Auth\Validators\LoginRequestUserServiceValidator;
 
 class AuthController extends Controller
 {
@@ -109,8 +110,35 @@ class AuthController extends Controller
         return response()->json(['User logged out successfully.']);
     }
 
-    public function forgotPassword()
+
+    /**
+     * METHOD: post
+     * URL: /api/forgot
+     *
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function forgotPassword(Request $request)
     {
+        try {
+            $data = (new ForgotRequestUserServiceValidator())->attempt($request);
+
+            $this->userService->sendEmailWithToken($data);
+
+        } catch (ValidationException $e) {
+            return response()->json([
+                'status' => 'Error',
+                'message' => $e->validator->errors()->first(),
+            ], 400);
+        } catch (Throwable $e) {
+            return abort(401, $e->getMessage());
+        }
+
+        return response()->json(['The invitation token has been sent! Please check your email.']);
+
+        /*
+         * ...n. whejnyjitybzzzzn user went on link with received token - redirect him on reset password page
+         * */
 
     }
 
@@ -124,19 +152,8 @@ class AuthController extends Controller
      */
     public function resetPassword(Request $request)
     {
-
         try {
-            $data = app(ResetPasswordRequestValidator::class)->attempt($request);
-            $tokenOld = $this->userService->getResetToken($data['body']);
-
-            // When email + pass does not match with user
-            if (!$tokenOld) {
-                return response()->json([
-                    'status' => 'Error',
-                    'message' => 'The current password is wrong.',
-                ], 400);
-            }
-
+            $data = (new ResetPasswordRequestValidator())->attempt($request);
             $this->userService->resetPassword($data['body']);
 
         } catch (ValidationException $e) {
@@ -191,4 +208,5 @@ class AuthController extends Controller
 
         return UserResource::make($user);
     }
+
 }

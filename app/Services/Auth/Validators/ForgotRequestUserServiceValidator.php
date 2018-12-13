@@ -5,7 +5,8 @@ namespace App\Services\Auth\Validators;
 use Illuminate\Http\Request;
 use Validator;
 
-class ResetPasswordRequestValidator implements AbstractValidator
+class ForgotRequestUserServiceValidator implements AbstractValidator
+
 {
 
     /**
@@ -14,9 +15,12 @@ class ResetPasswordRequestValidator implements AbstractValidator
      * @param Request $request
      * @return array
      */
-    public function attempt(Request $request): array
+    public function attempt(Request $request)
     {
+        $token = bcrypt(str_random(10));
+
         return [
+            'token' => $token,
             'body' => $this->validateBody($request)
         ];
     }
@@ -27,11 +31,12 @@ class ResetPasswordRequestValidator implements AbstractValidator
      * @param Request $request
      * @return array
      */
-    public function validateBody(Request $request): array
+    public function validateBody(Request $request)
     {
         $validator = Validator::make($request->all(), [
             'email' => 'required|string|email|max:255|exists:users,email',
-            'password' => ['required', 'max:255', 'min:6', 'string', 'confirmed']
+        ], [
+            'email.exists' => 'User not found.'
         ]);
 
         return $validator->validate();

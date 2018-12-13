@@ -52,4 +52,15 @@ class User extends Authenticatable implements JWTSubject
         // TODO: Implement getJWTCustomClaims() method.
         return [];
     }
+
+
+    /**
+     * Get all reset tokens
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function resetTokens()
+    {
+        return $this->hasMany('App\Models\PasswordResets', 'email', 'email');
+    }
 }

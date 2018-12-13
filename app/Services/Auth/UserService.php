@@ -2,10 +2,13 @@
 
 namespace App\Services\Auth;
 
+use App\Mail\ForgotPasswordMail;
 use App\Models\User;
+use App\Models\PasswordResets;
 use App\Services\Auth\Contracts\UserServiceContract;
 use Illuminate\Auth\AuthenticationException;
 use JWTAuth;
+use Mail;
 use Throwable;
 
 class UserService implements UserServiceContract
@@ -52,17 +55,6 @@ class UserService implements UserServiceContract
         return JWTAuth::attempt(['email' => $data['email'], 'password' => $data['password']]);
     }
 
-
-    /**
-     * Create token for auth User
-     *
-     * @param array $data
-     * @return string
-     */
-    public function getResetToken(array $data): string
-    {
-        return JWTAuth::attempt(['email' => $data['email'], 'password' => $data['current_password']]);
-    }
 
     /**
      * Create token for new User
@@ -116,5 +108,48 @@ class UserService implements UserServiceContract
         }
 
         return $user;
+    }
+
+
+    /**
+     * Send email with invitation token when user forgot password
+     *
+     * @param array $data
+     */
+    public function sendEmailWithToken(array $data)
+    {
+        try {
+            // save token
+            $this->createForgotToken($data);
+
+            Mail::to($data['body']['email'])
+                ->send(new ForgotPasswordMail($data['token']));
+
+        } catch (Throwable $e) {
+            return abort(500, $e->getMessage());
+        }
+
+    }
+
+
+    /**
+     * Create reset token when user forgot password
+     *
+     * @param array $data
+     * @throws Throwable
+     */
+    public function createForgotToken(array $data)
+    {
+        $pwd = PasswordResets::query()->make()->fill([
+            'email' => $data['body']['email'],
+            'token' => $data['token'],
+            'created_at' => date('Y-m-d H:i:s')
+        ]);
+
+        try {
+            $pwd->saveOrFail();
+        } catch (AuthenticationException $e){
+            return abort(401, $e->getMessage());
+        }
     }
 }

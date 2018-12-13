@@ -3,6 +3,7 @@
 namespace App\Services\Auth\Contracts;
 
 use App\Models\User;
+use Throwable;
 
 interface UserServiceContract
 {
@@ -24,15 +25,6 @@ interface UserServiceContract
      * @return string
      */
     public function getToken(array $data);
-
-
-    /**
-     * Create token for auth User
-     *
-     * @param array $data
-     * @return string
-     */
-    public function getResetToken(array $data);
 
 
     /**
@@ -67,4 +59,20 @@ interface UserServiceContract
      */
     public function resetPassword(array $data);
 
+
+    /**
+     * Send email with invitation token when user forgot password
+     *
+     * @param array $data
+     */
+    public function sendEmailWithToken(array $data);
+
+
+    /**
+     * Create reset token when user forgot password
+     *
+     * @param array $data
+     * @throws Throwable
+     */
+    public function createForgotToken(array $data);
 }
