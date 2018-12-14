@@ -5,7 +5,7 @@ namespace App\Services\Auth\Contracts;
 use Illuminate\Database\Eloquent\Model;
 use Throwable;
 
-interface UserServiceContract
+interface UserAuthServiceContract
 {
 
     /**
@@ -41,14 +41,6 @@ interface UserServiceContract
      *
      */
     public function breakToken();
-
-
-    /**
-     * Return authenticate user
-     *
-     * @throws \Tymon\JWTAuth\Exceptions\JWTException
-     */
-    public function authenticate();
 
 
     /**

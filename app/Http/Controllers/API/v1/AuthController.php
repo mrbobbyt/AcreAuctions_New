@@ -4,9 +4,9 @@ namespace App\Http\Controllers\API\v1;
 
 use App\Http\Controllers\Controller;
 
+use App\Services\Auth\Contracts\UserAuthServiceContract;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use App\Services\Auth\Contracts\UserServiceContract;
 use App\Http\Resources\UserResource;
 
 use App\Services\Auth\Validators\ForgotRequestUserServiceValidator;
@@ -15,8 +15,6 @@ use App\Services\Auth\Validators\ResetPasswordRequestValidator;
 use App\Services\Auth\Validators\LoginRequestUserServiceValidator;
 
 use Throwable;
-use Tymon\JWTAuth\Exceptions\TokenExpiredException;
-use Tymon\JWTAuth\Exceptions\TokenInvalidException;
 use Tymon\JWTAuth\Exceptions\JWTException;
 use Illuminate\Validation\ValidationException;
 
@@ -25,7 +23,7 @@ class AuthController extends Controller
 
     protected $userService;
 
-    public function __construct(UserServiceContract $userService)
+    public function __construct(UserAuthServiceContract $userService)
     {
         $this->userService = $userService;
     }
@@ -39,7 +37,7 @@ class AuthController extends Controller
      * @throws ValidationException
      * @return JsonResponse
      */
-    public function login(Request $request)
+    public function login(Request $request): JsonResponse
     {
         try {
             $data = app(LoginRequestUserServiceValidator::class)->attempt($request);
@@ -74,7 +72,7 @@ class AuthController extends Controller
      * @throws Throwable
      * @return JsonResponse
      */
-    public function register(Request $request)
+    public function register(Request $request): JsonResponse
     {
         try {
             $data = (new RegisterRequestUserServiceValidator())->attempt($request);
@@ -113,7 +111,7 @@ class AuthController extends Controller
      * @throws Throwable
      * @return JsonResponse
      */
-    public function logout()
+    public function logout(): JsonResponse
     {
         try {
             $this->userService->breakToken();
@@ -146,7 +144,7 @@ class AuthController extends Controller
      * @throws Throwable
      * @return JsonResponse
      */
-    public function forgotPassword(Request $request)
+    public function forgotPassword(Request $request): JsonResponse
     {
         try {
             $data = (new ForgotRequestUserServiceValidator())->attempt($request);
@@ -186,7 +184,7 @@ class AuthController extends Controller
      * @throws Throwable
      * @return JsonResponse
      */
-    public function resetPassword(Request $request)
+    public function resetPassword(Request $request): JsonResponse
     {
         try {
             $data = (new ResetPasswordRequestValidator())->attempt($request);
@@ -218,52 +216,6 @@ class AuthController extends Controller
             'status' => 'Success',
             'token' => $token
         ]);
-    }
-
-
-    /**
-     * Return auth user profile
-     *
-     * METHOD: get
-     * URL: /api/profile
-     *
-     * @throws JWTException
-     * @throws TokenInvalidException
-     * @throws TokenExpiredException
-     * @throws Throwable
-     * @return JsonResponse
-     */
-    public function profile(): JsonResponse
-    {
-        try {
-            $user = $this->userService->authenticate();
-
-        } catch (TokenExpiredException $e) {
-            return response()->json([
-                'status' => 'Error',
-                'message' => $e->getMessage()
-            ], 400);
-        } catch (TokenInvalidException $e) {
-            return response()->json([
-                'status' => 'Error',
-                'message' => $e->getMessage()
-                ], 400);
-        } catch (JWTException $e) {
-            return response()->json([
-                'status' => 'Error',
-                'message' => $e->getMessage()
-                ], 403);
-        } catch (Throwable $e) {
-            return response()->json([
-                'status' => 'Error',
-                'message' => $e->getMessage()
-                ], 500);
-        }
-
-        return response()->json([
-            'status' => 'Success',
-            'user' => UserResource::make($user)
-            ]);
     }
 
 }

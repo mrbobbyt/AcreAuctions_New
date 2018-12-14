@@ -3,19 +3,18 @@
 namespace App\Services\Auth;
 
 use App\Mail\ForgotPasswordMail;
-use App\Models\User;
 use App\Models\PasswordResets;
+use App\Models\User;
 use Mail;
 
-use App\Repositories\Auth\Contracts\UserRepoContract;
-use App\Services\Auth\Contracts\UserServiceContract;
+use App\Repositories\User\Contracts\UserRepoContract;
+use App\Services\Auth\Contracts\UserAuthServiceContract;
 
 use JWTAuth;
 use Throwable;
 use Illuminate\Database\Eloquent\Model;
-use Tymon\JWTAuth\Exceptions\JWTException;
 
-class UserService implements UserServiceContract
+class UserAuthService implements UserAuthServiceContract
 
 {
 
@@ -78,17 +77,6 @@ class UserService implements UserServiceContract
     public function breakToken()
     {
         return JWTAuth::invalidate(JWTAuth::getToken());
-    }
-
-
-    /**
-     * Return authenticate user
-     *
-     * @throws JWTException
-     */
-    public function authenticate()
-    {
-        return JWTAuth::parseToken()->authenticate();
     }
 
 

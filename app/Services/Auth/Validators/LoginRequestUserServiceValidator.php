@@ -3,9 +3,9 @@
 namespace App\Services\Auth\Validators;
 
 use App\Models\User;
-use App\Repositories\Auth\Contracts\UserRepoContract;
+use App\Repositories\User\Contracts\UserRepoContract;
 use App\Rules\CheckPassword;
-use App\Services\Auth\Contracts\UserServiceContract;
+use App\Services\Auth\Contracts\UserAuthServiceContract;
 use Illuminate\Http\Request;
 use Validator;
 
@@ -15,7 +15,7 @@ class LoginRequestUserServiceValidator
     protected $userRepo;
     protected $userService;
 
-    public function __construct(UserRepoContract $userRepo, UserServiceContract $userService)
+    public function __construct(UserRepoContract $userRepo, UserAuthServiceContract $userService)
     {
         $this->userRepo = $userRepo;
         $this->userService = $userService;

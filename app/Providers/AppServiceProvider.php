@@ -4,11 +4,14 @@ namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
 
-use App\Services\Auth\UserService;
-use App\Services\Auth\Contracts\UserServiceContract;
+use App\Services\Auth\UserAuthService;
+use App\Services\Auth\Contracts\UserAuthServiceContract;
 
-use App\Repositories\Auth\Contracts\UserRepoContract;
-use App\Repositories\Auth\UserRepository;
+use App\Repositories\User\Contracts\UserRepoContract;
+use App\Repositories\User\UserRepository;
+
+use App\Services\User\Contracts\UserServiceContract;
+use App\Services\User\UserService;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -34,13 +37,18 @@ class AppServiceProvider extends ServiceProvider
         }
 
         $this->app->bind(
-            UserServiceContract::class,
-            UserService::class
+            UserAuthServiceContract::class,
+            UserAuthService::class
         );
 
         $this->app->bind(
             UserRepoContract::class,
             UserRepository::class
+        );
+
+        $this->app->bind(
+            UserServiceContract::class,
+            UserService::class
         );
     }
 }

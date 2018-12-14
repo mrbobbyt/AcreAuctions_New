@@ -1,9 +1,9 @@
 <?php
 
-namespace App\Repositories\Auth;
+namespace App\Repositories\User;
 
 use App\Models\User;
-use App\Repositories\Auth\Contracts\UserRepoContract;
+use App\Repositories\User\Contracts\UserRepoContract;
 use Illuminate\Database\Eloquent\Model;
 
 class UserRepository implements UserRepoContract
