@@ -34,7 +34,8 @@ Route::get('profile', 'API\v1\AuthController@profile')
 
 /*Route::get('reset/{token}', function($token) {
     $model = \App\Models\PasswordResets::where('token', '=', $token)->first();
-    return new \App\Http\Resources\UserResource($model->user);
+//    return new \App\Http\Resources\UserResource($model->user);
+    return response()->json(['role' => $model->user->getRole]);
 });
 
 Route::get('user/{id}', function($id) {

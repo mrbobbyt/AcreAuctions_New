@@ -2,6 +2,7 @@
 
 namespace App\Services\Auth\Validators;
 
+use App\Rules\CheckRole;
 use Illuminate\Http\Request;
 use Validator;
 
@@ -35,6 +36,7 @@ class RegisterRequestUserServiceValidator implements AbstractValidator
             'fname' => 'string|max:255|min:3',
             'lname' => 'string|max:255|min:3',
             'password'=> 'required|max:255|min:6|confirmed|string',
+            'role' => ['integer', new CheckRole]
         ]);
 
         return $validator->validate();

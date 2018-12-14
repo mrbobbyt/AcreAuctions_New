@@ -14,6 +14,7 @@ use Tymon\JWTAuth\Contracts\JWTSubject;
  * @property string password
  * @property string email
  * @property string rememberToken
+ * @property int role
  */
 class User extends Authenticatable implements JWTSubject
 {
@@ -25,7 +26,7 @@ class User extends Authenticatable implements JWTSubject
      * @var array
      */
     protected $fillable = [
-        'fname', 'lname', 'email', 'password'
+        'fname', 'lname', 'email', 'password', 'role'
     ];
 
     protected $guarded = ['id'];
@@ -70,5 +71,16 @@ class User extends Authenticatable implements JWTSubject
     public function resetTokens()
     {
         return $this->hasMany('App\Models\PasswordResets', 'email', 'email');
+    }
+
+
+    /**
+     * Get user role
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function getRoleName()
+    {
+        return $this->belongsTo('App\Models\Role', 'role', 'id');
     }
 }

@@ -2,33 +2,23 @@
 
 namespace App\Rules;
 
-use App\Models\User;
-use Hash;
 use Illuminate\Contracts\Validation\Rule;
 
-class CheckPassword implements Rule
+class CheckRole implements Rule
 {
-
-    protected $user;
-
-    public function __construct(User $user)
-    {
-        $this->user = $user;
-    }
-
 
     /**
      * Determine if the validation rule passes.
      *
      * @param  string  $attribute
-     * @param  User  $value
+     * @param  mixed  $value
      * @return bool
      */
     public function passes($attribute, $value)
     {
-        return Hash::check($value, $this->user->password);
+        $roles = [2, 3];
+        return in_array($value, $roles);
     }
-
 
     /**
      * Get the validation error message.
@@ -37,6 +27,6 @@ class CheckPassword implements Rule
      */
     public function message()
     {
-        return 'The email or the password is wrong.';
+        return 'The invalid user role.';
     }
 }

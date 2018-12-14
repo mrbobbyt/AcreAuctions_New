@@ -41,7 +41,6 @@ class UserService implements UserServiceContract
     {
         $data['password'] = bcrypt(array_get($data, 'password'));
         $user = $this->model->query()->make()->fill($data);
-
         $user->saveOrFail();
 
         return $user;
