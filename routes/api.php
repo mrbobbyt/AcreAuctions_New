@@ -30,8 +30,14 @@ Route::get('profile', 'API\v1\AuthController@profile')
     ->name('profile')
     ->middleware('jwt.verify');
 
-Route::get('{token}', function($token) {
 
+
+/*Route::get('reset/{token}', function($token) {
     $model = \App\Models\PasswordResets::where('token', '=', $token)->first();
     return new \App\Http\Resources\UserResource($model->user);
 });
+
+Route::get('user/{id}', function($id) {
+    $model = \App\Models\User::query()->findOrFail($id);
+    return new \App\Http\Resources\UserResource($model);
+});*/

@@ -4,6 +4,7 @@ namespace App\Repositories\Auth;
 
 use App\Models\User;
 use App\Repositories\Auth\Contracts\UserRepoContract;
+use Illuminate\Database\Eloquent\Model;
 
 class UserRepository implements UserRepoContract
 {
@@ -12,10 +13,11 @@ class UserRepository implements UserRepoContract
      * Find user using id
      *
      * @param int $id
+     * @return Model
      */
-    public function findByPk(int $id)
+    public function findByPk(int $id): Model
     {
-        //
+        return User::query()->findOrFail($id);
     }
 
 
@@ -27,6 +29,6 @@ class UserRepository implements UserRepoContract
      */
     public function findByEmail(string $email): User
     {
-        return User::where('email', $email)->first();
+        return User::query()->where('email', $email)->firstOrFail();
     }
 }

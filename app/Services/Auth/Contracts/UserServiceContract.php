@@ -2,7 +2,7 @@
 
 namespace App\Services\Auth\Contracts;
 
-use App\Models\User;
+use Illuminate\Database\Eloquent\Model;
 use Throwable;
 
 interface UserServiceContract
@@ -12,8 +12,8 @@ interface UserServiceContract
      * Create User
      *
      * @param array $data
-     * @return \Illuminate\Database\Eloquent\Model
-     * @throws \Throwable
+     * @return Model
+     * @throws Throwable
      */
     public function create(array $data);
 
@@ -30,10 +30,10 @@ interface UserServiceContract
     /**
      * Create token for new User
      *
-     * @param User $user
+     * @param $user
      * @return string
      */
-    public function createToken(User $user);
+    public function createToken($user);
 
 
     /**
@@ -56,6 +56,7 @@ interface UserServiceContract
      *
      * @param array $data
      * @return bool
+     * @throws Throwable
      */
     public function resetPassword(array $data);
 
@@ -64,6 +65,7 @@ interface UserServiceContract
      * Send email with invitation token when user forgot password
      *
      * @param array $data
+     * @throws Throwable
      */
     public function sendEmailWithToken(array $data);
 
@@ -73,6 +75,7 @@ interface UserServiceContract
      *
      * @param array $data
      * @throws Throwable
+     * @return bool
      */
     public function createForgotToken(array $data);
 }

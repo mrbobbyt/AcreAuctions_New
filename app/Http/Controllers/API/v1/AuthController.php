@@ -3,13 +3,16 @@
 namespace App\Http\Controllers\API\v1;
 
 use App\Http\Controllers\Controller;
+
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+use App\Services\Auth\Contracts\UserServiceContract;
+use App\Http\Resources\UserResource;
+
 use App\Services\Auth\Validators\ForgotRequestUserServiceValidator;
 use App\Services\Auth\Validators\RegisterRequestUserServiceValidator;
 use App\Services\Auth\Validators\ResetPasswordRequestValidator;
 use App\Services\Auth\Validators\LoginRequestUserServiceValidator;
-use Illuminate\Http\Request;
-use App\Services\Auth\Contracts\UserServiceContract;
-use App\Http\Resources\UserResource;
 
 use Throwable;
 use Tymon\JWTAuth\Exceptions\TokenExpiredException;
@@ -19,6 +22,7 @@ use Illuminate\Validation\ValidationException;
 
 class AuthController extends Controller
 {
+
     protected $userService;
 
     public function __construct(UserServiceContract $userService)
@@ -32,32 +36,31 @@ class AuthController extends Controller
      * URL: /api/login
      *
      * @param Request $request
-     * @return \Illuminate\Http\JsonResponse
+     * @throws ValidationException
+     * @return JsonResponse
      */
     public function login(Request $request)
     {
         try {
-            $data = (new LoginRequestUserServiceValidator())->attempt($request);
-            $token = $this->userService->getToken($data['body']);
+            $data = app(LoginRequestUserServiceValidator::class)->attempt($request);
 
-            if (!$token) {
-                return response()->json([
-                    'status' => 'Error',
-                    'message' => 'The email or the password is wrong.',
-                ], 400);
-            }
-        } catch (JWTException $e) {
-            return abort(500, 'Sorry, could not create token.');
         } catch (ValidationException $e) {
             return response()->json([
                 'status' => 'Error',
                 'message' => $e->validator->errors()->first(),
             ], 400);
         } catch (Throwable $e) {
-            return abort(500, 'Sorry, the user could not login.');
+            return response()->json([
+                'status' => 'Error',
+                'message' => 'Sorry, the user could not login.'
+            ], 500);
         }
 
-        return response()->json(compact('token'));
+        return response()->json([
+            'status' => 'Success',
+            'token' => $data['token'],
+            'user' => UserResource::make($data['user'])
+        ]);
     }
 
 
@@ -66,7 +69,10 @@ class AuthController extends Controller
      * URL: /api/register
      *
      * @param Request $request
-     * @return \Illuminate\Http\JsonResponse
+     * @throws ValidationException
+     * @throws JWTException
+     * @throws Throwable
+     * @return JsonResponse
      */
     public function register(Request $request)
     {
@@ -81,12 +87,21 @@ class AuthController extends Controller
                 'message' => $e->validator->errors()->first(),
             ], 400);
         } catch (JWTException $e) {
-            return abort(500, 'Sorry, could not create token.');
+            return response()->json([
+                'status' => 'Error',
+                'message' => 'Sorry, could not create token.'
+            ], 500);
         } catch (Throwable $e) {
-            return abort(500, 'Sorry, the user could not register.');
+            return response()->json([
+                'status' => 'Error',
+                'message' => 'Sorry, the user could not register.'
+            ], 500);
         }
 
-        return response()->json(compact('token'));
+        return response()->json([
+            'status' => 'Success',
+            'token' => $token
+        ]);
     }
 
 
@@ -94,7 +109,9 @@ class AuthController extends Controller
      * METHOD: get
      * URL: /api/logout
      *
-     * @return \Illuminate\Http\JsonResponse
+     * @throws JWTException
+     * @throws Throwable
+     * @return JsonResponse
      */
     public function logout()
     {
@@ -102,12 +119,21 @@ class AuthController extends Controller
             $this->userService->breakToken();
 
         } catch (JWTException $e) {
-            return abort(401, $e->getMessage());
+            return response()->json([
+                'status' => 'Error',
+                'message' => $e->getMessage()
+            ], 401);
         } catch (Throwable $e) {
-            return abort(500, 'Sorry, the user cannot be logged out.');
+            return response()->json([
+                'status' => 'Error',
+                'message' => 'Sorry, the user cannot be logged out.'
+            ], 500);
         }
 
-        return response()->json(['User logged out successfully.']);
+        return response()->json([
+            'status' => 'Success',
+            'message' => 'User logged out successfully.'
+        ]);
     }
 
 
@@ -116,13 +142,14 @@ class AuthController extends Controller
      * URL: /api/forgot
      *
      * @param Request $request
-     * @return \Illuminate\Http\JsonResponse
+     * @throws ValidationException
+     * @throws Throwable
+     * @return JsonResponse
      */
     public function forgotPassword(Request $request)
     {
         try {
             $data = (new ForgotRequestUserServiceValidator())->attempt($request);
-
             $this->userService->sendEmailWithToken($data);
 
         } catch (ValidationException $e) {
@@ -131,13 +158,19 @@ class AuthController extends Controller
                 'message' => $e->validator->errors()->first(),
             ], 400);
         } catch (Throwable $e) {
-            return abort(401, $e->getMessage());
+            return response()->json([
+                'status' => 'Error',
+                'message' => $e->getMessage()
+                ], 401);
         }
 
-        return response()->json(['The invitation token has been sent! Please check your email.']);
+        return response()->json([
+            'status' => 'Success',
+            'message' => 'The invitation token has been sent! Please check your email.'
+        ]);
 
         /*
-         * ...n. whejnyjitybzzzzn user went on link with received token - redirect him on reset password page
+         * when user went on link with received token - redirect him on reset password page
          * */
 
     }
@@ -148,13 +181,17 @@ class AuthController extends Controller
      * URL: /api/reset
      *
      * @param Request $request
-     * @return \Illuminate\Http\JsonResponse
+     * @throws ValidationException
+     * @throws JWTException
+     * @throws Throwable
+     * @return JsonResponse
      */
     public function resetPassword(Request $request)
     {
         try {
             $data = (new ResetPasswordRequestValidator())->attempt($request);
             $this->userService->resetPassword($data['body']);
+            $token = $this->userService->getToken($data['body']);
 
         } catch (ValidationException $e) {
             return response()->json([
@@ -162,22 +199,25 @@ class AuthController extends Controller
                 'message' => $e->validator->errors()->first(),
             ], 400);
         } catch (JWTException $e) {
-            return abort(401, $e->getMessage());
+            return response()->json([
+                'status' => 'Error',
+                'message' => $e->getMessage()
+                ], 401);
         } catch (Throwable $e) {
-            return abort(401, $e->getMessage());
+            return response()->json([
+                'status' => 'Error',
+                'message' => $e->getMessage()
+            ], 500);
         }
 
 //        have to sent new token
 //        maybe need to sent email with access token
 //        return response()->json(['The reset password has been sent! Please check your email.']);
 
-        try {
-            $token = $this->userService->getToken($data['body']);
-        } catch (JWTException $e) {
-            return abort(401, $e->getMessage());
-        }
-
-        return response()->json(compact('token'));
+        return response()->json([
+            'status' => 'Success',
+            'token' => $token
+        ]);
     }
 
 
@@ -187,26 +227,43 @@ class AuthController extends Controller
      * METHOD: get
      * URL: /api/profile
      *
-     * @return UserResource
+     * @throws JWTException
+     * @throws TokenInvalidException
+     * @throws TokenExpiredException
+     * @throws Throwable
+     * @return JsonResponse
      */
-    public function profile(): UserResource
+    public function profile(): JsonResponse
     {
         try {
             $user = $this->userService->authenticate();
 
-            if (!$user) {
-                return abort(404, "User not found.");
-            }
-
         } catch (TokenExpiredException $e) {
-            return abort(400, $e->getMessage());
+            return response()->json([
+                'status' => 'Error',
+                'message' => $e->getMessage()
+            ], 400);
         } catch (TokenInvalidException $e) {
-            return abort(400, $e->getMessage());
+            return response()->json([
+                'status' => 'Error',
+                'message' => $e->getMessage()
+                ], 400);
         } catch (JWTException $e) {
-            return abort(403, $e->getMessage());
+            return response()->json([
+                'status' => 'Error',
+                'message' => $e->getMessage()
+                ], 403);
+        } catch (Throwable $e) {
+            return response()->json([
+                'status' => 'Error',
+                'message' => $e->getMessage()
+                ], 500);
         }
 
-        return UserResource::make($user);
+        return response()->json([
+            'status' => 'Success',
+            'user' => UserResource::make($user)
+            ]);
     }
 
 }

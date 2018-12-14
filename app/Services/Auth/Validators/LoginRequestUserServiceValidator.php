@@ -2,11 +2,25 @@
 
 namespace App\Services\Auth\Validators;
 
+use App\Models\User;
+use App\Repositories\Auth\Contracts\UserRepoContract;
+use App\Rules\CheckPassword;
+use App\Services\Auth\Contracts\UserServiceContract;
 use Illuminate\Http\Request;
 use Validator;
 
-class LoginRequestUserServiceValidator implements AbstractValidator
+class LoginRequestUserServiceValidator
 {
+
+    protected $userRepo;
+    protected $userService;
+
+    public function __construct(UserRepoContract $userRepo, UserServiceContract $userService)
+    {
+        $this->userRepo = $userRepo;
+        $this->userService = $userService;
+    }
+
 
     /**
      * Return validated array of data
@@ -16,8 +30,13 @@ class LoginRequestUserServiceValidator implements AbstractValidator
      */
     public function attempt(Request $request): array
     {
+        $user = $this->userRepo->findByEmail($request->input('email'));
+        $token = $this->userService->getToken($request->only('email', 'password'));
+
         return [
-            'body' => $this->validateBody($request)
+            'body' => $this->validateBody($request, $user),
+            'token' => $token,
+            'user' => $user
         ];
     }
 
@@ -26,13 +45,14 @@ class LoginRequestUserServiceValidator implements AbstractValidator
      * Validate given data
      *
      * @param Request $request
+     * @param User $user
      * @return array
      */
-    public function validateBody(Request $request): array
+    public function validateBody(Request $request, User $user): array
     {
         $validator = Validator::make($request->all(), [
                 'email' => 'required|string|email|max:255|exists:users,email',
-                'password'=> 'required'
+                'password'=> ['required', new CheckPassword($user)]
             ], [
                 'email.exists' => 'The email or the password is wrong.',
             ]

@@ -5,40 +5,44 @@ namespace App\Services\Auth;
 use App\Mail\ForgotPasswordMail;
 use App\Models\User;
 use App\Models\PasswordResets;
-use App\Services\Auth\Contracts\UserServiceContract;
-use Illuminate\Auth\AuthenticationException;
-use JWTAuth;
 use Mail;
+
+use App\Repositories\Auth\Contracts\UserRepoContract;
+use App\Services\Auth\Contracts\UserServiceContract;
+
+use JWTAuth;
 use Throwable;
+use Illuminate\Database\Eloquent\Model;
+use Tymon\JWTAuth\Exceptions\JWTException;
 
 class UserService implements UserServiceContract
 
 {
 
     protected $model;
+    protected $userRepo;
 
-    public function __construct(User $user)
+
+    public function __construct(User $user, UserRepoContract $userRepo)
     {
         $this->model = $user;
+        $this->userRepo = $userRepo;
     }
+
 
     /**
      * Create User
      *
      * @param array $data
-     * @return \Illuminate\Database\Eloquent\Model
-     * @throws \Throwable
+     * @return Model
+     * @throws Throwable
      */
-    public function create(array $data): \Illuminate\Database\Eloquent\Model
+    public function create(array $data): Model
     {
         $data['password'] = bcrypt(array_get($data, 'password'));
         $user = $this->model->query()->make()->fill($data);
 
-        try {
-            $user->saveOrFail();
-        } catch (AuthenticationException $e){
-            return abort(401, $e->getMessage());
-        }
+        $user->saveOrFail();
 
         return $user;
     }
@@ -59,10 +63,10 @@ class UserService implements UserServiceContract
     /**
      * Create token for new User
      *
-     * @param User $user
+     * @param $user
      * @return string
      */
-    public function createToken(User $user): string
+    public function createToken($user): string
     {
         return JWTAuth::fromUser($user);
     }
@@ -81,7 +85,7 @@ class UserService implements UserServiceContract
     /**
      * Return authenticate user
      *
-     * @throws \Tymon\JWTAuth\Exceptions\JWTException
+     * @throws JWTException
      */
     public function authenticate()
     {
@@ -94,20 +98,14 @@ class UserService implements UserServiceContract
      *
      * @param array $data
      * @return bool
+     * @throws Throwable
      */
     public function resetPassword(array $data): bool
     {
-        try {
-            $user = $this->model->query()
-                ->where('email', '=', $data['email'])
-                ->update([
-                    'password' => bcrypt($data['password'])
-                ]);
-        } catch (Throwable $e) {
-            return abort(500, $e->getMessage());
-        }
+        $user = $this->userRepo->findByEmail($data['email']);
+        $user->password = bcrypt($data['password']);
 
-        return $user;
+        return $user->saveOrFail();
     }
 
 
@@ -115,20 +113,14 @@ class UserService implements UserServiceContract
      * Send email with invitation token when user forgot password
      *
      * @param array $data
+     * @throws Throwable
      */
-    public function sendEmailWithToken(array $data)
+    public function sendEmailWithToken(array $data): void
     {
-        try {
-            // save token
-            $this->createForgotToken($data);
+        $this->createForgotToken($data);
 
-            Mail::to($data['body']['email'])
-                ->send(new ForgotPasswordMail($data['token']));
-
-        } catch (Throwable $e) {
-            return abort(500, $e->getMessage());
-        }
-
+        Mail::to($data['body']['email'])
+            ->send(new ForgotPasswordMail($data['token']));
     }
 
 
@@ -137,8 +129,9 @@ class UserService implements UserServiceContract
      *
      * @param array $data
      * @throws Throwable
+     * @return bool
      */
-    public function createForgotToken(array $data)
+    public function createForgotToken(array $data): bool
     {
         $pwd = PasswordResets::query()->make()->fill([
             'email' => $data['body']['email'],
@@ -146,10 +139,6 @@ class UserService implements UserServiceContract
             'created_at' => date('Y-m-d H:i:s')
         ]);
 
-        try {
-            $pwd->saveOrFail();
-        } catch (AuthenticationException $e){
-            return abort(401, $e->getMessage());
-        }
+        return $pwd->saveOrFail();
     }
 }
