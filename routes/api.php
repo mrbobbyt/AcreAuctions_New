@@ -46,6 +46,11 @@ Route::get('user/delete/{id}', 'API\v1\UserController@delete')
 
 
 
+
+Route::get('login', 'API\v1\FacebookController@index');
+Route::get('login-fb', 'API\v1\FacebookController@fb');
+Route::get('profile-fb', 'API\v1\FacebookController@getProfile');
+
 /*Route::get('reset/{token}', function($token) {
     $model = \App\Models\PasswordResets::where('token', '=', $token)->first();
 //    return new \App\Http\Resources\UserResource($model->user);

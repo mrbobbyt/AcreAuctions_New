@@ -40,4 +40,10 @@ return [
         ],
     ],
 
+    'fb' => [
+        'app_id' => env('FB_APP_ID'),
+        'app_secret' => env('FB_APP_SECRET'),
+        'default_graph_version' => env('FB_GRAPH_VER'),
+    ],
+
 ];
