@@ -79,7 +79,7 @@ class UserController extends Controller
      * Return user profile by id
      *
      * METHOD: get
-     * URL: /api/view/id
+     * URL: /api/view/{id}
      *
      * @param int $id
      * @return JsonResponse
@@ -107,15 +107,16 @@ class UserController extends Controller
      * Update auth user info
      *
      * METHOD: post
-     * URL: /api/update
+     * URL: /api/update/{id}
      *
      * @param Request $request
+     * @param int $id
      * @return JsonResponse
      */
-    public function update(Request $request): JsonResponse
+    public function update(Request $request, int $id): JsonResponse
     {
         try {
-            $data = (new UpdateRequestUserServiceValidator())->attempt($request);
+            $data = app(UpdateRequestUserServiceValidator::class)->attempt($request, $id);
             $user = $this->userService->update($data['body']);
 
         } catch (Throwable $e) {
@@ -128,6 +129,34 @@ class UserController extends Controller
         return response()->json([
             'status' => 'Success',
             'user' => UserResource::make($user)
+        ]);
+    }
+
+
+    /**
+     * Delete auth user
+     *
+     * METHOD: get
+     * URL: /api/delete/{id}
+     *
+     * @param int $id
+     * @return JsonResponse
+     */
+    public function delete(int $id): JsonResponse
+    {
+        try {
+            $this->userService->delete($id);
+
+        } catch (Throwable $e) {
+            return response()->json([
+                'status' => 'Error',
+                'message' => $e->getMessage()
+            ], 500);
+        }
+
+        return response()->json([
+            'status' => 'Success',
+            'user' => 'User successfully deleted.'
         ]);
     }
 }

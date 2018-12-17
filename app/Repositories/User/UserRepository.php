@@ -4,6 +4,7 @@ namespace App\Repositories\User;
 
 use App\Models\User;
 use App\Repositories\User\Contracts\UserRepoContract;
+use Exception;
 use Illuminate\Database\Eloquent\Model;
 
 class UserRepository implements UserRepoContract
@@ -13,11 +14,16 @@ class UserRepository implements UserRepoContract
      * Find user using id
      *
      * @param int $id
+     * @throws Exception
      * @return Model
      */
     public function findByPk(int $id): Model
     {
-        return User::query()->findOrFail($id);
+        if ($user = User::query()->find($id)) {
+            return $user;
+        }
+
+        throw new Exception('User not exist.');
     }
 
 
@@ -25,10 +31,15 @@ class UserRepository implements UserRepoContract
      * Find user using email
      *
      * @param string $email
+     * @throws Exception
      * @return User
      */
     public function findByEmail(string $email): User
     {
-        return User::query()->where('email', $email)->firstOrFail();
+        if ($user = User::query()->where('email', $email)->first()) {
+            return $user;
+        }
+
+        throw new Exception('User not exist.');
     }
 }

@@ -2,10 +2,9 @@
 
 namespace App\Services\User;
 
-
-use App\Models\User;
 use App\Repositories\User\Contracts\UserRepoContract;
 use App\Services\User\Contracts\UserServiceContract;
+use Exception;
 use Tymon\JWTAuth\Contracts\JWTSubject;
 use JWTAuth;
 
@@ -14,13 +13,11 @@ use Tymon\JWTAuth\Exceptions\JWTException;
 class UserService implements UserServiceContract
 {
 
-    protected $model;
     protected $userRepo;
 
 
-    public function __construct(User $user, UserRepoContract $userRepo)
+    public function __construct(UserRepoContract $userRepo)
     {
-        $this->model = $user;
         $this->userRepo = $userRepo;
     }
 
@@ -41,8 +38,8 @@ class UserService implements UserServiceContract
      * Update user
      *
      * @param array $data
-     * @return false|JWTSubject
      * @throws JWTException
+     * @return false|JWTSubject
      */
     public function update(array $data)
     {
@@ -56,4 +53,43 @@ class UserService implements UserServiceContract
         return $user;
     }
 
+
+    /**
+     * Return id auth user
+     *
+     * @return int
+     * @throw JWTException
+     * @throws Exception
+     */
+    public function getID(): int
+    {
+        if ($user = JWTAuth::authenticate()) {
+            return $user->id;
+        }
+
+        throw new Exception('Invalid token.');
+    }
+
+
+    /**
+     * Delete auth user
+     *
+     * @param int $id
+     * @throws Exception
+     * @return bool
+     */
+    public function delete(int $id): bool
+    {
+        if ($id != $this->getID()) {
+            throw new Exception('You are not permitted to delete this user.');
+        }
+
+        $user = $this->userRepo->findByPk($id);
+
+        if ($user->delete()) {
+            return true;
+        }
+
+        return false;
+    }
 }

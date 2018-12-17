@@ -38,7 +38,10 @@ Route::get('profile', 'API\v1\UserController@profile')
 
 Route::get('user/view/{id}', 'API\v1\UserController@view');
 
-Route::post('user/update', 'API\v1\UserController@update')
+Route::post('user/update/{id}', 'API\v1\UserController@update')
+    ->middleware('jwt.verify');
+
+Route::get('user/delete/{id}', 'API\v1\UserController@delete')
     ->middleware('jwt.verify');
 
 

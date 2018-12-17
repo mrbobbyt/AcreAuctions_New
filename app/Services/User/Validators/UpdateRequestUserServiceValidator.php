@@ -2,22 +2,39 @@
 
 namespace App\Services\User\Validators;
 
+use App\Repositories\User\Contracts\UserRepoContract;
 use App\Rules\CheckRole;
-use App\Services\Auth\Validators\AbstractValidator;
+use App\Services\User\Contracts\UserServiceContract;
 use Illuminate\Http\Request;
+use Exception;
 use Validator;
 
-class UpdateRequestUserServiceValidator implements AbstractValidator
+class UpdateRequestUserServiceValidator
 {
+
+    protected $userService;
+
+    public function __construct(UserServiceContract $userService)
+    {
+        $this->userService = $userService;
+    }
+
 
     /**
      * Return validated array of data
      *
      * @param Request $request
+     * @param int $id
      * @return array
+     * @throws Exception
      */
-    public function attempt(Request $request)
+    public function attempt(Request $request, int $id)
     {
+        $userID = $this->userService->getID();
+        if ($id != $userID) {
+            throw new Exception('You are not permitted to update this user.');
+        }
+
         return [
             'body' => $this->validateBody($request)
         ];
