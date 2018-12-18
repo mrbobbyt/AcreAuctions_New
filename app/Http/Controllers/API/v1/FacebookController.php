@@ -3,17 +3,19 @@
 namespace App\Http\Controllers\API\v1;
 
 use App\Services\Facebook\FacebookService;
-use Facebook\Facebook;
 use Facebook\Exceptions\FacebookSDKException;
 use Facebook\Exceptions\FacebookResponseException;
 
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use URL;
 
 class FacebookController extends Controller
 {
 
     protected $fbService;
+    protected $token = 'EAAEhn5brCoUBAHXicARmDsbHSOZCRLFjhIy1ZC4Eoca7Y2UTttUkJP4pziVR3H7lD3FMqQb8ZABRWKNsiDDC0gyfqBOiCPaTwLkWSCkZBJ0Yc08NmhkN96hc0cJgIDYQLNm5JLhTK174azXT166oTz8VBomG5uORMriQLLbHqwZDZD';
 
     public function __construct(FacebookService $fbService)
     {
@@ -22,29 +24,69 @@ class FacebookController extends Controller
 
 
     /**
-     * Login page
+     * Login page with fb
+     *
+     * METHOD: get
+     * URL: /api/login
+     *
+     * @throws FacebookSDKException
      */
     public function index()
     {
-        $fb = $this->fbService->createConnect();
+        try {
+            $fb = $this->fbService->createConnect();
+        } catch (FacebookSDKException $e) {
+            return response()->json([
+                'status' => 'Error',
+                'message' => $e->getMessage(),
+            ], $e->getCode());
+        }
 
         $helper = $fb->getRedirectLoginHelper();
 
         $permissions = ['email', 'public_profile']; // Optional permissions
-        $loginUrl = $helper->getLoginUrl('http://localhost:8000/api/login-fb', $permissions);
+        $loginUrl = $helper->getLoginUrl(URL::to('/api/login-fb'), $permissions);
 
-        echo '<a href="' . $loginUrl . '">Log in with Facebook!</a>';
+        return view('test-login', ['loginUrl' => $loginUrl]);
     }
 
 
     /**
      * Handle login request
+     *
+     * METHOD: get
+     * URL: /api/login-fb
+     *
+     * @throws FacebookSDKException
+     * @throws FacebookResponseException
+     * @return JsonResponse
      */
-    public function fb()
+    public function fbLogin(): JsonResponse
     {
-        $fb = $this->fbService->createConnect();
+        try {
+            $fb = $this->fbService->createConnect();
+        } catch (FacebookSDKException $e) {
+            return response()->json([
+                'status' => 'Error',
+                'message' => $e->getMessage(),
+            ], $e->getCode());
+        }
 
-        $accessToken = $this->fbService->getAccessToken($fb);
+        try {
+            $accessToken = $this->fbService->getAccessToken($fb);
+        } catch(FacebookResponseException $e) {
+            // When Graph returns an error
+            return response()->json([
+                'status' => 'Error',
+                'message' => 'Graph returned an error: ' . $e->getMessage(),
+            ], $e->getCode());
+        } catch(FacebookSDKException $e) {
+            // When validation fails or other local issues
+            return response()->json([
+                'status' => 'Error',
+                'message' => 'Facebook SDK returned an error: ' . $e->getMessage(),
+            ], $e->getCode());
+        }
 
         $oAuth2Client = $this->fbService->getOAuth2Client($fb);
         // vendor/facebook/graph-sdk/src/Facebook/Authentication/AccessTokenMetadata.php
@@ -58,7 +100,14 @@ class FacebookController extends Controller
         $tokenMetadata->validateExpiration();
 
         if (! $accessToken->isLongLived()) {
-            $accessToken = $this->fbService->getLongLiveAccessToken($oAuth2Client, $accessToken);
+            try {
+                $accessToken = $this->fbService->getLongLiveAccessToken($oAuth2Client, $accessToken);
+            } catch (FacebookSDKException $e) {
+                return response()->json([
+                    'status' => 'Error',
+                    'message' => 'Error getting long-lived access token: ' . $e->getMessage(),
+                ], 400);
+            }
 
             // Logged in
             return response()->json([
@@ -77,11 +126,27 @@ class FacebookController extends Controller
     }
 
 
-    public function getProfile()
+    /**
+     * Get test data from fb
+     *
+     * METHOD: get
+     * URL: /api/profile-fb
+     *
+     * @throws FacebookSDKException
+     * @return JsonResponse
+     */
+    public function getProfile(): JsonResponse
     {
-        $fb = $this->fbService->createConnect();
+        try {
+            $fb = $this->fbService->createConnect();
+        } catch (FacebookSDKException $e) {
+            return response()->json([
+                'status' => 'Error',
+                'message' => $e->getMessage(),
+            ], $e->getCode());
+        }
 
-        $res = $fb->get('/me', 'EAAEhn5brCoUBAHXicARmDsbHSOZCRLFjhIy1ZC4Eoca7Y2UTttUkJP4pziVR3H7lD3FMqQb8ZABRWKNsiDDC0gyfqBOiCPaTwLkWSCkZBJ0Yc08NmhkN96hc0cJgIDYQLNm5JLhTK174azXT166oTz8VBomG5uORMriQLLbHqwZDZD');
+        $res = $fb->get('/me', $this->token);
 
         try {
             $user = $res->getGraphNode();
@@ -93,6 +158,32 @@ class FacebookController extends Controller
         }
 
         dd($user->getField( 'email' ));
+    }
 
+
+    /**
+     * Logout from fb
+     *
+     * METHOD: get
+     * URL: /api/logout-fb
+     *
+     * @return JsonResponse
+     * @throws FacebookSDKException
+     */
+    public function fbLogout(): JsonResponse
+    {
+        try {
+            $fb = $this->fbService->createConnect();
+        } catch (FacebookSDKException $e) {
+            return response()->json([
+                'status' => 'Error',
+                'message' => $e->getMessage(),
+            ], $e->getCode());
+        }
+
+        $helper = $fb->getRedirectLoginHelper();
+
+        $logoutUrl = $helper->getLogoutUrl($this->token, URL::to('/api/login'));
+        echo '<a href="' . $logoutUrl . '">Logout of Facebook!</a>';
     }
 }

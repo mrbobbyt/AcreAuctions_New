@@ -5,67 +5,73 @@ namespace App\Services\Facebook;
 use Facebook\Facebook;
 use Facebook\Exceptions\FacebookSDKException;
 use Facebook\Exceptions\FacebookResponseException;
+use Facebook\Authentication\AccessToken;
+use Facebook\Authentication\OAuth2Client;
+use Facebook\Authentication\AccessTokenMetadata;
 
 class FacebookService
 {
 
-    public function createConnect()
+    /**
+     * Create connect to fb
+     *
+     * @return Facebook
+     * @throws FacebookSDKException
+     */
+    public function createConnect(): Facebook
     {
-        try {
-            $fb = new Facebook([
+        return new Facebook([
                 'app_id' => env('FB_APP_ID'),
                 'app_secret' => env('FB_APP_SECRET'),
                 'default_graph_version' => env('FB_GRAPH_VER'),
             ]);
-        } catch (FacebookSDKException $e) {
-            return response()->json([
-                'status' => 'Error',
-                'message' => $e->getMessage(),
-            ], $e->getCode());
-        }
-
-        return $fb;
     }
 
 
-    public function getAccessToken(object $fb)
+    /**
+     * Get access token fb
+     *
+     * @param Facebook $fb
+     * @return AccessToken
+     * @throws FacebookSDKException
+     * @throws FacebookResponseException
+     */
+    public function getAccessToken(Facebook $fb): AccessToken
     {
         $helper = $fb->getRedirectLoginHelper();
         if (isset($_GET['state'])) {
             $helper->getPersistentDataHandler()->set('state', $_GET['state']);
         }
 
-        try {
-            $accessToken = $helper->getAccessToken();
-        } catch(FacebookResponseException $e) {
-            // When Graph returns an error
-            echo 'Graph returned an error: ' . $e->getMessage();
-            exit;
-        } catch(FacebookSDKException $e) {
-            // When validation fails or other local issues
-            echo 'Facebook SDK returned an error: ' . $e->getMessage();
-            exit;
-        }
+        $accessToken = $helper->getAccessToken();
 
         if (! isset($accessToken)) {
             if ($helper->getError()) {
-                header('HTTP/1.0 401 Unauthorized');
-                echo "Error: " . $helper->getError() . "\n";
-                echo "Error Code: " . $helper->getErrorCode() . "\n";
-                echo "Error Reason: " . $helper->getErrorReason() . "\n";
-                echo "Error Description: " . $helper->getErrorDescription() . "\n";
+                return response()->json([
+                    'status' => 'Error',
+                    'message' =>
+                        "Error: " . $helper->getError() . "\n 
+                        Error Code: " . $helper->getErrorCode() . "\n 
+                        Error Reason: " . $helper->getErrorReason() . "\n 
+                        Error Description: " . $helper->getErrorDescription() . "\n"
+                ], 401);
             } else {
-                header('HTTP/1.0 400 Bad Request');
-                echo 'Bad request';
+                return response()->json([
+                    'status' => 'Error',
+                    'message' => 'Bad request',
+                ], 400);
             }
-            exit;
         }
 
         return $accessToken;
     }
 
 
-    public function getOAuth2Client(object $fb)
+    /**
+     * @param Facebook $fb
+     * @return OAuth2Client
+     */
+    public function getOAuth2Client(Facebook $fb): OAuth2Client
     {
         // The OAuth 2.0 client handler helps us manage access tokens
         $oAuth2Client = $fb->getOAuth2Client();
@@ -74,7 +80,12 @@ class FacebookService
     }
 
 
-    public function getMetaData(object $oAuth2Client, string $accessToken)
+    /**
+     * @param OAuth2Client $oAuth2Client
+     * @param AccessToken $accessToken
+     * @return AccessTokenMetadata
+     */
+    public function getMetaData(OAuth2Client $oAuth2Client, AccessToken $accessToken): AccessTokenMetadata
     {
         // Get the access token metadata from /debug_token
         $tokenMetadata = $oAuth2Client->debugToken($accessToken);
@@ -83,15 +94,18 @@ class FacebookService
     }
 
 
-    public function getLongLiveAccessToken(object $oAuth2Client, string $accessToken)
+    /**
+     * Get long-live access token fb
+     *
+     * @param OAuth2Client $oAuth2Client
+     * @param AccessToken $accessToken
+     * @return AccessToken
+     * @throws FacebookSDKException
+     */
+    public function getLongLiveAccessToken(OAuth2Client $oAuth2Client, AccessToken $accessToken): AccessToken
     {
         // Exchanges a short-lived access token for a long-lived one
-        try {
-            $accessToken = $oAuth2Client->getLongLivedAccessToken($accessToken);
-        } catch (FacebookSDKException $e) {
-            echo "<p>Error getting long-lived access token: " . $e->getMessage() . "</p>\n\n";
-            exit;
-        }
+        $accessToken = $oAuth2Client->getLongLivedAccessToken($accessToken);
 
         return $accessToken;
     }
