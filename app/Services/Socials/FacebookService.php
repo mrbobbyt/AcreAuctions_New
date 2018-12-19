@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Services\Facebook;
+namespace App\Services\Socials;
 
 use Facebook\Facebook;
 use Facebook\Exceptions\FacebookSDKException;
@@ -8,6 +8,7 @@ use Facebook\Exceptions\FacebookResponseException;
 use Facebook\Authentication\AccessToken;
 use Facebook\Authentication\OAuth2Client;
 use Facebook\Authentication\AccessTokenMetadata;
+use Facebook\GraphNodes\GraphNode;
 
 class FacebookService
 {
@@ -25,6 +26,25 @@ class FacebookService
                 'app_secret' => env('FB_APP_SECRET'),
                 'default_graph_version' => env('FB_GRAPH_VER'),
             ]);
+    }
+
+
+    /**
+     * Get login url to fb
+     *
+     * @throws FacebookSDKException
+     * @return string
+     */
+    public function getLoginFbUrl()
+    {
+        $fb = $this->createConnect();
+
+        $helper = $fb->getRedirectLoginHelper();
+
+        $permissions = ['email']; // Optional permissions
+        $loginUrl = $helper->getLoginUrl(route('home'), $permissions);
+
+        return $loginUrl;
     }
 
 
@@ -110,4 +130,61 @@ class FacebookService
         return $accessToken;
     }
 
+
+    /**
+     * Handle login request
+     *
+     * @throws FacebookSDKException
+     * @throws FacebookResponseException
+     * @return array
+     */
+    public function fbLogin(): array
+    {
+        $fb = $this->createConnect();
+
+        $accessToken = $this->getAccessToken($fb);
+
+        $oAuth2Client = $this->getOAuth2Client($fb);
+        // vendor/facebook/graph-sdk/src/Facebook/Authentication/AccessTokenMetadata.php
+        $tokenMetadata = $this->getMetaData($oAuth2Client, $accessToken);
+
+        // Validation (these will throw FacebookSDKException's when they fail)
+        $tokenMetadata->validateAppId(env('FB_APP_ID'));
+
+        // If you know the user ID this access token belongs to, you can validate it here
+        //$tokenMetadata->validateUserId('123');
+        $tokenMetadata->validateExpiration();
+
+        if (! $accessToken->isLongLived()) {
+            $accessToken = $this->getLongLiveAccessToken($oAuth2Client, $accessToken);
+
+            return [
+                'token' => $accessToken->getValue(),
+                'fb' => $fb,
+            ];
+        }
+
+        return [
+            'token' => $accessToken->getValue(),
+            'fb' => $fb,
+        ];
+    }
+
+
+    /**
+     * Get test data from fb
+     *
+     * @throws FacebookSDKException
+     * @return GraphNode
+     */
+    public function getProfile(): GraphNode
+    {
+        $connection = $this->fbLogin();
+
+        $res = $connection['fb']->get('/me?locale=en_US&fields=name,email', $connection['token']);
+
+        $client = $res->getGraphNode();
+
+        return $client;
+    }
 }

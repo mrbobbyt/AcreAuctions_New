@@ -33,10 +33,10 @@ class RegisterRequestUserServiceValidator implements AbstractValidator
     {
         $validator = Validator::make($request->all(), [
             'email' => 'required|string|email|max:255|unique:users',
-            'fname' => 'string|max:255|min:3',
-            'lname' => 'string|max:255|min:3',
+            'fname' => 'required|string|max:255|min:3',
+            'lname' => 'required|string|max:255|min:3',
             'password'=> 'required|max:255|min:6|confirmed|string',
-            'role' => ['integer', new CheckRole]
+            'role' => ['integer', 'nullable', new CheckRole]
         ]);
 
         return $validator->validate();

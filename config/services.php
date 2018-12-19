@@ -46,4 +46,9 @@ return [
         'default_graph_version' => env('FB_GRAPH_VER'),
     ],
 
+    'google' => [
+        'applicationName' => env('GOOGLE_APP_NAME'),
+        'clientId' => env('GOOGLE_CLIENT_ID'),
+        'clientSecret' => env('GOOGLE_CLIENT_SECRET'),
+    ],
 ];

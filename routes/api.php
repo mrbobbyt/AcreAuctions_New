@@ -13,7 +13,7 @@
 
 /***** Authentication *****/
 
-Route::post('register', 'API\v1\AuthController@register');
+Route::post('register', 'API\v1\AuthController@handleForm');
 
 Route::post('login', 'API\v1\AuthController@login');
 
@@ -27,6 +27,9 @@ Route::post('reset', 'API\v1\AuthController@resetPassword')
 
 Route::post('forgot', 'API\v1\AuthController@forgotPassword')
     ->name('forgot');
+
+Route::get('', 'API\v1\AuthController@index')
+    ->name('home');
 
 
 
@@ -44,14 +47,6 @@ Route::post('user/update/{id}', 'API\v1\UserController@update')
 Route::get('user/delete/{id}', 'API\v1\UserController@delete')
     ->middleware('jwt.verify');
 
-
-
-/********* Facebook *********/
-
-Route::get('login', 'API\v1\FacebookController@index');
-Route::get('login-fb', 'API\v1\FacebookController@fbLogin');
-Route::get('logout-fb', 'API\v1\FacebookController@fbLogout');
-Route::get('profile-fb', 'API\v1\FacebookController@getProfile');
 
 /*Route::get('reset/{token}', function($token) {
     $model = \App\Models\PasswordResets::where('token', '=', $token)->first();

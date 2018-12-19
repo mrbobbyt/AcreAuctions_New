@@ -5,6 +5,8 @@ namespace App\Http\Controllers\API\v1;
 use App\Http\Controllers\Controller;
 
 use App\Services\Auth\Contracts\UserAuthServiceContract;
+use App\Services\Socials\FacebookService;
+use App\Services\Socials\GoogleService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use App\Http\Resources\UserResource;
@@ -13,19 +15,70 @@ use App\Services\Auth\Validators\ForgotRequestUserServiceValidator;
 use App\Services\Auth\Validators\RegisterRequestUserServiceValidator;
 use App\Services\Auth\Validators\ResetPasswordRequestValidator;
 use App\Services\Auth\Validators\LoginRequestUserServiceValidator;
+use App\Services\Socials\Validators\FacebookRequestValidator;
+use App\Services\Socials\Validators\GoogleRequestValidator;
 
 use Throwable;
 use Tymon\JWTAuth\Exceptions\JWTException;
 use Illuminate\Validation\ValidationException;
+use Facebook\Exceptions\FacebookResponseException;
+use Facebook\Exceptions\FacebookSDKException;
 
 class AuthController extends Controller
 {
 
     protected $userService;
+    protected $fbService;
+    protected $googleService;
 
-    public function __construct(UserAuthServiceContract $userService)
-    {
+    public function __construct(
+        UserAuthServiceContract $userService,
+        FacebookService $fbService,
+        GoogleService $googleService
+    ) {
         $this->userService = $userService;
+        $this->fbService = $fbService;
+        $this->googleService = $googleService;
+    }
+
+
+    /**
+     * Login page for social networks
+     *
+     * METHOD: get
+     * URL: /api
+     *
+     * @throws FacebookSDKException
+     * @throws Throwable
+     * @return \Illuminate\View\View
+     */
+    public function index()
+    {
+        // Handle request from socials
+        if (request('code')) {
+            $this->handleSocialRequest();
+        }
+
+        // Get url to socials login
+        try {
+            $loginUrlFb = $this->fbService->getLoginFbUrl();
+            $loginUrlGoogle = $this->googleService->getLoginGoogleUrl();
+        } catch (FacebookSDKException $e) {
+            return response()->json([
+                'status' => 'Error',
+                'message' => $e->getMessage(),
+            ], $e->getCode());
+        } catch (Throwable $e) {
+            return response()->json([
+                'status' => 'Error',
+                'message' => $e->getMessage(),
+            ], $e->getCode());
+        }
+
+        return view('test-login', [
+            'loginUrlFb' => $loginUrlFb,
+            'loginUrlGoogle' => $loginUrlGoogle
+        ]);
     }
 
 
@@ -68,15 +121,143 @@ class AuthController extends Controller
      *
      * @param Request $request
      * @throws ValidationException
+     * @throws Throwable
+     * @return array
+     */
+    public function handleForm(Request $request): array
+    {
+        try {
+            $data = (new RegisterRequestUserServiceValidator())->attempt($request);
+
+        } catch (ValidationException $e) {
+            return response()->json([
+                'status' => 'Error',
+                'message' => $e->validator->errors()->first(),
+            ], 400);
+        } catch (Throwable $e) {
+            return response()->json([
+                'status' => 'Error',
+                'message' => 'Sorry, the user could not register.'
+            ], 500);
+        }
+
+        return $data;
+    }
+
+
+    /**
+     * Handle request from social networks
+     *
+     * @throws FacebookResponseException
+     * @throws FacebookSDKException
+     * @throws Throwable
+     * @throws ValidationException
+     */
+    public function handleSocialRequest()
+    {
+        if (request('scope')) {
+            $data = $this->handleGoogle();
+        } elseif (request('state')) {
+            $data = $this->handleFacebook();
+        }
+
+        if(empty($data)) {
+            return response()->json([
+                'status' => 'Error',
+                'message' => 'Sorry, can not register user via social network',
+            ], 401);
+        }
+
+        $this->register($data);
+    }
+
+
+    /**
+     * Get validated user data from Google
+     *
+     * @throws FacebookSDKException
+     * @throws FacebookResponseException
+     * @throws ValidationException
+     * @throws Throwable
+     * @return array
+     */
+    public function handleFacebook(): array
+    {
+        try {
+            $client = $this->fbService->getProfile();
+            $data = (new FacebookRequestValidator())->attempt($client);
+
+        } catch(FacebookResponseException $e) {
+            // When Graph returns an error
+            return response()->json([
+                'status' => 'Error',
+                'message' => 'Graph returned an error: ' . $e->getMessage(),
+            ], $e->getCode());
+        } catch (FacebookSDKException $e) {
+            // When validation fails or other local issues
+            return response()->json([
+                'status' => 'Error',
+                'message' => 'Facebook SDK returned an error: ' . $e->getMessage(),
+            ], $e->getCode());
+        } catch (ValidationException $e) {
+            return response()->json([
+                'status' => 'Error',
+                'message' => $e->validator->errors()->first(),
+            ], 400);
+        } catch (Throwable $e) {
+            return response()->json([
+                'status' => 'Error',
+                'message' => $e->getMessage(),
+            ], $e->getCode());
+        }
+
+        return $data;
+    }
+
+
+    /**
+     * Get validated user data from Google
+     *
+     * @throws ValidationException
+     * @throws Throwable
+     * @return array
+     */
+    public function handleGoogle(): array
+    {
+        $client = $this->googleService->googleLogin();
+
+        try {
+            $data = (new GoogleRequestValidator())->attempt($client);
+        } catch (ValidationException $e) {
+            return response()->json([
+                'status' => 'Error',
+                'message' => $e->validator->errors()->first(),
+            ], 400);
+        } catch (Throwable $e) {
+            return response()->json([
+                'status' => 'Error',
+                'message' => $e->getMessage()
+            ], 500);
+        }
+
+        return $data;
+    }
+
+
+    /**
+     * METHOD: post
+     * URL: /api/register
+     *
+     * @param array $data
      * @throws JWTException
      * @throws Throwable
      * @return JsonResponse
      */
-    public function register(Request $request): JsonResponse
+    public function register(array $data): JsonResponse
     {
         try {
-            $data = (new RegisterRequestUserServiceValidator())->attempt($request);
             $user = $this->userService->create($data['body']);
+            dd($user);
             $token = $this->userService->createToken($user);
 
         } catch (ValidationException $e) {
