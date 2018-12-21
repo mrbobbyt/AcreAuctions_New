@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Services\Socials;
+namespace App\Services\Social;
 
+use App\Services\Social\Contracts\FacebookServiceContract;
 use Facebook\Facebook;
 use Facebook\Exceptions\FacebookSDKException;
 use Facebook\Exceptions\FacebookResponseException;
@@ -10,7 +11,7 @@ use Facebook\Authentication\OAuth2Client;
 use Facebook\Authentication\AccessTokenMetadata;
 use Facebook\GraphNodes\GraphNode;
 
-class FacebookService
+class FacebookService implements FacebookServiceContract
 {
 
     /**
@@ -35,7 +36,7 @@ class FacebookService
      * @throws FacebookSDKException
      * @return string
      */
-    public function getLoginFbUrl()
+    public function getLogin(): string
     {
         $fb = $this->createConnect();
 

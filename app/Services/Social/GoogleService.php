@@ -1,12 +1,13 @@
 <?php
 
-namespace App\Services\Socials;
+namespace App\Services\Social;
 
+use App\Services\Social\Contracts\GoogleServiceContract;
 use Google_Client;
 use Google_Service_Oauth2;
 use Google_Service_Oauth2_Userinfoplus;
 
-class GoogleService
+class GoogleService implements GoogleServiceContract
 {
 
     /**
@@ -31,11 +32,10 @@ class GoogleService
      *
      * @return string
      */
-    public function getLoginGoogleUrl(): string
+    public function getLogin(): string
     {
         $google = $this->createConnect();
         $loginUrl = $google->createAuthUrl();
-        //$loginUrl .= '?google=1';
 
         return $loginUrl;
     }
@@ -46,7 +46,7 @@ class GoogleService
      *
      * @return Google_Service_Oauth2_Userinfoplus
      */
-    public function googleLogin(): Google_Service_Oauth2_Userinfoplus
+    public function getProfile(): Google_Service_Oauth2_Userinfoplus
     {
         $google = $this->createConnect();
         //Authenticate code from Google OAuth Flow

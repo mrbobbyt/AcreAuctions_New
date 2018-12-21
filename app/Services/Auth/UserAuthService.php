@@ -7,12 +7,13 @@ use App\Models\PasswordResets;
 use App\Models\User;
 use Mail;
 
-use App\Repositories\User\Contracts\UserRepoContract;
+use App\Repositories\User\Contracts\UserRepositoryContract;
 use App\Services\Auth\Contracts\UserAuthServiceContract;
 
 use JWTAuth;
 use Throwable;
 use Illuminate\Database\Eloquent\Model;
+use Tymon\JWTAuth\Exceptions\JWTException;
 
 class UserAuthService implements UserAuthServiceContract
 
@@ -22,7 +23,7 @@ class UserAuthService implements UserAuthServiceContract
     protected $userRepo;
 
 
-    public function __construct(User $user, UserRepoContract $userRepo)
+    public function __construct(User $user, UserRepositoryContract $userRepo)
     {
         $this->model = $user;
         $this->userRepo = $userRepo;
@@ -63,10 +64,15 @@ class UserAuthService implements UserAuthServiceContract
      *
      * @param $user
      * @return string
+     * @throws JWTException
      */
     public function createToken($user): string
     {
-        return JWTAuth::fromUser($user);
+        if ($token = JWTAuth::fromUser($user)) {
+            return $token;
+        }
+
+        return new JWTException();
     }
 
 
@@ -128,4 +134,5 @@ class UserAuthService implements UserAuthServiceContract
 
         return $pwd->saveOrFail();
     }
+
 }

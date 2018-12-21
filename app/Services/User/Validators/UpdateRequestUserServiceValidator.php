@@ -2,7 +2,7 @@
 
 namespace App\Services\User\Validators;
 
-use App\Repositories\User\Contracts\UserRepoContract;
+use App\Repositories\User\Contracts\UserRepositoryContract;
 use App\Rules\CheckRole;
 use App\Services\User\Contracts\UserServiceContract;
 use Illuminate\Http\Request;

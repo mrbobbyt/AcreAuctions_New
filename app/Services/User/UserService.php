@@ -2,7 +2,7 @@
 
 namespace App\Services\User;
 
-use App\Repositories\User\Contracts\UserRepoContract;
+use App\Repositories\User\Contracts\UserRepositoryContract;
 use App\Services\User\Contracts\UserServiceContract;
 use Exception;
 use Tymon\JWTAuth\Contracts\JWTSubject;
@@ -16,7 +16,7 @@ class UserService implements UserServiceContract
     protected $userRepo;
 
 
-    public function __construct(UserRepoContract $userRepo)
+    public function __construct(UserRepositoryContract $userRepo)
     {
         $this->userRepo = $userRepo;
     }

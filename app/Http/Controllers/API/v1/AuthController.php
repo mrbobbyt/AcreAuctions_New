@@ -4,9 +4,10 @@ namespace App\Http\Controllers\API\v1;
 
 use App\Http\Controllers\Controller;
 
+use App\Repositories\User\Contracts\UserRepositoryContract;
 use App\Services\Auth\Contracts\UserAuthServiceContract;
-use App\Services\Socials\FacebookService;
-use App\Services\Socials\GoogleService;
+use App\Services\Social\Contracts\FacebookServiceContract;
+use App\Services\Social\Contracts\GoogleServiceContract;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use App\Http\Resources\UserResource;
@@ -15,8 +16,8 @@ use App\Services\Auth\Validators\ForgotRequestUserServiceValidator;
 use App\Services\Auth\Validators\RegisterRequestUserServiceValidator;
 use App\Services\Auth\Validators\ResetPasswordRequestValidator;
 use App\Services\Auth\Validators\LoginRequestUserServiceValidator;
-use App\Services\Socials\Validators\FacebookRequestValidator;
-use App\Services\Socials\Validators\GoogleRequestValidator;
+use App\Services\Social\Validators\FacebookRequestValidator;
+use App\Services\Social\Validators\GoogleRequestValidator;
 
 use Throwable;
 use Tymon\JWTAuth\Exceptions\JWTException;
@@ -28,15 +29,18 @@ class AuthController extends Controller
 {
 
     protected $userService;
+    protected $userRepo;
     protected $fbService;
     protected $googleService;
 
     public function __construct(
         UserAuthServiceContract $userService,
-        FacebookService $fbService,
-        GoogleService $googleService
+        UserRepositoryContract $userRepo,
+        FacebookServiceContract $fbService,
+        GoogleServiceContract $googleService
     ) {
         $this->userService = $userService;
+        $this->userRepo = $userRepo;
         $this->fbService = $fbService;
         $this->googleService = $googleService;
     }
@@ -61,8 +65,8 @@ class AuthController extends Controller
 
         // Get url to socials login
         try {
-            $loginUrlFb = $this->fbService->getLoginFbUrl();
-            $loginUrlGoogle = $this->googleService->getLoginGoogleUrl();
+            $loginUrlFb = $this->fbService->getLogin();
+            $loginUrlGoogle = $this->googleService->getLogin();
         } catch (FacebookSDKException $e) {
             return response()->json([
                 'status' => 'Error',
@@ -152,6 +156,7 @@ class AuthController extends Controller
      * @throws FacebookSDKException
      * @throws Throwable
      * @throws ValidationException
+     * @throws JWTException
      */
     public function handleSocialRequest()
     {
@@ -161,11 +166,38 @@ class AuthController extends Controller
             $data = $this->handleFacebook();
         }
 
-        if(empty($data)) {
+        if (empty($data)) {
             return response()->json([
                 'status' => 'Error',
                 'message' => 'Sorry, can not register user via social network',
             ], 401);
+        }
+
+        // check if user exist
+        if ($this->userRepo->checkUserExists($data['body']['email'])) {
+
+            // try to login user
+            try {
+                $user = $this->userRepo->findByEmail($data['body']['email']);
+                $token = $this->userService->createToken($user);
+            } catch (JWTException $e) {
+                return response()->json([
+                    'status' => 'Error',
+                    'message' => 'Sorry, could not create token.'
+                ], 500);
+            } catch (Throwable $e) {
+                return response()->json([
+                    'status' => 'Error',
+                    'message' => 'Sorry, the user could not register.'
+                ], 500);
+            }
+
+            return response()->json([
+                'status' => 'Success',
+                'token' => $token,
+                'user' => UserResource::make($user)
+            ]);
+
         }
 
         $this->register($data);
@@ -224,10 +256,10 @@ class AuthController extends Controller
      */
     public function handleGoogle(): array
     {
-        $client = $this->googleService->googleLogin();
-
         try {
+            $client = $this->googleService->getProfile();
             $data = (new GoogleRequestValidator())->attempt($client);
+
         } catch (ValidationException $e) {
             return response()->json([
                 'status' => 'Error',
@@ -257,7 +289,6 @@ class AuthController extends Controller
     {
         try {
             $user = $this->userService->create($data['body']);
-            dd($user);
             $token = $this->userService->createToken($user);
 
         } catch (ValidationException $e) {
@@ -279,7 +310,7 @@ class AuthController extends Controller
 
         return response()->json([
             'status' => 'Success',
-            'token' => $token
+            'token' => $token,
         ]);
     }
 
@@ -350,6 +381,7 @@ class AuthController extends Controller
 
         /*
          * when user went on link with received token - redirect him on reset password page
+         *
          * */
 
     }

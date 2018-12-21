@@ -5,7 +5,7 @@ namespace App\Repositories\User\Contracts;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Model;
 
-interface UserRepoContract
+interface UserRepositoryContract
 {
 
     /**
@@ -24,5 +24,14 @@ interface UserRepoContract
      * @return User
      */
     public function findByEmail(string $email);
+
+
+    /**
+     * Check if user exists in db
+     *
+     * @param string $email
+     * @return bool
+     */
+    public function checkUserExists(string $email);
 
 }

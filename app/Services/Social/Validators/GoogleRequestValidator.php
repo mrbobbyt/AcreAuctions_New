@@ -1,27 +1,25 @@
 <?php
 
-namespace App\Services\Socials\Validators;
+namespace App\Services\Social\Validators;
 
-use Facebook\GraphNodes\GraphNode;
+use Google_Service_Oauth2_Userinfoplus;
 use Validator;
 
-class FacebookRequestValidator
+class GoogleRequestValidator
 {
 
     /**
      * Return validated array of data
      *
-     * @param GraphNode $json
+     * @param Google_Service_Oauth2_Userinfoplus $data
      * @return array
      */
-    public function attempt(GraphNode $json)
+    public function attempt(Google_Service_Oauth2_Userinfoplus $data)
     {
-        $data = json_decode($json->asJson(), true);
-        $name = explode(' ', $data['name']);
         $user = [
-            'email' => $data['email'],
-            'fname' => $name[0],
-            'lname' => $name[1]
+            'email' => $data->getEmail(),
+            'fname' => $data->getGivenName(),
+            'lname' => $data->getFamilyName(),
         ];
 
         return [
@@ -38,11 +36,12 @@ class FacebookRequestValidator
     public function validateBody($user)
     {
         $validator = Validator::make($user, [
-            'email' => 'required|string|email|max:255|unique:users',
+            'email' => 'required|string|email|max:255',
             'fname' => 'required|string|max:255|min:3',
             'lname' => 'required|string|max:255|min:3',
         ]);
 
         return $validator->validate();
     }
+
 }

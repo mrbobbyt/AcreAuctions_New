@@ -3,11 +3,11 @@
 namespace App\Repositories\User;
 
 use App\Models\User;
-use App\Repositories\User\Contracts\UserRepoContract;
+use App\Repositories\User\Contracts\UserRepositoryContract;
 use Exception;
 use Illuminate\Database\Eloquent\Model;
 
-class UserRepository implements UserRepoContract
+class UserRepository implements UserRepositoryContract
 {
 
     /**
@@ -41,5 +41,17 @@ class UserRepository implements UserRepoContract
         }
 
         throw new Exception('User not exist.');
+    }
+
+
+    /**
+     * Check if user exists in db
+     *
+     * @param string $email
+     * @return bool
+     */
+    public function checkUserExists(string $email): bool
+    {
+        return User::query()->where('email', $email)->exists();
     }
 }

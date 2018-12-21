@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\API\v1;
 
 use App\Http\Controllers\Controller;
-use App\Repositories\User\Contracts\UserRepoContract;
+use App\Repositories\User\Contracts\UserRepositoryContract;
 use App\Services\User\Contracts\UserServiceContract;
 use App\Services\User\Validators\UpdateRequestUserServiceValidator;
 use Illuminate\Http\JsonResponse;
@@ -22,7 +22,7 @@ class UserController extends Controller
     protected $userService;
     protected $userRepo;
 
-    public function __construct(UserServiceContract $userService, UserRepoContract $userRepo)
+    public function __construct(UserServiceContract $userService, UserRepositoryContract $userRepo)
     {
         $this->userService = $userService;
         $this->userRepo = $userRepo;
