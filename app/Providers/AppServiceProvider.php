@@ -19,6 +19,12 @@ use App\Services\Social\FacebookService;
 use App\Services\Social\Contracts\GoogleServiceContract;
 use App\Services\Social\GoogleService;
 
+use App\Repositories\Seller\Contracts\SellerRepositoryContract;
+use App\Repositories\Seller\SellerRepository;
+
+use App\Services\Seller\Contracts\SellerServiceContract;
+use App\Services\Seller\SellerService;
+
 class AppServiceProvider extends ServiceProvider
 {
     /**
@@ -65,6 +71,16 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(
             GoogleServiceContract::class,
             GoogleService::class
+        );
+
+        $this->app->bind(
+            SellerRepositoryContract::class,
+            SellerRepository::class
+        );
+
+        $this->app->bind(
+            SellerServiceContract::class,
+            SellerService::class
         );
     }
 }
