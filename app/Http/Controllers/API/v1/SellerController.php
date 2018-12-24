@@ -4,13 +4,15 @@ namespace App\Http\Controllers\API\v1;
 
 use App\Http\Resources\SellerResource;
 use App\Repositories\Seller\SellerRepository;
-use App\Services\Seller\Contracts\SellerServiceContract;
-use App\Services\Seller\Validators\SellerCleateRequestValidator;
-use Dotenv\Exception\ValidationException;
-use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\Services\Seller\Contracts\SellerServiceContract;
+
+use App\Services\Seller\Validators\SellerCleateRequestValidator;
+
+use Illuminate\Validation\ValidationException;
+use Exception;
 use Throwable;
 
 class SellerController extends Controller
@@ -44,6 +46,7 @@ class SellerController extends Controller
             if (!$seller->is_verified) {
                 throw new Exception('Seller is not verified', 404);
             }
+
         } catch (Throwable $e) {
             return response()->json([
                 'status' => 'Error',
@@ -75,6 +78,7 @@ class SellerController extends Controller
         try {
             $data = (new SellerCleateRequestValidator)->attempt($request);
             $seller = $this->sellerService->create($data['body']);
+
         } catch (ValidationException $e) {
             return response()->json([
                 'status' => 'Error',
@@ -84,7 +88,7 @@ class SellerController extends Controller
             return response()->json([
                 'status' => 'Error',
                 'message' => $e->getMessage()
-            ], 500);
+            ], $e->getCode());
         }
 
         return response()->json([

@@ -17,4 +17,13 @@ interface SellerRepositoryContract
      */
     public function findBySlug(string $slug);
 
+
+    /**
+     * Find seller by id
+     *
+     * @param int $id
+     * @return Model | bool
+     */
+    public function findByPk(int $id);
+
 }

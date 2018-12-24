@@ -48,9 +48,8 @@ class SellerService implements SellerServiceContract
         }
 
         $seller = $this->model->query()->make()->fill($data);
-        $seller->saveOrFail();
 
-        return $seller;
+        return $seller->saveOrFail();
     }
 
 
@@ -63,5 +62,19 @@ class SellerService implements SellerServiceContract
     public function makeUrl(string $title): string
     {
         return preg_replace('/[^a-z0-9]+/i', '_', $title);
+    }
+
+
+    /**
+     * Make seller verified
+     *
+     * @param object $seller
+     * @return bool
+     */
+    public function verify(object $seller): bool
+    {
+        $seller['is_verified'] = 1;
+
+        return $seller->saveOrFail();
     }
 }

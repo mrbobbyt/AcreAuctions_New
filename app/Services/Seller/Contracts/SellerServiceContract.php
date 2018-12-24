@@ -15,4 +15,13 @@ interface SellerServiceContract
      */
     public function create(array $data);
 
+
+    /**
+     * Make seller verified
+     *
+     * @param object $seller
+     * @return bool
+     */
+    public function verify(object $seller);
+
 }

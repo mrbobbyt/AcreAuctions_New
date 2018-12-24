@@ -53,12 +53,10 @@ Route::post('seller/create', 'API\v1\SellerController@create')
 Route::post('admin', 'API\v1\AdminController@verify')
     ->middleware('admin');
 
-/*Route::get('seller/tel/{id}', function($id) {
-    $tel = \App\Models\Seller::find($id)->getTelephones;
-    foreach ($tel as $t) {
-        dump($t->number);
-    }
-});*/
+
+/********* Admin *********/
+
+
 
 /*Route::get('reset/{token}', function($token) {
     $model = \App\Models\PasswordResets::where('token', '=', $token)->first();

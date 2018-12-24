@@ -41,9 +41,8 @@ class UserAuthService implements UserAuthServiceContract
     {
         $data['password'] = bcrypt(array_get($data, 'password'));
         $user = $this->model->query()->make()->fill($data);
-        $user->saveOrFail();
 
-        return $user;
+        return $user->saveOrFail();
     }
 
 

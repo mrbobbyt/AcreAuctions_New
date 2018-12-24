@@ -15,11 +15,26 @@ class SellerRepository implements SellerRepositoryContract
      *
      * @param string $slug
      * @return Model | bool
-     * @throws Exception
      */
     public function findBySlug(string $slug)
     {
         if ($seller = Seller::query()->where('slug', $slug)->first()) {
+            return $seller;
+        }
+
+        return false;
+    }
+
+
+    /**
+     * Find seller by id
+     *
+     * @param int $id
+     * @return Model | bool
+     */
+    public function findByPk(int $id)
+    {
+        if ($seller = Seller::query()->find($id)) {
             return $seller;
         }
 
