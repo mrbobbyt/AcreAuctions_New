@@ -40,16 +40,23 @@ class SellerService implements SellerServiceContract
 
         // Upload logo
         if (isset($data['logo']) && $data['logo']) {
-            $name = time() . $data['logo']->getClientOriginalName();
-            if (!$data['logo']->move('images/seller', $name)) {
-                throw new Exception('Can not upload photo.', 500);
-            }
+            $name = $this->uploadImage($data['logo'], 'logo');
             $data['logo'] = $name;
+        }
+
+        // Upload cover
+        if (isset($data['cover']) && $data['cover']) {
+            $name = $this->uploadImage($data['cover'], 'cover');
+            $data['cover'] = $name;
         }
 
         $seller = $this->model->query()->make()->fill($data);
 
-        return $seller->saveOrFail();
+        if ($seller->saveOrFail()) {
+            return $seller;
+        }
+
+        throw new Exception('Can not save seller');
     }
 
 
@@ -76,5 +83,24 @@ class SellerService implements SellerServiceContract
         $seller['is_verified'] = 1;
 
         return $seller->saveOrFail();
+    }
+
+
+    /**
+     * Upload image into server
+     *
+     * @param string $img
+     * @param string $type
+     * @return string
+     * @throws Exception
+     */
+    protected function uploadImage($img, $type)
+    {
+        $name = time() .'_'. $type .'_'. $img->getClientOriginalName();
+        if (!$img->move('images/seller', $name)) {
+            throw new Exception('Can not upload photo.', 500);
+        }
+
+        return $name;
     }
 }

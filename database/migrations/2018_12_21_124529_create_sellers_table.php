@@ -18,6 +18,7 @@ class CreateSellersTable extends Migration
             $table->string('slug')->unique();
             $table->text('description')->nullable();
             $table->string('logo')->nullable();
+            $table->string('cover')->nullable();
             $table->boolean('is_verified')->default(0);
             $table->string('email')->nullable();
             $table->string('address')->nullable();

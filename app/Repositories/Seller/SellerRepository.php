@@ -5,7 +5,6 @@ namespace App\Repositories\Seller;
 use App\Models\Seller;
 use App\Repositories\Seller\Contracts\SellerRepositoryContract;
 use Illuminate\Database\Eloquent\Model;
-use Exception;
 
 class SellerRepository implements SellerRepositoryContract
 {

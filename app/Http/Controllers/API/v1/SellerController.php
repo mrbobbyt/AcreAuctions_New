@@ -73,7 +73,7 @@ class SellerController extends Controller
      * @throws Throwable
      * @return JsonResponse
      */
-    public function create(Request $request)
+    public function create(Request $request): JsonResponse
     {
         try {
             $data = (new SellerCleateRequestValidator)->attempt($request);

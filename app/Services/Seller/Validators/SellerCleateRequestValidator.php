@@ -35,6 +35,7 @@ class SellerCleateRequestValidator implements AbstractValidator
             'title' => 'required|string|max:255|min:3',
             'description' => 'nullable|string',
             'logo' => 'nullable|image',
+            'cover' => 'nullable|image',
             'email' => 'nullable|string|email|max:255',
             'address' => 'nullable|string|max:255'
         ]);

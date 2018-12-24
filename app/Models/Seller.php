@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Model;
  * @property string title
  * @property string description
  * @property string logo
+ * @property string cover
  * @property bool is_verified
  * @property string email
  * @property string address
@@ -17,7 +18,7 @@ class Seller extends Model
 {
 
     protected $fillable = [
-        'title', 'slug', 'description', 'logo', 'is_verified', 'email', 'address'
+        'title', 'slug', 'description', 'logo', 'cover', 'is_verified', 'email', 'address'
     ];
 
     protected $guarded = ['id'];
