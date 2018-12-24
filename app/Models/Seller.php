@@ -33,4 +33,15 @@ class Seller extends Model
         return 'slug';
     }
 
+
+    /**
+     * Get related seller telephones
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function getTelephones()
+    {
+        return $this->hasMany('App\Models\SellerTelephone');
+    }
+
 }

@@ -93,9 +93,4 @@ class SellerController extends Controller
         ]);
     }
 
-
-    public function uploadLogo()
-    {
-        //
-    }
 }
