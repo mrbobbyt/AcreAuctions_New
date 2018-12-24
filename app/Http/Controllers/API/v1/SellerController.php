@@ -7,6 +7,7 @@ use App\Repositories\Seller\SellerRepository;
 use App\Services\Seller\Contracts\SellerServiceContract;
 use App\Services\Seller\Validators\SellerCleateRequestValidator;
 use Dotenv\Exception\ValidationException;
+use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
@@ -32,17 +33,22 @@ class SellerController extends Controller
      * URL: /api/seller/{slug}
      *
      * @param string $slug
+     * @throws Exception
      * @return JsonResponse
      */
     public function view(string $slug): JsonResponse
     {
         try {
             $seller = $this->sellerRepo->findBySlug($slug);
+
+            if (!$seller->is_verified) {
+                throw new Exception('Seller is not verified', 404);
+            }
         } catch (Throwable $e) {
             return response()->json([
                 'status' => 'Error',
                 'message' => $e->getMessage()
-            ], 500);
+            ], $e->getCode());
         }
 
         return response()->json([
@@ -60,6 +66,7 @@ class SellerController extends Controller
      *
      * @param Request $request
      * @throws ValidationException
+     * @throws Exception
      * @throws Throwable
      * @return JsonResponse
      */
@@ -71,12 +78,12 @@ class SellerController extends Controller
         } catch (ValidationException $e) {
             return response()->json([
                 'status' => 'Error',
-                'message' => $e->validator->errors()->first(),
+                'message' => $e->errors()->first(),
             ], 400);
         } catch (Throwable $e) {
             return response()->json([
                 'status' => 'Error',
-                'message' => 'Sorry, the seller could not register.'
+                'message' => $e->getMessage()
             ], 500);
         }
 

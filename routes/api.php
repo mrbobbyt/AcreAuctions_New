@@ -45,15 +45,13 @@ Route::get('user/delete/{id}', 'API\v1\UserController@delete')
 
 /********* Seller *********/
 
-/*Route::get('seller/{slug}', 'API\v1\SellerController@view')
-//    ->middleware('admin.seller-verify')
-;*/
+Route::get('seller/{slug}', 'API\v1\SellerController@view');
 
 Route::post('seller/create', 'API\v1\SellerController@create')
     ->middleware('jwt.verify');
 
 Route::post('admin', 'API\v1\AdminController@verify')
-    ->middleware('jwt.verify'/*, 'admin.check'*/);
+    ->middleware('admin');
 
 
 /*Route::get('reset/{token}', function($token) {

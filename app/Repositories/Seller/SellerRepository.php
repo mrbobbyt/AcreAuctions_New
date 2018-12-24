@@ -14,16 +14,16 @@ class SellerRepository implements SellerRepositoryContract
      * Find seller by url
      *
      * @param string $slug
-     * @return Model
+     * @return Model | bool
      * @throws Exception
      */
-    public function findBySlug(string $slug): Model
+    public function findBySlug(string $slug)
     {
         if ($seller = Seller::query()->where('slug', $slug)->first()) {
             return $seller;
         }
 
-        throw new Exception('Sorry, slug is not created.');
+        return false;
     }
 
 }

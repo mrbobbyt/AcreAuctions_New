@@ -26,7 +26,7 @@ class SellerResource extends JsonResource
             'id' => $this->id,
             'title' => $this->title,
             'description' => $this->description ?? null,
-            'logo' => $this->logo ?? null,
+            'logo' => public_path().'/images/seller/' . $this->logo ?? null,
             'email' => $this->email ?? null,
             'address' => $this->address ?? null,
         ];

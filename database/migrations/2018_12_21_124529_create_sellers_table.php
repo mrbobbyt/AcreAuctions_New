@@ -15,7 +15,7 @@ class CreateSellersTable extends Migration
         Schema::create('sellers', function (Blueprint $table) {
             $table->increments('id');
             $table->string('title')->unique();
-            $table->string('slug');
+            $table->string('slug')->unique();
             $table->text('description')->nullable();
             $table->string('logo')->nullable();
             $table->boolean('is_verified')->default(0);
