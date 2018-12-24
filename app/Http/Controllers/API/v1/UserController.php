@@ -10,6 +10,7 @@ use Illuminate\Http\JsonResponse;
 use App\Http\Resources\UserResource;
 use Illuminate\Http\Request;
 
+use Illuminate\Validation\ValidationException;
 use Throwable;
 use Tymon\JWTAuth\Exceptions\TokenExpiredException;
 use Tymon\JWTAuth\Exceptions\TokenInvalidException;
@@ -111,6 +112,7 @@ class UserController extends Controller
      *
      * @param Request $request
      * @param int $id
+     * @throws ValidationException
      * @return JsonResponse
      */
     public function update(Request $request, int $id): JsonResponse
@@ -119,6 +121,11 @@ class UserController extends Controller
             $data = app(UpdateRequestUserServiceValidator::class)->attempt($request, $id);
             $user = $this->userService->update($data['body']);
 
+        } catch (ValidationException $e) {
+            return response()->json([
+                'status' => 'Error',
+                'message' => $e->errors()->first(),
+            ], 400);
         } catch (Throwable $e) {
             return response()->json([
                 'status' => 'Error',

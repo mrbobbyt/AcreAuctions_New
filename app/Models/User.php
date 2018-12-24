@@ -73,4 +73,10 @@ class User extends Authenticatable implements JWTSubject
     {
         return $this->belongsTo('App\Models\Role', 'role', 'id');
     }
+
+
+    public function getFullName()
+    {
+        return $this->fname . ' ' . $this->lname;
+    }
 }

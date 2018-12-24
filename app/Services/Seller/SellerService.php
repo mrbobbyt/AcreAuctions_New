@@ -7,6 +7,7 @@ use Exception;
 use Illuminate\Database\Eloquent\Model;
 use App\Repositories\Seller\Contracts\SellerRepositoryContract;
 use App\Services\Seller\Contracts\SellerServiceContract;
+use JWTAuth;
 use Throwable;
 
 class SellerService implements SellerServiceContract
@@ -32,6 +33,8 @@ class SellerService implements SellerServiceContract
      */
     public function create(array $data): Model
     {
+        $data['user_id'] = JWTAuth::user()->id;
+
         // Create slug from title
         $data['slug'] = $this->makeUrl($data['title']);
         if ($this->sellerRepo->findBySlug($data['slug'])) {
@@ -102,5 +105,41 @@ class SellerService implements SellerServiceContract
         }
 
         return $name;
+    }
+
+
+    /**
+     * Update seller
+     *
+     * @param array $data
+     * @return mixed
+     * @throws Exception
+     */
+    public function update(array $data)
+    {
+        $seller = $data['seller'];
+
+        if (isset($data['body']['title']) && $data['body']['title']) {
+            $data['body']['slug'] = $this->makeUrl($data['body']['title']);
+        }
+
+        // Upload logo
+        if (isset($data['body']['logo']) && $data['body']['logo']) {
+            $name = $this->uploadImage($data['body']['logo'], 'logo');
+            $data['body']['logo'] = $name;
+        }
+
+        // Upload cover
+        if (isset($data['body']['cover']) && $data['body']['cover']) {
+            $name = $this->uploadImage($data['body']['cover'], 'cover');
+            $data['body']['cover'] = $name;
+        }
+
+        foreach ($data['body'] as $key=>$property) {
+            $seller->$key = $property;
+        }
+        $seller->saveOrFail();
+
+        return $seller;
     }
 }

@@ -50,6 +50,10 @@ Route::get('seller/{slug}', 'API\v1\SellerController@view');
 Route::post('seller/create', 'API\v1\SellerController@create')
     ->middleware('jwt.verify');
 
+Route::post('seller/update/{id}', 'API\v1\SellerController@update')
+    ->middleware('jwt.verify');
+
+
 Route::post('admin', 'API\v1\AdminController@verify')
     ->middleware('admin');
 

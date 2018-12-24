@@ -6,7 +6,7 @@ use App\Services\Auth\Validators\AbstractValidator;
 use Illuminate\Http\Request;
 use Validator;
 
-class SellerCleateRequestValidator implements AbstractValidator
+class CreateSellerRequestValidator implements AbstractValidator
 {
 
     /**
