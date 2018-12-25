@@ -45,7 +45,7 @@ Route::get('user/delete/{id}', 'API\v1\UserController@delete')
 
 /********* Seller *********/
 
-Route::get('seller/{id}', 'API\v1\SellerController@view');
+Route::get('seller/{slug}', 'API\v1\SellerController@view');
 
 Route::post('seller/create', 'API\v1\SellerController@create')
     ->middleware('jwt.verify');
@@ -62,6 +62,10 @@ Route::get('seller/delete/{id}', 'API\v1\SellerController@delete')
 Route::post('admin', 'API\v1\AdminController@verify')
     ->middleware('admin');
 
+
+/******** Listing ********/
+
+Route::get('land-for-sale/{state}/{slug}', 'API\v1\ListingController@view');
 
 /*Route::get('reset/{token}', function($token) {
     $model = \App\Models\PasswordResets::where('token', '=', $token)->first();

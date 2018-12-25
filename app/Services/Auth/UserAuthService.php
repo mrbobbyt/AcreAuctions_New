@@ -1,4 +1,5 @@
 <?php
+declare(strict_types = 1);
 
 namespace App\Services\Auth;
 
@@ -71,7 +72,7 @@ class UserAuthService implements UserAuthServiceContract
             return $token;
         }
 
-        return new JWTException();
+        throw new JWTException();
     }
 
 

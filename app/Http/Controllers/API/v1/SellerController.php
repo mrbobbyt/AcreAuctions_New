@@ -1,4 +1,5 @@
 <?php
+declare(strict_types = 1);
 
 namespace App\Http\Controllers\API\v1;
 
@@ -37,14 +38,14 @@ class SellerController extends Controller
      * METHOD: get
      * URL: /api/seller/{id}
      *
-     * @param int $id
+     * @param string $slug
      * @throws Exception
      * @return JsonResponse
      */
-    public function view(int $id): JsonResponse
+    public function view(string $slug): JsonResponse
     {
         try {
-            $seller = $this->sellerRepo->findByPk($id);
+            $seller = $this->sellerRepo->findBySlug($slug);
 
             if (!$seller->is_verified) {
                 throw new Exception('Seller is not verified', 404);

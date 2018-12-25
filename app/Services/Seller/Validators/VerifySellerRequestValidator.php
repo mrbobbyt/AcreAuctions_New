@@ -1,4 +1,5 @@
 <?php
+declare(strict_types = 1);
 
 namespace App\Services\Seller\Validators;
 
@@ -27,7 +28,7 @@ class VerifySellerRequestValidator implements AbstractValidator
      */
     public function attempt(Request $request)
     {
-        if (!$seller = $this->sellerRepo->findByPk($request->input('id'))) {
+        if (!$seller = $this->sellerRepo->findByPk((int)$request->input('id'))) {
             throw new Exception('Can not find seller.');
         }
 

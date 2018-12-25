@@ -1,4 +1,5 @@
 <?php
+declare(strict_types = 1);
 
 namespace App\Services\Seller;
 
@@ -8,7 +9,7 @@ use Exception;
 use Illuminate\Database\Eloquent\Model;
 use App\Repositories\Seller\Contracts\SellerRepositoryContract;
 use App\Services\Seller\Contracts\SellerServiceContract;
-use JWTAuth;
+use Illuminate\Http\UploadedFile;
 use Throwable;
 use Tymon\JWTAuth\Exceptions\JWTException;
 
@@ -38,7 +39,7 @@ class SellerService implements SellerServiceContract
      */
     public function create(array $data): Model
     {
-        $data['user_id'] = JWTAuth::user()->id;
+        $data['user_id'] = $this->userService->getID();
 
         // Create slug from title
         $data['slug'] = $this->makeUrl($data['title']);
@@ -97,7 +98,7 @@ class SellerService implements SellerServiceContract
     /**
      * Upload image into server
      *
-     * @param string $img
+     * @param UploadedFile $img
      * @param string $type
      * @return string
      * @throws Exception

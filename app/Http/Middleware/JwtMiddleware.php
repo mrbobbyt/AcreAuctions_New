@@ -1,4 +1,5 @@
 <?php
+declare(strict_types = 1);
 
 namespace App\Http\Middleware;
 
@@ -24,7 +25,7 @@ class JwtMiddleware extends BaseMiddleware
     {
         try {
             // check if token is valid
-            $token = JWTAuth::parseToken();
+            JWTAuth::parseToken();
         } catch (Exception $e) {
             if ($e instanceof TokenInvalidException) {
                 return response()->json([

@@ -1,4 +1,5 @@
 <?php
+declare(strict_types = 1);
 
 namespace App\Rules;
 
@@ -21,7 +22,7 @@ class CheckPassword implements Rule
      * Determine if the validation rule passes.
      *
      * @param  string  $attribute
-     * @param  User  $value
+     * @param  mixed  $value
      * @return bool
      */
     public function passes($attribute, $value)

@@ -1,5 +1,4 @@
 <?php
-declare(strict_types = 1);
 
 namespace App\Models;
 
@@ -7,13 +6,15 @@ use Illuminate\Database\Eloquent\Model;
 
 /**
  * @property int id
+ * @property int entity_id
+ * @property int entity_type
  * @property string name
  */
-class Role extends Model
+class Image extends Model
 {
-    protected $fillable = ['name'];
+
+    protected $fillable = ['entity_id', 'entity_type', 'name'];
 
     protected $guarded = ['id'];
 
-    public $timestamps = false;
 }

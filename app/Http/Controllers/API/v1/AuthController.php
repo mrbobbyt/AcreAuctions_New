@@ -1,4 +1,5 @@
 <?php
+declare(strict_types = 1);
 
 namespace App\Http\Controllers\API\v1;
 
@@ -200,7 +201,7 @@ class AuthController extends Controller
 
         }
 
-        $this->register($data);
+        return $this->register($data);
     }
 
 

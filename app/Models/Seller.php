@@ -1,4 +1,5 @@
 <?php
+declare(strict_types = 1);
 
 namespace App\Models;
 
@@ -12,14 +13,13 @@ use Illuminate\Database\Eloquent\Model;
  * @property string logo
  * @property string cover
  * @property bool is_verified
- * @property string email
  * @property string address
  */
 class Seller extends Model
 {
 
     protected $fillable = [
-        'user_id', 'title', 'slug', 'description', 'logo', 'cover', 'is_verified', 'email', 'address'
+        'user_id', 'title', 'slug', 'description', 'logo', 'cover', 'is_verified', 'address'
     ];
 
     protected $guarded = ['id'];
@@ -43,7 +43,7 @@ class Seller extends Model
      */
     public function getTelephones()
     {
-        return $this->hasMany('App\Models\SellerTelephone');
+        return $this->hasMany('App\Models\Telephone');
     }
 
     /**
