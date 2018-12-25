@@ -45,7 +45,7 @@ Route::get('user/delete/{id}', 'API\v1\UserController@delete')
 
 /********* Seller *********/
 
-Route::get('seller/{slug}', 'API\v1\SellerController@view');
+Route::get('seller/{id}', 'API\v1\SellerController@view');
 
 Route::post('seller/create', 'API\v1\SellerController@create')
     ->middleware('jwt.verify');
@@ -53,13 +53,14 @@ Route::post('seller/create', 'API\v1\SellerController@create')
 Route::post('seller/update/{id}', 'API\v1\SellerController@update')
     ->middleware('jwt.verify');
 
-
-Route::post('admin', 'API\v1\AdminController@verify')
-    ->middleware('admin');
+Route::get('seller/delete/{id}', 'API\v1\SellerController@delete')
+    ->middleware('jwt.verify');
 
 
 /********* Admin *********/
 
+Route::post('admin', 'API\v1\AdminController@verify')
+    ->middleware('admin');
 
 
 /*Route::get('reset/{token}', function($token) {

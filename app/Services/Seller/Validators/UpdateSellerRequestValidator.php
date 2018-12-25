@@ -2,24 +2,12 @@
 
 namespace App\Services\Seller\Validators;
 
-use App\Repositories\Seller\SellerRepository;
-use App\Services\User\Contracts\UserServiceContract;
 use Exception;
 use Illuminate\Http\Request;
 use Validator;
 
 class UpdateSellerRequestValidator
 {
-
-    protected $userService;
-    protected $sellerRepo;
-
-    public function __construct(UserServiceContract $userService, SellerRepository $sellerRepo)
-    {
-        $this->userService = $userService;
-        $this->sellerRepo = $sellerRepo;
-    }
-
 
     /**
      * Return validated array of data
@@ -29,17 +17,9 @@ class UpdateSellerRequestValidator
      * @return array
      * @throws Exception
      */
-    public function attempt(Request $request, int $id)
+    public function attempt(Request $request)
     {
-        $userID = $this->userService->getID();
-        $seller = $this->sellerRepo->findByPk($id);
-
-        if ($seller->user_id != $userID) {
-            throw new Exception('You are not permitted to update this seller.');
-        }
-
         return [
-            'seller' => $seller,
             'body' => $this->validateBody($request)
         ];
     }

@@ -57,11 +57,10 @@ class UserService implements UserServiceContract
     /**
      * Return id auth user
      *
-     * @return int
      * @throw JWTException
      * @throws Exception
      */
-    public function getID(): int
+    public function getID()
     {
         if ($user = JWTAuth::authenticate()) {
             return $user->id;
@@ -76,6 +75,7 @@ class UserService implements UserServiceContract
      *
      * @param int $id
      * @throws Exception
+     * @throws JWTException
      * @return bool
      */
     public function delete(int $id): bool

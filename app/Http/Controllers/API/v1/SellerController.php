@@ -2,19 +2,21 @@
 
 namespace App\Http\Controllers\API\v1;
 
-use App\Http\Resources\SellerResource;
-use App\Repositories\Seller\SellerRepository;
-use App\Services\Seller\Validators\UpdateSellerRequestValidator;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\Http\Resources\SellerResource;
+
 use App\Services\Seller\Contracts\SellerServiceContract;
+use App\Repositories\Seller\SellerRepository;
 
 use App\Services\Seller\Validators\CreateSellerRequestValidator;
+use App\Services\Seller\Validators\UpdateSellerRequestValidator;
 
 use Illuminate\Validation\ValidationException;
 use Exception;
 use Throwable;
+use Tymon\JWTAuth\Exceptions\JWTException;
 
 class SellerController extends Controller
 {
@@ -33,16 +35,16 @@ class SellerController extends Controller
      * View company-seller
      *
      * METHOD: get
-     * URL: /api/seller/{slug}
+     * URL: /api/seller/{id}
      *
-     * @param string $slug
+     * @param int $id
      * @throws Exception
      * @return JsonResponse
      */
-    public function view(string $slug): JsonResponse
+    public function view(int $id): JsonResponse
     {
         try {
-            $seller = $this->sellerRepo->findBySlug($slug);
+            $seller = $this->sellerRepo->findByPk($id);
 
             if (!$seller->is_verified) {
                 throw new Exception('Seller is not verified', 404);
@@ -70,6 +72,7 @@ class SellerController extends Controller
      *
      * @param Request $request
      * @throws ValidationException
+     * @throws JWTException
      * @throws Exception
      * @throws Throwable
      * @return JsonResponse
@@ -85,6 +88,11 @@ class SellerController extends Controller
                 'status' => 'Error',
                 'message' => $e->errors()->first(),
             ], 400);
+        } catch (JWTException $e) {
+            return response()->json([
+                'status' => 'Error',
+                'message' => $e->getMessage()
+            ], 403);
         } catch (Throwable $e) {
             return response()->json([
                 'status' => 'Error',
@@ -100,7 +108,7 @@ class SellerController extends Controller
 
 
     /**
-     * Create Seller
+     * Update Seller
      *
      * METHOD: post
      * URL: /api/seller/update/{id}
@@ -108,6 +116,7 @@ class SellerController extends Controller
      * @param Request $request
      * @param int $id
      * @throws ValidationException
+     * @throws JWTException
      * @throws Exception
      * @throws Throwable
      * @return JsonResponse
@@ -115,23 +124,64 @@ class SellerController extends Controller
     public function update(Request $request, int $id): JsonResponse
     {
         try {
-            $data = app(UpdateSellerRequestValidator::class)->attempt($request, $id);
-            $seller = $this->sellerService->update($data);
+            $data = app(UpdateSellerRequestValidator::class)->attempt($request);
+            $oldSeller = $this->sellerService->checkPermission($id);
+            $seller = $this->sellerService->update($oldSeller, $data);
         } catch (ValidationException $e) {
             return response()->json([
                 'status' => 'Error',
                 'message' => $e->errors()->first(),
             ], 400);
-        } catch (Throwable $e) {
+        } catch (JWTException $e) {
             return response()->json([
                 'status' => 'Error',
                 'message' => $e->getMessage()
+            ], 403);
+        } catch (Throwable $e) {
+            return response()->json([
+                'status' => 'Error',
+                'message' => '132'
             ], $e->getCode());
         }
 
         return response()->json([
             'status' => 'Success',
             'seller' => SellerResource::make($seller)
+        ]);
+    }
+
+
+    /**
+     * Delete Seller
+     *
+     * METHOD: get
+     * URL: /api/seller/delete/{id}
+     *
+     * @param int $id
+     * @throw JWTException
+     * @return JsonResponse
+     */
+    public function delete(int $id)
+    {
+        try {
+            $seller = $this->sellerService->checkPermission($id);
+            $this->sellerService->delete($seller);
+
+        } catch (JWTException $e) {
+            return response()->json([
+                'status' => 'Error',
+                'message' => $e->getMessage()
+            ], 403);
+        } catch (Throwable $e) {
+            return response()->json([
+                'status' => 'Error',
+                'message' => $e->getMessage()
+            ], 500);
+        }
+
+        return response()->json([
+            'status' => 'Success',
+            'message' => 'Seller successfully deleted.'
         ]);
     }
 

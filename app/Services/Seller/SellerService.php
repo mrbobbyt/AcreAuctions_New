@@ -3,23 +3,27 @@
 namespace App\Services\Seller;
 
 use App\Models\Seller;
+use App\Services\User\Contracts\UserServiceContract;
 use Exception;
 use Illuminate\Database\Eloquent\Model;
 use App\Repositories\Seller\Contracts\SellerRepositoryContract;
 use App\Services\Seller\Contracts\SellerServiceContract;
 use JWTAuth;
 use Throwable;
+use Tymon\JWTAuth\Exceptions\JWTException;
 
 class SellerService implements SellerServiceContract
 {
 
     protected $model;
     protected $sellerRepo;
+    protected $userService;
 
-    public function __construct(Seller $seller, SellerRepositoryContract $sellerRepo)
+    public function __construct(Seller $seller, SellerRepositoryContract $sellerRepo, UserServiceContract $userService)
     {
         $this->model = $seller;
         $this->sellerRepo = $sellerRepo;
+        $this->userService = $userService;
     }
 
 
@@ -29,6 +33,7 @@ class SellerService implements SellerServiceContract
      * @param array $data
      * @return Model
      * @throws Throwable
+     * @throws JWTException
      * @throws Exception
      */
     public function create(array $data): Model
@@ -109,16 +114,37 @@ class SellerService implements SellerServiceContract
 
 
     /**
+     * Check user`s permission to make action
+     *
+     * @param int $id
+     * @return Model $seller
+     * @throws Exception
+     * @throws JWTException
+     */
+    public function checkPermission(int $id): Model
+    {
+        $userID = $this->userService->getID();
+        $seller = $this->sellerRepo->findByPk($id);
+
+        if ($seller->user_id == $userID) {
+            return $seller;
+        }
+
+        throw new Exception('You are not permitted to update this seller.');
+    }
+
+
+    /**
      * Update seller
      *
+     * @param Model $seller
      * @param array $data
-     * @return mixed
+     * @return Model
      * @throws Exception
+     * @throws Throwable
      */
-    public function update(array $data)
+    public function update(Model $seller, array $data): Model
     {
-        $seller = $data['seller'];
-
         if (isset($data['body']['title']) && $data['body']['title']) {
             $data['body']['slug'] = $this->makeUrl($data['body']['title']);
         }
@@ -141,5 +167,22 @@ class SellerService implements SellerServiceContract
         $seller->saveOrFail();
 
         return $seller;
+    }
+
+
+    /**
+     * Delete seller
+     *
+     * @param Model $seller
+     * @throws Exception
+     * @return bool
+     */
+    public function delete(Model $seller): bool
+    {
+        if ($seller->delete()) {
+            return true;
+        }
+
+        return false;
     }
 }

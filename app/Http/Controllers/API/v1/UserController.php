@@ -113,6 +113,7 @@ class UserController extends Controller
      * @param Request $request
      * @param int $id
      * @throws ValidationException
+     * @throws JWTException
      * @return JsonResponse
      */
     public function update(Request $request, int $id): JsonResponse
@@ -126,6 +127,11 @@ class UserController extends Controller
                 'status' => 'Error',
                 'message' => $e->errors()->first(),
             ], 400);
+        } catch (JWTException $e) {
+            return response()->json([
+                'status' => 'Error',
+                'message' => $e->getMessage()
+            ], 403);
         } catch (Throwable $e) {
             return response()->json([
                 'status' => 'Error',
@@ -147,6 +153,7 @@ class UserController extends Controller
      * URL: /api/delete/{id}
      *
      * @param int $id
+     * @throws JWTException
      * @return JsonResponse
      */
     public function delete(int $id): JsonResponse
@@ -154,6 +161,11 @@ class UserController extends Controller
         try {
             $this->userService->delete($id);
 
+        } catch (JWTException $e) {
+            return response()->json([
+                'status' => 'Error',
+                'message' => $e->getMessage()
+            ], 403);
         } catch (Throwable $e) {
             return response()->json([
                 'status' => 'Error',
@@ -163,7 +175,7 @@ class UserController extends Controller
 
         return response()->json([
             'status' => 'Success',
-            'user' => 'User successfully deleted.'
+            'message' => 'User successfully deleted.'
         ]);
     }
 }
