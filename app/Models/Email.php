@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\Model;
  */
 class Email extends Model
 {
+    const TYPE_SELLER = 1;
 
     protected $fillable = ['entity_id', 'entity_type', 'email'];
 

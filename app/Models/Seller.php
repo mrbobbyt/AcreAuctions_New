@@ -4,6 +4,8 @@ declare(strict_types = 1);
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
  * @property int id
@@ -25,35 +27,31 @@ class Seller extends Model
     protected $guarded = ['id'];
 
 
-//    /**
-//     * Get the route key for the model.
-//     *
-//     * @return string
-//     */
-//    public function getRouteKeyName()
-//    {
-//        return 'slug';
-//    }
-
-
     /**
      * Get related seller telephones
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     * @return HasMany
      */
-    public function getTelephones()
+    public function telephones()
     {
-        return $this->hasMany('App\Models\Telephone');
+        return $this->hasMany('App\Models\Telephone', 'entity_id', 'id');
     }
 
     /**
      * Get head of company
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     * @return BelongsTo
      */
     public function getHead()
     {
         return $this->belongsTo('App\Models\User', 'user_id');
     }
 
+
+    /**
+     * Get related seller emails
+     * @return HasMany
+     */
+    public function emails()
+    {
+        return $this->hasMany('App\Models\Email', 'entity_id', 'id');
+    }
 }

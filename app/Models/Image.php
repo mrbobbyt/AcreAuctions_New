@@ -12,6 +12,8 @@ use Illuminate\Database\Eloquent\Model;
  */
 class Image extends Model
 {
+    const TYPE_USER = 1;
+    const TYPE_LISTING = 2;
 
     protected $fillable = ['entity_id', 'entity_type', 'name'];
 

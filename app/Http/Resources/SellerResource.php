@@ -3,6 +3,7 @@ declare(strict_types = 1);
 
 namespace App\Http\Resources;
 
+use App\Repositories\Seller\Contracts\SellerRepositoryContract;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 /**
@@ -18,16 +19,11 @@ class SellerResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
-     *
      * @param  \Illuminate\Http\Request  $request
      * @return array
      */
     public function toArray($request)
     {
-        $tel = $this->getTelephones->map(function ($item) {
-            return $item->number;
-        })->toArray();
-
         return [
             'id' => $this->id,
             'head' => $this->getHead->getFullName(),
@@ -35,8 +31,8 @@ class SellerResource extends JsonResource
             'description' => $this->description ?? null,
             'logo' => $this->logo ? public_path().'/images/seller/' . $this->logo : null,
             'cover' => $this->cover ? public_path().'/images/seller/' . $this->cover : null,
-            'telephones' => $tel,
-            'email' => $this->email ?? null,
+            'telephones' => app(SellerRepositoryContract::class)->getTelephones($this) ?? null,
+            'email' =>app(SellerRepositoryContract::class)->getEmails($this) ?? null,
             'address' => $this->address ?? null,
         ];
     }

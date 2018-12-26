@@ -34,10 +34,8 @@ class SellerController extends Controller
 
     /**
      * View company-seller
-     *
      * METHOD: get
      * URL: /api/seller/{id}
-     *
      * @param string $slug
      * @throws Exception
      * @return JsonResponse
@@ -67,10 +65,8 @@ class SellerController extends Controller
 
     /**
      * Create Seller
-     *
      * METHOD: post
      * URL: /api/seller/create
-     *
      * @param Request $request
      * @throws ValidationException
      * @throws JWTException
@@ -110,10 +106,8 @@ class SellerController extends Controller
 
     /**
      * Update Seller
-     *
      * METHOD: post
      * URL: /api/seller/update/{id}
-     *
      * @param Request $request
      * @param int $id
      * @throws ValidationException
@@ -131,7 +125,7 @@ class SellerController extends Controller
         } catch (ValidationException $e) {
             return response()->json([
                 'status' => 'Error',
-                'message' => $e->errors()->first(),
+                'message' => $e->validator->errors()->first(),
             ], 400);
         } catch (JWTException $e) {
             return response()->json([
@@ -154,10 +148,8 @@ class SellerController extends Controller
 
     /**
      * Delete Seller
-     *
      * METHOD: get
      * URL: /api/seller/delete/{id}
-     *
      * @param int $id
      * @throw JWTException
      * @return JsonResponse

@@ -60,7 +60,7 @@ Route::get('seller/delete/{id}', 'API\v1\SellerController@delete')
 /********* Admin *********/
 
 Route::post('admin', 'API\v1\AdminController@verify')
-    ->middleware('admin');
+    ->middleware('jwt.verify', 'admin');
 
 
 /******** Listing ********/

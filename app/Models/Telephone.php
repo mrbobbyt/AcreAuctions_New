@@ -13,6 +13,9 @@ use Illuminate\Database\Eloquent\Model;
  */
 class Telephone extends Model
 {
+    const TYPE_USER = 1;
+    const TYPE_SELLER = 2;
+
     protected $fillable = ['entity_id', 'entity_type', 'number'];
 
     protected $guarded = ['id'];

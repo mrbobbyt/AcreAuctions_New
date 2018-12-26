@@ -23,9 +23,10 @@ class JwtMiddleware extends BaseMiddleware
      */
     public function handle(Request $request, Closure $next)
     {
+
         try {
             // check if token is valid
-            JWTAuth::parseToken();
+            $token = JWTAuth::parseToken();
         } catch (Exception $e) {
             if ($e instanceof TokenInvalidException) {
                 return response()->json([
