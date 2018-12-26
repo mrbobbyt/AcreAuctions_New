@@ -13,7 +13,6 @@ use App\Services\Auth\Contracts\UserAuthServiceContract;
 
 use JWTAuth;
 use Throwable;
-use Illuminate\Database\Eloquent\Model;
 use Tymon\JWTAuth\Exceptions\JWTException;
 
 class UserAuthService implements UserAuthServiceContract
@@ -35,10 +34,10 @@ class UserAuthService implements UserAuthServiceContract
      * Create User
      *
      * @param array $data
-     * @return Model
+     * @return bool
      * @throws Throwable
      */
-    public function create(array $data): Model
+    public function create(array $data): bool
     {
         $data['password'] = bcrypt(array_get($data, 'password'));
         $user = $this->model->query()->make()->fill($data);
@@ -62,14 +61,18 @@ class UserAuthService implements UserAuthServiceContract
     /**
      * Create token for new User
      *
-     * @param $user
+     * @param $data
      * @return string
      * @throws JWTException
      */
-    public function createToken($user): string
+    public function createToken($data): string
     {
-        if ($token = JWTAuth::fromUser($user)) {
-            return $token;
+        if (isset($data['password'])) {
+            if ($token = JWTAuth::attempt(['email' => $data['email'], 'password' => $data['password']])) {
+                return $token;
+            }
+        } else {
+            return $this->createTokenWithoutPassword($data['email']);
         }
 
         throw new JWTException();
@@ -110,10 +113,11 @@ class UserAuthService implements UserAuthServiceContract
      */
     public function sendEmailWithToken(array $data): void
     {
-        $this->createForgotToken($data);
+        $token = $this->createTokenWithoutPassword($data['body']['email']);
+        $this->createForgotToken($data, $token);
 
         Mail::to($data['body']['email'])
-            ->send(new ForgotPasswordMail($data['token']));
+            ->send(new ForgotPasswordMail($token));
     }
 
 
@@ -121,18 +125,37 @@ class UserAuthService implements UserAuthServiceContract
      * Create reset token when user forgot password
      *
      * @param array $data
+     * @param string $token
      * @throws Throwable
      * @return bool
      */
-    public function createForgotToken(array $data): bool
+    protected function createForgotToken(array $data, string $token): bool
     {
         $pwd = PasswordResets::query()->make()->fill([
             'email' => $data['body']['email'],
-            'token' => $data['token'],
+            'token' => $token,
             'created_at' => date('Y-m-d H:i:s')
         ]);
 
         return $pwd->saveOrFail();
+    }
+
+
+    /**
+     * Create token without password
+     *
+     * @param string $email
+     * @return string
+     * @throws JWTException
+     */
+    protected function createTokenWithoutPassword (string $email): string
+    {
+        $user = $this->userRepo->findByEmail($email);
+        if ($token = JWTAuth::fromUser($user)) {
+            return $token;
+        }
+
+        throw new JWTException();
     }
 
 }

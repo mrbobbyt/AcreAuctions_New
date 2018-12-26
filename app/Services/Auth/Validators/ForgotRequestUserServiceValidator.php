@@ -18,10 +18,7 @@ class ForgotRequestUserServiceValidator implements AbstractValidator
      */
     public function attempt(Request $request)
     {
-        $token = bcrypt(str_random(10));
-
         return [
-            'token' => $token,
             'body' => $this->validateBody($request)
         ];
     }

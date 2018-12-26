@@ -5,6 +5,7 @@ namespace App\Services\Auth\Contracts;
 
 use Illuminate\Database\Eloquent\Model;
 use Throwable;
+use Tymon\JWTAuth\Exceptions\JWTException;
 
 interface UserAuthServiceContract
 {
@@ -62,13 +63,4 @@ interface UserAuthServiceContract
      */
     public function sendEmailWithToken(array $data);
 
-
-    /**
-     * Create reset token when user forgot password
-     *
-     * @param array $data
-     * @throws Throwable
-     * @return bool
-     */
-    public function createForgotToken(array $data);
 }

@@ -127,9 +127,9 @@ class AuthController extends Controller
      * @param Request $request
      * @throws ValidationException
      * @throws Throwable
-     * @return array
+     * @return JsonResponse
      */
-    public function handleForm(Request $request): array
+    public function handleForm(Request $request): JsonResponse
     {
         try {
             $data = (new RegisterRequestUserServiceValidator())->attempt($request);
@@ -142,11 +142,11 @@ class AuthController extends Controller
         } catch (Throwable $e) {
             return response()->json([
                 'status' => 'Error',
-                'message' => 'Sorry, the user could not register.'
+                'message' => $e->getMessage()
             ], 500);
         }
 
-        return $data;
+        return $this->register($data);
     }
 
 
@@ -159,7 +159,7 @@ class AuthController extends Controller
      * @throws ValidationException
      * @throws JWTException
      */
-    public function handleSocialRequest()
+    protected function handleSocialRequest()
     {
         if (request('scope')) {
             $data = $this->handleGoogle();
@@ -180,7 +180,8 @@ class AuthController extends Controller
             // try to login user
             try {
                 $user = $this->userRepo->findByEmail($data['body']['email']);
-                $token = $this->userService->createToken($user);
+                $token = $this->userService->createToken($data['body']);
+
             } catch (JWTException $e) {
                 return response()->json([
                     'status' => 'Error',
@@ -189,7 +190,7 @@ class AuthController extends Controller
             } catch (Throwable $e) {
                 return response()->json([
                     'status' => 'Error',
-                    'message' => 'Sorry, the user could not register.'
+                    'message' => $e->getMessage()
                 ], 500);
             }
 
@@ -214,7 +215,7 @@ class AuthController extends Controller
      * @throws Throwable
      * @return array
      */
-    public function handleFacebook(): array
+    protected function handleFacebook(): array
     {
         try {
             $client = $this->fbService->getProfile();
@@ -255,7 +256,7 @@ class AuthController extends Controller
      * @throws Throwable
      * @return array
      */
-    public function handleGoogle(): array
+    protected function handleGoogle(): array
     {
         try {
             $client = $this->googleService->getProfile();
@@ -278,19 +279,18 @@ class AuthController extends Controller
 
 
     /**
-     * METHOD: post
-     * URL: /api/register
+     * Register user with validated data, getting different ways
      *
      * @param array $data
      * @throws JWTException
      * @throws Throwable
      * @return JsonResponse
      */
-    public function register(array $data): JsonResponse
+    protected function register(array $data): JsonResponse
     {
         try {
             $user = $this->userService->create($data['body']);
-            $token = $this->userService->createToken($user);
+            $token = $this->userService->createToken($data['body']);
 
         } catch (ValidationException $e) {
             return response()->json([
@@ -305,7 +305,7 @@ class AuthController extends Controller
         } catch (Throwable $e) {
             return response()->json([
                 'status' => 'Error',
-                'message' => 'Sorry, the user could not register.'
+                'message' => $e->getMessage()
             ], 500);
         }
 
