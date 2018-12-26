@@ -99,6 +99,7 @@ class AuthController extends Controller
     {
         try {
             $data = app(LoginRequestUserServiceValidator::class)->attempt($request);
+            $token = $this->userService->getToken($data['body']);
 
         } catch (ValidationException $e) {
             return response()->json([
@@ -108,13 +109,13 @@ class AuthController extends Controller
         } catch (Throwable $e) {
             return response()->json([
                 'status' => 'Error',
-                'message' => 'Sorry, the user could not login.'
+                'message' => $e->getMessage()
             ], 500);
         }
 
         return response()->json([
             'status' => 'Success',
-            'token' => $data['token'],
+            'token' => $token,
             'user' => UserResource::make($data['user'])
         ]);
     }

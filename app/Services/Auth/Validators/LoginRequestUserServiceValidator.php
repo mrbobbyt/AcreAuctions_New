@@ -32,11 +32,9 @@ class LoginRequestUserServiceValidator
     public function attempt(Request $request): array
     {
         $user = $this->userRepo->findByEmail($request->input('email'));
-        $token = $this->userService->getToken($request->only('email', 'password'));
 
         return [
             'body' => $this->validateBody($request, $user),
-            'token' => $token,
             'user' => $user
         ];
     }

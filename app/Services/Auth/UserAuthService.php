@@ -6,6 +6,7 @@ namespace App\Services\Auth;
 use App\Mail\ForgotPasswordMail;
 use App\Models\PasswordResets;
 use App\Models\User;
+use Exception;
 use Mail;
 
 use App\Repositories\User\Contracts\UserRepositoryContract;
@@ -51,10 +52,15 @@ class UserAuthService implements UserAuthServiceContract
      *
      * @param array $data
      * @return string
+     * @throws Exception
      */
     public function getToken(array $data): string
     {
-        return JWTAuth::attempt(['email' => $data['email'], 'password' => $data['password']]);
+        if($token = JWTAuth::attempt(['email' => $data['email'], 'password' => $data['password']])) {
+            return $token;
+        }
+
+        throw new Exception('The email or the password is wrong.');
     }
 
 
