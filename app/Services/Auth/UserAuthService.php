@@ -4,6 +4,7 @@ declare(strict_types = 1);
 namespace App\Services\Auth;
 
 use App\Mail\ForgotPasswordMail;
+use App\Models\Image;
 use App\Models\PasswordResets;
 use App\Models\User;
 use Exception;
@@ -33,23 +34,22 @@ class UserAuthService implements UserAuthServiceContract
 
     /**
      * Create User
-     *
      * @param array $data
-     * @return bool
+     * @return object
      * @throws Throwable
      */
-    public function create(array $data): bool
+    public function create(array $data): object
     {
         $data['password'] = bcrypt(array_get($data, 'password'));
         $user = $this->model->query()->make()->fill($data);
+        $user->saveOrFail();
 
-        return $user->saveOrFail();
+        return $user;
     }
 
 
     /**
      * Create token for auth User
-     *
      * @param array $data
      * @return string
      * @throws Exception
@@ -66,7 +66,6 @@ class UserAuthService implements UserAuthServiceContract
 
     /**
      * Create token for new User
-     *
      * @param $data
      * @return string
      * @throws JWTException
@@ -87,7 +86,6 @@ class UserAuthService implements UserAuthServiceContract
 
     /**
      * Logout user and break token
-     *
      */
     public function breakToken()
     {
@@ -97,7 +95,6 @@ class UserAuthService implements UserAuthServiceContract
 
     /**
      * Reset user password
-     *
      * @param array $data
      * @return bool
      * @throws Throwable
@@ -113,7 +110,6 @@ class UserAuthService implements UserAuthServiceContract
 
     /**
      * Send email with invitation token when user forgot password
-     *
      * @param array $data
      * @throws Throwable
      */
@@ -129,7 +125,6 @@ class UserAuthService implements UserAuthServiceContract
 
     /**
      * Create reset token when user forgot password
-     *
      * @param array $data
      * @param string $token
      * @throws Throwable
@@ -149,7 +144,6 @@ class UserAuthService implements UserAuthServiceContract
 
     /**
      * Create token without password
-     *
      * @param string $email
      * @return string
      * @throws JWTException
@@ -164,4 +158,24 @@ class UserAuthService implements UserAuthServiceContract
         throw new JWTException();
     }
 
+
+    /**
+     * Create User avatar
+     * @param array $data
+     * @param int $id
+     * @return bool
+     * @throws Throwable
+     */
+    public function createAvatar(array $data, $id): bool
+    {
+        $image = Image::query()->make()->fill([
+            'entity_id' => $id,
+            'entity_type' => Image::TYPE_USER_AVATAR,
+            'name' => upload_image($data['avatar'], class_basename($this->model), 'avatar'),
+            'created_at' => date('Y-m-d H:i:s'),
+            'updated_at' => date('Y-m-d H:i:s'),
+        ]);
+
+        return $image->saveOrFail();
+    }
 }

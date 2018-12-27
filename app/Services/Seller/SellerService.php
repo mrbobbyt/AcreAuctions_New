@@ -9,7 +9,6 @@ use Exception;
 use Illuminate\Database\Eloquent\Model;
 use App\Repositories\Seller\Contracts\SellerRepositoryContract;
 use App\Services\Seller\Contracts\SellerServiceContract;
-use Illuminate\Http\UploadedFile;
 use Throwable;
 use Tymon\JWTAuth\Exceptions\JWTException;
 
@@ -30,7 +29,6 @@ class SellerService implements SellerServiceContract
 
     /**
      * Create new seller
-     *
      * @param array $data
      * @return Model
      * @throws Throwable
@@ -49,13 +47,13 @@ class SellerService implements SellerServiceContract
 
         // Upload logo
         if (isset($data['logo']) && $data['logo']) {
-            $name = $this->uploadImage($data['logo'], 'logo');
+            $name = upload_image($data['logo'], class_basename($this->model), 'logo');
             $data['logo'] = $name;
         }
 
         // Upload cover
         if (isset($data['cover']) && $data['cover']) {
-            $name = $this->uploadImage($data['cover'], 'cover');
+            $name = upload_image($data['cover'], class_basename($this->model), 'cover');
             $data['cover'] = $name;
         }
 
@@ -71,7 +69,6 @@ class SellerService implements SellerServiceContract
 
     /**
      * Return slug created from title
-     *
      * @param string $title
      * @return string
      */
@@ -83,7 +80,6 @@ class SellerService implements SellerServiceContract
 
     /**
      * Make seller verified
-     *
      * @param object $seller
      * @return bool
      */
@@ -96,27 +92,7 @@ class SellerService implements SellerServiceContract
 
 
     /**
-     * Upload image into server
-     *
-     * @param UploadedFile $img
-     * @param string $type
-     * @return string
-     * @throws Exception
-     */
-    protected function uploadImage($img, $type)
-    {
-        $name = time() .'_'. $type .'_'. $img->getClientOriginalName();
-        if (!$img->move('images/seller', $name)) {
-            throw new Exception('Can not upload photo.', 500);
-        }
-
-        return $name;
-    }
-
-
-    /**
      * Check user`s permission to make action
-     *
      * @param int $id
      * @return Model $seller
      * @throws Exception
@@ -152,13 +128,13 @@ class SellerService implements SellerServiceContract
 
         // Upload logo
         if (isset($data['body']['logo']) && $data['body']['logo']) {
-            $name = $this->uploadImage($data['body']['logo'], 'logo');
+            $name = upload_image($data['body']['logo'], class_basename($this->model), 'logo');
             $data['body']['logo'] = $name;
         }
 
         // Upload cover
         if (isset($data['body']['cover']) && $data['body']['cover']) {
-            $name = $this->uploadImage($data['body']['cover'], 'cover');
+            $name = upload_image($data['body']['cover'], class_basename($this->model), 'cover');
             $data['body']['cover'] = $name;
         }
 

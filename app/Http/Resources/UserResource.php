@@ -27,6 +27,7 @@ class UserResource extends JsonResource
             'lname' => $this->lname,
             'email' => $this->email,
             'role' => $this->getRoleName->name ?? null,
+            'avatar' => $this->avatar ? get_image_path('User', $this->avatar->name) : null
         ];
     }
 }

@@ -33,10 +33,8 @@ class UserController extends Controller
 
     /**
      * Return auth user profile
-     *
      * METHOD: get
      * URL: /api/profile
-     *
      * @throws JWTException
      * @throws TokenInvalidException
      * @throws TokenExpiredException
@@ -79,10 +77,8 @@ class UserController extends Controller
 
     /**
      * Return user profile by id
-     *
      * METHOD: get
      * URL: /api/view/{id}
-     *
      * @param int $id
      * @return JsonResponse
      */
@@ -107,10 +103,8 @@ class UserController extends Controller
 
     /**
      * Update auth user info
-     *
      * METHOD: post
      * URL: /api/update/{id}
-     *
      * @param Request $request
      * @param int $id
      * @throws ValidationException
@@ -149,10 +143,8 @@ class UserController extends Controller
 
     /**
      * Delete auth user
-     *
      * METHOD: get
      * URL: /api/delete/{id}
-     *
      * @param int $id
      * @throws JWTException
      * @return JsonResponse

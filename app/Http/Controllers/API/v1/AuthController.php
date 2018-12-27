@@ -49,10 +49,8 @@ class AuthController extends Controller
 
     /**
      * Login page for social networks
-     *
      * METHOD: get
      * URL: /api
-     *
      * @throws FacebookSDKException
      * @throws Throwable
      * @return \Illuminate\View\View
@@ -90,7 +88,6 @@ class AuthController extends Controller
     /**
      * METHOD: post
      * URL: /api/login
-     *
      * @param Request $request
      * @throws ValidationException
      * @return JsonResponse
@@ -124,7 +121,6 @@ class AuthController extends Controller
     /**
      * METHOD: post
      * URL: /api/register
-     *
      * @param Request $request
      * @throws ValidationException
      * @throws Throwable
@@ -153,7 +149,6 @@ class AuthController extends Controller
 
     /**
      * Handle request from social networks
-     *
      * @throws FacebookResponseException
      * @throws FacebookSDKException
      * @throws Throwable
@@ -209,7 +204,6 @@ class AuthController extends Controller
 
     /**
      * Get validated user data from Google
-     *
      * @throws FacebookSDKException
      * @throws FacebookResponseException
      * @throws ValidationException
@@ -252,7 +246,6 @@ class AuthController extends Controller
 
     /**
      * Get validated user data from Google
-     *
      * @throws ValidationException
      * @throws Throwable
      * @return array
@@ -281,7 +274,6 @@ class AuthController extends Controller
 
     /**
      * Register user with validated data, getting different ways
-     *
      * @param array $data
      * @throws JWTException
      * @throws Throwable
@@ -291,6 +283,9 @@ class AuthController extends Controller
     {
         try {
             $user = $this->userService->create($data['body']);
+            if ($data['image']) {
+                $image = $this->userService->createAvatar($data['image'], $user->id);
+            }
             $token = $this->userService->createToken($data['body']);
 
         } catch (ValidationException $e) {
@@ -320,7 +315,6 @@ class AuthController extends Controller
     /**
      * METHOD: get
      * URL: /api/logout
-     *
      * @throws JWTException
      * @throws Throwable
      * @return JsonResponse
@@ -352,7 +346,6 @@ class AuthController extends Controller
     /**
      * METHOD: post
      * URL: /api/forgot
-     *
      * @param Request $request
      * @throws ValidationException
      * @throws Throwable
@@ -392,7 +385,6 @@ class AuthController extends Controller
     /**
      * METHOD: post
      * URL: /api/reset
-     *
      * @param Request $request
      * @throws ValidationException
      * @throws JWTException
