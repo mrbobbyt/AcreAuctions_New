@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Repositories\User\Contracts\UserRepositoryContract;
 use App\Services\User\Contracts\UserServiceContract;
 use App\Services\User\Validators\UpdateRequestUserServiceValidator;
+use Exception;
 use Illuminate\Http\JsonResponse;
 use App\Http\Resources\UserResource;
 use Illuminate\Http\Request;
@@ -109,6 +110,8 @@ class UserController extends Controller
      * @param int $id
      * @throws ValidationException
      * @throws JWTException
+     * @throws Exception
+     * @throws Throwable
      * @return JsonResponse
      */
     public function update(Request $request, int $id): JsonResponse
@@ -116,6 +119,9 @@ class UserController extends Controller
         try {
             $data = app(UpdateRequestUserServiceValidator::class)->attempt($request, $id);
             $user = $this->userService->update($data['body']);
+            if ($data['image']) {
+                $this->userService->updateAvatar($data['image'], $user->id);
+            }
 
         } catch (ValidationException $e) {
             return response()->json([

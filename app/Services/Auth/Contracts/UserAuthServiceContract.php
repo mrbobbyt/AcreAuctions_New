@@ -71,5 +71,5 @@ interface UserAuthServiceContract
      * @return bool
      * @throws Throwable
      */
-    public function createAvatar(array $data, $id);
+    public function createAvatar(array $data, int $id);
 }

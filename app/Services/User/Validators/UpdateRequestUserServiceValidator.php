@@ -23,7 +23,6 @@ class UpdateRequestUserServiceValidator
 
     /**
      * Return validated array of data
-     *
      * @param Request $request
      * @param int $id
      * @return array
@@ -37,14 +36,14 @@ class UpdateRequestUserServiceValidator
         }
 
         return [
-            'body' => $this->validateBody($request)
+            'body' => $this->validateBody($request),
+            'image' => $this->validateImage($request),
         ];
     }
 
 
     /**
      * Validate given data
-     *
      * @param Request $request
      * @return array
      */
@@ -55,6 +54,21 @@ class UpdateRequestUserServiceValidator
             'lname' => 'nullable|string|max:255|min:3',
             'email' => 'nullable|string|email|max:255|unique:users',
             'role' => ['nullable','integer', new CheckRole]
+        ]);
+
+        return $validator->validate();
+    }
+
+
+    /**
+     * Validate avatar
+     * @param Request $request
+     * @return array
+     */
+    public function validateImage(Request $request)
+    {
+        $validator = Validator::make($request->only('avatar'), [
+            'avatar' => 'nullable|image',
         ]);
 
         return $validator->validate();

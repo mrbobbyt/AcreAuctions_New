@@ -166,7 +166,7 @@ class UserAuthService implements UserAuthServiceContract
      * @return bool
      * @throws Throwable
      */
-    public function createAvatar(array $data, $id): bool
+    public function createAvatar(array $data, int $id): bool
     {
         $image = Image::query()->make()->fill([
             'entity_id' => $id,
