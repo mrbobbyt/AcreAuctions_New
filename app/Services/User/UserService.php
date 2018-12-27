@@ -116,7 +116,7 @@ class UserService implements UserServiceContract
                 ['entity_id', $id],
                 ['entity_type', Image::TYPE_USER_AVATAR]
             ])
-            ->update([
+            ->updateOrCreate([
                 'name' => upload_image($data['avatar'], 'User', 'avatar'),
                 'updated_at' => date('Y-m-d H:i:s'),
             ]);

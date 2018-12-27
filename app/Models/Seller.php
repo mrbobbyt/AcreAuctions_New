@@ -12,8 +12,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int user_id
  * @property string title
  * @property string description
- * @property string logo
- * @property string cover
  * @property bool is_verified
  * @property string address
  */

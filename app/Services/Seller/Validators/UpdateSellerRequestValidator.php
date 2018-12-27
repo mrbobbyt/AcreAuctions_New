@@ -12,7 +12,6 @@ class UpdateSellerRequestValidator
 
     /**
      * Return validated array of data
-     *
      * @param Request $request
      * @param int $id
      * @return array
@@ -21,13 +20,14 @@ class UpdateSellerRequestValidator
     public function attempt(Request $request)
     {
         return [
-            'body' => $this->validateBody($request)
+            'body' => $this->validateBody($request),
+            'image' => $this->validateImage($request)
         ];
     }
 
+
     /**
      * Validate given data
-     *
      * @param Request $request
      * @return array
      */
@@ -36,12 +36,27 @@ class UpdateSellerRequestValidator
         $validator = Validator::make($request->all(), [
             'title' => 'nullable|string|max:255|min:3',
             'description' => 'nullable|string',
-            'logo' => 'nullable|image',
-            'cover' => 'nullable|image',
             'email' => 'nullable|string|email|max:255',
             'address' => 'nullable|string|max:255'
         ]);
 
         return $validator->validate();
     }
+
+
+    /**
+     * Validate images
+     * @param Request $request
+     * @return array
+     */
+    public function validateImage(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'logo' => 'nullable|image',
+            'cover' => 'nullable|image',
+        ]);
+
+        return $validator->validate();
+    }
+
 }

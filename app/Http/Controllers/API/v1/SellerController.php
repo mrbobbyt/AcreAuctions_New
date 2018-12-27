@@ -78,7 +78,7 @@ class SellerController extends Controller
     {
         try {
             $data = (new CreateSellerRequestValidator)->attempt($request);
-            $seller = $this->sellerService->create($data['body']);
+            $seller = $this->sellerService->create($data);
 
         } catch (ValidationException $e) {
             return response()->json([
@@ -122,6 +122,7 @@ class SellerController extends Controller
             $data = app(UpdateSellerRequestValidator::class)->attempt($request);
             $oldSeller = $this->sellerService->checkPermission($id);
             $seller = $this->sellerService->update($oldSeller, $data);
+
         } catch (ValidationException $e) {
             return response()->json([
                 'status' => 'Error',
@@ -132,10 +133,15 @@ class SellerController extends Controller
                 'status' => 'Error',
                 'message' => $e->getMessage()
             ], 403);
+        } catch (Exception $e) {
+            return response()->json([
+                'status' => 'Error',
+                'message' => $e->getMessage()
+            ], $e->getCode());
         } catch (Throwable $e) {
             return response()->json([
                 'status' => 'Error',
-                'message' => '132'
+                'message' => $e->getMessage()
             ], $e->getCode());
         }
 
