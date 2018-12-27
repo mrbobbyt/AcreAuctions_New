@@ -40,9 +40,13 @@ class UserAuthService implements UserAuthServiceContract
      */
     public function create(array $data): object
     {
-        $data['password'] = bcrypt(array_get($data, 'password'));
-        $user = $this->model->query()->make()->fill($data);
+        $data['body']['password'] = bcrypt(array_get($data['body'], 'password'));
+        $user = $this->model->query()->make()->fill($data['body']);
         $user->saveOrFail();
+
+        if ($data['image']) {
+            $this->createAvatar($data['image'], $user->id);
+        }
 
         return $user;
     }

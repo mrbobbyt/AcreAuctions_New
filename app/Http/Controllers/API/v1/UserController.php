@@ -118,10 +118,7 @@ class UserController extends Controller
     {
         try {
             $data = app(UpdateRequestUserServiceValidator::class)->attempt($request, $id);
-            $user = $this->userService->update($data['body']);
-            if ($data['image']) {
-                $this->userService->updateAvatar($data['image'], $user->id);
-            }
+            $user = $this->userService->update($data);
 
         } catch (ValidationException $e) {
             return response()->json([
@@ -158,6 +155,7 @@ class UserController extends Controller
     public function delete(int $id): JsonResponse
     {
         try {
+            $this->userService->checkPermission($id);
             $this->userService->delete($id);
 
         } catch (JWTException $e) {

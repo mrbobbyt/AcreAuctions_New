@@ -4,9 +4,11 @@ declare(strict_types = 1);
 namespace App\Services\User;
 
 use App\Models\Image;
+use App\Models\User;
 use App\Repositories\User\Contracts\UserRepositoryContract;
 use App\Services\User\Contracts\UserServiceContract;
 use Exception;
+use File;
 use Throwable;
 use Tymon\JWTAuth\Contracts\JWTSubject;
 use JWTAuth;
@@ -48,10 +50,13 @@ class UserService implements UserServiceContract
     {
         $user = $this->userRepo->findByPk($this->getID());
 
-        foreach ($data as $key=>$property) {
+        foreach ($data['body'] as $key=>$property) {
             $user->$key = $property;
         }
         $user->saveOrFail();
+        if ($data['image']) {
+            $this->updateAvatar($data['image'], $user->id);
+        }
 
         return $user;
     }
@@ -77,21 +82,22 @@ class UserService implements UserServiceContract
      * @param int $id
      * @throws Exception
      * @throws JWTException
+     * @throws Throwable
      * @return bool
      */
     public function delete(int $id): bool
     {
-        if ($id != $this->getID()) {
-            throw new Exception('You are not permitted to delete this user.');
-        }
-
         $user = $this->userRepo->findByPk($id);
 
-        if ($user->delete()) {
-            return true;
+        if (!$user->delete()) {
+            throw new Exception('Error user delete.');
         }
 
-        return false;
+        if (!$this->deleteAvatar($id)) {
+            throw new Exception('Error image delete.');
+        }
+
+        return true;
     }
 
 
@@ -103,7 +109,7 @@ class UserService implements UserServiceContract
      * @throws Throwable
      * @throws Exception
      */
-    public function updateAvatar(array $data, int $id): bool
+    protected function updateAvatar(array $data, int $id): bool
     {
         $image = Image::query()
             ->where([
@@ -116,5 +122,46 @@ class UserService implements UserServiceContract
             ]);
 
         return (bool)$image;
+    }
+
+
+    /**
+     * Delete User avatar
+     * @param int $id
+     * @return bool
+     * @throws Throwable
+     * @throws Exception
+     */
+    protected function deleteAvatar(int $id): bool
+    {
+        $image = Image::query()
+            ->where([
+                ['entity_id', $id],
+                ['entity_type', Image::TYPE_USER_AVATAR]
+            ])->first();
+
+        if (File::exists(public_path('images/User/' . $image->name))) {
+            File::delete(public_path('images/User/' . $image->name));
+        }
+        $image->delete();
+
+        return true;
+    }
+
+
+    /**
+     * Check user`s permission to make action
+     * @param int $id
+     * @return bool
+     * @throws Exception
+     * @throws JWTException
+     */
+    public function checkPermission(int $id): bool
+    {
+        if ($id == $this->getID() || JWTAuth::user()->role === User::ROLE_ADMIN) {
+            return true;
+        }
+
+        throw new Exception('You are not permitted to delete this user.');
     }
 }

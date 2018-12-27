@@ -282,10 +282,7 @@ class AuthController extends Controller
     protected function register(array $data): JsonResponse
     {
         try {
-            $user = $this->userService->create($data['body']);
-            if ($data['image']) {
-                $image = $this->userService->createAvatar($data['image'], $user->id);
-            }
+            $user = $this->userService->create($data);
             $token = $this->userService->createToken($data['body']);
 
         } catch (ValidationException $e) {

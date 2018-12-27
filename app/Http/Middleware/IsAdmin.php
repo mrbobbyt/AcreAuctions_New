@@ -3,6 +3,7 @@ declare(strict_types = 1);
 
 namespace App\Http\Middleware;
 
+use App\Models\User;
 use Closure;
 use JWTAuth;
 
@@ -16,7 +17,7 @@ class IsAdmin
      */
     public function handle($request, Closure $next)
     {
-        if (JWTAuth::user() && JWTAuth::user()->role === 1) {
+        if (JWTAuth::user() && JWTAuth::user()->role === User::ROLE_ADMIN) {
             return $next($request);
         }
 

@@ -4,6 +4,7 @@ declare(strict_types = 1);
 namespace App\Services\User\Contracts;
 
 use Exception;
+use Illuminate\Database\Eloquent\Model;
 use Throwable;
 use Tymon\JWTAuth\Contracts\JWTSubject;
 use Tymon\JWTAuth\Exceptions\JWTException;
@@ -48,12 +49,11 @@ interface UserServiceContract
 
 
     /**
-     * Create User avatar
-     * @param array $data
+     * Check user`s permission to make action
      * @param int $id
      * @return bool
-     * @throws Throwable
      * @throws Exception
+     * @throws JWTException
      */
-    public function updateAvatar(array $data, int $id);
+    public function checkPermission(int $id);
 }
