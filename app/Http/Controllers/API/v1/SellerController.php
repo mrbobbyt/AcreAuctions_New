@@ -94,7 +94,7 @@ class SellerController extends Controller
         } catch (ValidationException $e) {
             return response()->json([
                 'status' => 'Error',
-                'message' => $e->errors()->first(),
+                'message' => $e->validator->errors()->first(),
             ], 400);
         } catch (JWTException $e) {
             return response()->json([

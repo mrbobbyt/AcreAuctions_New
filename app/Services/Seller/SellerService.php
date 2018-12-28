@@ -3,8 +3,10 @@ declare(strict_types = 1);
 
 namespace App\Services\Seller;
 
+use App\Models\Email;
 use App\Models\Image;
 use App\Models\Seller;
+use App\Models\Telephone;
 use App\Services\User\Contracts\UserServiceContract;
 use Exception;
 use File;
@@ -59,6 +61,14 @@ class SellerService implements SellerServiceContract
             if ($item && !$this->createImages($name, $item, $seller->id)) {
                 throw new Exception('Can not save '. $name);
             }
+        }
+
+        if ($data['email']) {
+            $this->createEmail($data['email'], $seller->id);
+        }
+
+        if ($data['tel']) {
+            $this->createTelephone($data['tel'], $seller->id);
         }
 
         return $seller;
@@ -237,5 +247,51 @@ class SellerService implements SellerServiceContract
         }
 
         return true;
+    }
+
+
+    /**
+     * Save emails
+     * @param array $data
+     * @param int $id
+     * @return bool
+     * @throws Throwable
+     */
+    protected function createEmail(array $data, int $id)
+    {
+        foreach ($data as $email) {
+            $model = Email::query()->make()->fill([
+                'entity_id' => $id,
+                'entity_type' => Email::TYPE_SELLER,
+                'email' => $email,
+                'created_at' => date('Y-m-d H:i:s'),
+                'updated_at' => date('Y-m-d H:i:s'),
+            ]);
+
+            return $model->saveOrFail();
+        }
+    }
+
+
+    /**
+     * Save telephones
+     * @param array $data
+     * @param int $id
+     * @return bool
+     * @throws Throwable
+     */
+    protected function createTelephone(array $data, int $id)
+    {
+        foreach ($data as $tel) {
+            $model = Telephone::query()->make()->fill([
+                'entity_id' => $id,
+                'entity_type' => Telephone::TYPE_SELLER,
+                'number' => $tel,
+                'created_at' => date('Y-m-d H:i:s'),
+                'updated_at' => date('Y-m-d H:i:s'),
+            ]);
+
+            return $model->saveOrFail();
+        }
     }
 }

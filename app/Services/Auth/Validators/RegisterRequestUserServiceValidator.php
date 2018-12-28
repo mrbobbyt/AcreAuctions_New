@@ -48,7 +48,7 @@ class RegisterRequestUserServiceValidator implements AbstractValidator
      * @param Request $request
      * @return array
      */
-    public function validateImage(Request $request)
+    protected function validateImage(Request $request)
     {
         $validator = Validator::make($request->only('avatar'), [
             'avatar' => 'nullable|image'

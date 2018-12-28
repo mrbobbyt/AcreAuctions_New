@@ -19,7 +19,9 @@ class CreateSellerRequestValidator implements AbstractValidator
     {
         return [
             'body' => $this->validateBody($request),
-            'image' => $this->validateImage($request)
+            'image' => $this->validateImage($request),
+            'email' => $this->validateEmail($request),
+            'tel' => $this->validateTelephone($request),
         ];
     }
 
@@ -47,11 +49,41 @@ class CreateSellerRequestValidator implements AbstractValidator
      * @param Request $request
      * @return array
      */
-    public function validateImage(Request $request)
+    protected function validateImage(Request $request)
     {
         $validator = Validator::make($request->all(), [
             'logo' => 'nullable|image',
             'cover' => 'nullable|image',
+        ]);
+
+        return $validator->validate();
+    }
+
+
+    /**
+     * Validate email
+     * @param Request $request
+     * @return array
+     */
+    protected function validateEmail(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'email' => 'nullable|email',
+        ]);
+
+        return $validator->validate();
+    }
+
+
+    /**
+     * Validate telephone
+     * @param Request $request
+     * @return array
+     */
+    protected function validateTelephone(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'tel' => 'nullable|numeric',
         ]);
 
         return $validator->validate();
