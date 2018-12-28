@@ -65,7 +65,7 @@ Route::post('admin', 'API\v1\AdminController@verify')
 
 /******** Listing ********/
 
-Route::get('land-for-sale/{state}/{slug}', 'API\v1\ListingController@view');
+Route::get('land-for-sale/{slug}', 'API\v1\ListingController@view');
 
 /*Route::get('reset/{token}', function($token) {
     $model = \App\Models\PasswordResets::where('token', '=', $token)->first();

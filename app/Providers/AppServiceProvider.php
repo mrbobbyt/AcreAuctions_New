@@ -25,6 +25,12 @@ use App\Repositories\Seller\SellerRepository;
 use App\Services\Seller\Contracts\SellerServiceContract;
 use App\Services\Seller\SellerService;
 
+use App\Repositories\Listing\Contracts\ListingRepositoryContract;
+use App\Repositories\Listing\ListingRepository;
+
+use App\Services\Listing\Contracts\ListingServiceContract;
+use App\Services\Listing\ListingService;
+
 class AppServiceProvider extends ServiceProvider
 {
     /**
@@ -81,6 +87,16 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(
             SellerServiceContract::class,
             SellerService::class
+        );
+
+        $this->app->bind(
+            ListingRepositoryContract::class,
+            ListingRepository::class
+        );
+
+        $this->app->bind(
+            ListingServiceContract::class,
+            ListingService::class
         );
     }
 }
