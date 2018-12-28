@@ -130,7 +130,7 @@ class SellerController extends Controller
     public function update(Request $request, int $id): JsonResponse
     {
         try {
-            $data = app(UpdateSellerRequestValidator::class)->attempt($request);
+            $data = (new UpdateSellerRequestValidator)->attempt($request);
             $oldSeller = $this->sellerService->checkPermission($id);
             $seller = $this->sellerService->update($oldSeller, $data);
 

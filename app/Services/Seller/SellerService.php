@@ -144,6 +144,18 @@ class SellerService implements SellerServiceContract
             }
         }
 
+        /**
+         * only create new emails and telephones, not update
+         * don`t understand how best realize without front
+         */
+        if ($data['email']) {
+            $this->createEmail($data['email'], $seller->id);
+        }
+        if ($data['tel']) {
+            $this->createTelephone($data['tel'], $seller->id);
+        }
+        /** end **/
+
         foreach ($data['body'] as $key=>$property) {
             $seller->$key = $property;
         }
@@ -163,9 +175,16 @@ class SellerService implements SellerServiceContract
      */
     public function delete(Model $seller): bool
     {
-        // Delete images
         if (!$this->deleteImages($seller)) {
             throw new Exception('Can not delete images.');
+        }
+
+        if (!$this->deleteEmails($seller)) {
+            throw new Exception('Can not delete emails.');
+        }
+
+        if (!$this->deleteTelephoness($seller)) {
+            throw new Exception('Can not delete telephones.');
         }
 
         if (!$seller->delete()) {
@@ -293,5 +312,31 @@ class SellerService implements SellerServiceContract
 
             return $model->saveOrFail();
         }
+    }
+
+
+    /**
+     * Delete all related emails
+     * @param Model $seller
+     * @return mixed
+     */
+    protected function deleteEmails(Model $seller)
+    {
+       return $seller->emails->each(function ($item, $key) {
+           $item->delete();
+       });
+    }
+
+
+    /**
+     * Delete all related telephones
+     * @param Model $seller
+     * @return mixed
+     */
+    protected function deleteTelephoness(Model $seller)
+    {
+        return $seller->telephones->each(function ($item, $key) {
+            $item->delete();
+        });
     }
 }
