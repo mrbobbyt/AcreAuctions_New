@@ -6,6 +6,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 /**
  * @property int id
@@ -51,5 +52,27 @@ class Seller extends Model
     public function emails()
     {
         return $this->hasMany('App\Models\Email', 'entity_id', 'id');
+    }
+
+
+    /**
+     * Get related seller logo
+     * @return HasOne
+     */
+    public function logo()
+    {
+        return $this->hasOne('App\Models\Image','entity_id', 'id')
+            ->where('entity_type', Image::TYPE_SELLER_LOGO);
+    }
+
+
+    /**
+     * Get related seller cover
+     * @return HasOne
+     */
+    public function cover()
+    {
+        return $this->hasOne('App\Models\Image','entity_id', 'id')
+            ->where('entity_type', Image::TYPE_SELLER_COVER);
     }
 }

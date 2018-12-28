@@ -55,16 +55,4 @@ class UserRepository implements UserRepositoryContract
     {
         return User::query()->where('email', $email)->exists();
     }
-
-
-    /**
-     * Check if user is admin
-     *
-     * @param int $id
-     * @return bool
-     */
-    public function isAdmin(int $id): bool
-    {
-        return User::query()->where([ ['id', $id], ['role', 1] ])->exists();
-    }
 }

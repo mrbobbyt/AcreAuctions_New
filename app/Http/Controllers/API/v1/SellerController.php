@@ -10,12 +10,14 @@ use App\Http\Resources\SellerResource;
 
 use App\Services\Seller\Contracts\SellerServiceContract;
 use App\Repositories\Seller\SellerRepository;
+use App\Services\User\Contracts\UserServiceContract;
 
 use App\Services\Seller\Validators\CreateSellerRequestValidator;
 use App\Services\Seller\Validators\UpdateSellerRequestValidator;
 
 use Illuminate\Validation\ValidationException;
 use Exception;
+use JWTAuth;
 use Throwable;
 use Tymon\JWTAuth\Exceptions\JWTException;
 
@@ -24,11 +26,13 @@ class SellerController extends Controller
 
     protected $sellerRepo;
     protected $sellerService;
+    protected $userService;
 
-    public function __construct(SellerRepository $sellerRepo, SellerServiceContract $sellerService)
+    public function __construct(SellerRepository $sellerRepo, SellerServiceContract $sellerService, UserServiceContract $userService)
     {
         $this->sellerRepo = $sellerRepo;
         $this->sellerService = $sellerService;
+        $this->userService = $userService;
     }
 
 
@@ -38,6 +42,7 @@ class SellerController extends Controller
      * URL: /api/seller/{id}
      * @param string $slug
      * @throws Exception
+     * @throw JWTException
      * @return JsonResponse
      */
     public function view(string $slug): JsonResponse
@@ -46,7 +51,13 @@ class SellerController extends Controller
             $seller = $this->sellerRepo->findBySlug($slug);
 
             if (!$seller->is_verified) {
-                throw new Exception('Seller is not verified', 404);
+                // check if user is authenticate and not an admin or company head
+                if ( !JWTAuth::check(JWTAuth::getToken()) ||
+                    !$seller->getHead->isAdmin() ||
+                    $seller->user_id !== $this->userService->getID()
+                ) {
+                    throw new Exception('Seller is not verified', 404);
+                }
             }
 
         } catch (Throwable $e) {

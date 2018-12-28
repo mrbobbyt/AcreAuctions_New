@@ -7,6 +7,7 @@ use App\Models\Image;
 use App\Models\Seller;
 use App\Services\User\Contracts\UserServiceContract;
 use Exception;
+use File;
 use Illuminate\Database\Eloquent\Model;
 use App\Repositories\Seller\Contracts\SellerRepositoryContract;
 use App\Services\Seller\Contracts\SellerServiceContract;
@@ -100,11 +101,15 @@ class SellerService implements SellerServiceContract
         $userID = $this->userService->getID();
         $seller = $this->sellerRepo->findByPk($id);
 
-        if ($seller->user_id == $userID) {
-            return $seller;
+        if ($seller && $seller->user_id !== $userID) {
+            throw new Exception('You have no permission.');
         }
 
-        throw new Exception('You are not permitted to update this seller.');
+        if (empty($seller)) {
+            throw new Exception('Seller not found.');
+        }
+
+        return $seller;
     }
 
 
@@ -143,15 +148,21 @@ class SellerService implements SellerServiceContract
      * Delete seller
      * @param Model $seller
      * @throws Exception
+     * @throws Throwable
      * @return bool
      */
     public function delete(Model $seller): bool
     {
-        if ($seller->delete()) {
-            return true;
+        // Delete images
+        if (!$this->deleteImages($seller)) {
+            throw new Exception('Can not delete images.');
         }
 
-        return false;
+        if (!$seller->delete()) {
+            throw new Exception('Can not delete seller.');
+        }
+
+        return true;
     }
 
 
@@ -199,5 +210,32 @@ class SellerService implements SellerServiceContract
         $image->updated_at = date('Y-m-d H:i:s');
 
         return $image->saveOrFail();
+    }
+
+
+    /**
+     * Delete User avatar
+     * @param Model $seller
+     * @return bool
+     * @throws Throwable
+     * @throws Exception
+     */
+    protected function deleteImages(Model $seller): bool
+    {
+        if ($seller->logo) {
+            if (File::exists(public_path('images/Seller/' . $seller->logo->name))) {
+                File::delete(public_path('images/Seller/' . $seller->logo->name));
+            }
+            $seller->logo->delete();
+        }
+
+        if ($seller->cover) {
+            if (File::exists(public_path('images/Seller/' . $seller->cover->name))) {
+                File::delete(public_path('images/Seller/' . $seller->cover->name));
+            }
+            $seller->cover->delete();
+        }
+
+        return true;
     }
 }

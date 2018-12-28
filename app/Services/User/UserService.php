@@ -30,9 +30,10 @@ class UserService implements UserServiceContract
     /**
      * Return authenticate user
      * @throws JWTException
-     * @return false|JWTSubject
+     * @throws Exception
+     * @return JWTSubject
      */
-    public function authenticate()
+    public function authenticate(): JWTSubject
     {
         return JWTAuth::parseToken()->authenticate();
     }
@@ -66,10 +67,11 @@ class UserService implements UserServiceContract
      * Return id auth user
      * @throw JWTException
      * @throws Exception
+     * @return int
      */
-    public function getID()
+    public function getID(): int
     {
-        if ($user = JWTAuth::authenticate()) {
+        if ($user = JWTAuth::parseToken()->authenticate()) {
             return $user->id;
         }
 
@@ -89,12 +91,12 @@ class UserService implements UserServiceContract
     {
         $user = $this->userRepo->findByPk($id);
 
-        if (!$user->delete()) {
-            throw new Exception('Error user delete.');
+        if (!$this->deleteAvatar($user)) {
+            throw new Exception('Error image delete.');
         }
 
-        if (!$this->deleteAvatar($id)) {
-            throw new Exception('Error image delete.');
+        if (!$user->delete()) {
+            throw new Exception('Error user delete.');
         }
 
         return true;
@@ -127,23 +129,20 @@ class UserService implements UserServiceContract
 
     /**
      * Delete User avatar
-     * @param int $id
+     * @param Model $user
      * @return bool
      * @throws Throwable
      * @throws Exception
      */
-    protected function deleteAvatar(int $id): bool
+    protected function deleteAvatar(Model $user): bool
     {
-        $image = Image::query()
-            ->where([
-                ['entity_id', $id],
-                ['entity_type', Image::TYPE_USER_AVATAR]
-            ])->first();
-
-        if (File::exists(public_path('images/User/' . $image->name))) {
-            File::delete(public_path('images/User/' . $image->name));
+        if (File::exists(public_path('images/User/' . $user->avatar->name))) {
+            File::delete(public_path('images/User/' . $user->avatar->name));
         }
-        $image->delete();
+
+        if ($user->avatar) {
+            $user->avatar->delete();
+        }
 
         return true;
     }
