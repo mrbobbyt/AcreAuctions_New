@@ -37,7 +37,7 @@ class ListingResource extends JsonResource
             'id' => $this->id,
             'title' => $this->title,
             'subtitle' => $this->subtitle,
-            //'images' => $this->images ? get_image_path('Listing', $this->images->name) : null,
+            'images' => app(ListingRepositoryContract::class)->getImageNames($this) ?? null,
             'description' => $this->description,
             'seller' => $this->seller->title,
 

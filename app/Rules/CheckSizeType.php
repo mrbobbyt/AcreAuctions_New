@@ -3,20 +3,10 @@ declare(strict_types = 1);
 
 namespace App\Rules;
 
-use App\Models\User;
-use Hash;
 use Illuminate\Contracts\Validation\Rule;
 
-class CheckPassword implements Rule
+class CheckSizeType implements Rule
 {
-
-    protected $user;
-
-    public function __construct(User $user)
-    {
-        $this->user = $user;
-    }
-
 
     /**
      * Determine if the validation rule passes.
@@ -26,9 +16,9 @@ class CheckPassword implements Rule
      */
     public function passes($attribute, $value)
     {
-        return Hash::check($value, $this->user->password);
+        $size = ['L', 'B'];
+        return in_array($value, $size);
     }
-
 
     /**
      * Get the validation error message.
@@ -36,6 +26,6 @@ class CheckPassword implements Rule
      */
     public function message()
     {
-        return 'The email or the password is wrong.';
+        return 'The invalid size listing.';
     }
 }

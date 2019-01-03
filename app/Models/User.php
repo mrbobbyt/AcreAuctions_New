@@ -103,4 +103,14 @@ class User extends Authenticatable implements JWTSubject
     {
         return (bool)$this::ROLE_ADMIN;
     }
+
+
+    /**
+     * Get seller
+     * @return HasOne
+     */
+    public function seller()
+    {
+        return $this->hasOne('App\Models\Seller', 'user_id');
+    }
 }

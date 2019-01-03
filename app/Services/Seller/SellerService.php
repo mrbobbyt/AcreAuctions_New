@@ -45,7 +45,7 @@ class SellerService implements SellerServiceContract
         $data['body']['user_id'] = $this->userService->getID();
 
         // Create slug from title
-        $data['body']['slug'] = $this->makeUrl($data['body']['title']);
+        $data['body']['slug'] = makeUrl($data['body']['title']);
         if ($this->sellerRepo->findBySlug($data['body']['slug'])) {
             throw new Exception('Seller with the same name already exists, please, choose another.', 400);
         }
@@ -72,17 +72,6 @@ class SellerService implements SellerServiceContract
         }
 
         return $seller;
-    }
-
-
-    /**
-     * Return slug created from title
-     * @param string $title
-     * @return string
-     */
-    public function makeUrl(string $title): string
-    {
-        return preg_replace('/[^a-z0-9]+/i', '_', $title);
     }
 
 
@@ -134,7 +123,7 @@ class SellerService implements SellerServiceContract
     public function update(Model $seller, array $data): Model
     {
         if (isset($data['body']['title']) && $data['body']['title']) {
-            $data['body']['slug'] = $this->makeUrl($data['body']['title']);
+            $data['body']['slug'] = makeUrl($data['body']['title']);
         }
 
         // Update images

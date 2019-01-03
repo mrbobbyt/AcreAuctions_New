@@ -69,7 +69,7 @@ class SellerController extends Controller
 
         return response()->json([
             'status' => 'Success',
-            'user' => SellerResource::make($seller)
+            'seller' => SellerResource::make($seller)
         ]);
     }
 

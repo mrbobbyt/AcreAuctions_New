@@ -3,7 +3,9 @@ declare(strict_types = 1);
 
 namespace App\Repositories\Listing\Contracts;
 
+use App\Http\Resources\ListingResource;
 use Illuminate\Database\Eloquent\Model;
+use Tymon\JWTAuth\Exceptions\JWTException;
 
 interface ListingRepositoryContract
 {
@@ -22,5 +24,21 @@ interface ListingRepositoryContract
      * @return Model | bool
      */
     public function findByPk(int $id);
+
+
+    /**
+     * Get related images
+     * @param ListingResource $listing
+     * @return mixed
+     */
+    public function getImageNames(ListingResource $listing);
+
+
+    /**
+     * Get seller id
+     * @return int
+     * @throws JWTException
+     */
+    public function findSellerById();
 
 }

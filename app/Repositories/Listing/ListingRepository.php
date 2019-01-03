@@ -3,8 +3,13 @@ declare(strict_types = 1);
 
 namespace App\Repositories\Listing;
 
+use App\Http\Resources\ListingResource;
+use App\Models\Image;
 use App\Models\Listing;
+use Tymon\JWTAuth\Exceptions\JWTException;
 use App\Repositories\Listing\Contracts\ListingRepositoryContract;
+use App\Services\User\Contracts\UserServiceContract;
+use Exception;
 use Illuminate\Database\Eloquent\Model;
 
 class ListingRepository implements ListingRepositoryContract
@@ -14,6 +19,7 @@ class ListingRepository implements ListingRepositoryContract
      * Find listing by url
      * @param string $slug
      * @return Model | bool
+     * @throws Exception
      */
     public function findBySlug(string $slug)
     {
@@ -21,7 +27,7 @@ class ListingRepository implements ListingRepositoryContract
             return $listing;
         }
 
-        return false;
+        throw new Exception('Listing not exist.', 404);
     }
 
 
@@ -39,4 +45,44 @@ class ListingRepository implements ListingRepositoryContract
         return false;
     }
 
+
+    /**
+     * Get related images
+     * @param ListingResource $listing
+     * @return array
+     */
+    protected function getImages(ListingResource $listing): array
+    {
+        return $listing->images()
+            ->where('entity_type', Image::TYPE_LISTING)
+            ->get()->pluck('name')->toArray();
+    }
+
+
+    /**
+     * Get related images
+     * @param ListingResource $listing
+     * @return array
+     */
+    public function getImageNames(ListingResource $listing): array
+    {
+        $array = [];
+        foreach ($this->getImages($listing) as $i) {
+            array_push($array, public_path().'/images/Listing/'.$i);
+        }
+
+        return $array;
+    }
+
+
+    /**
+     * Get seller id
+     * @return int
+     * @throws JWTException
+     */
+    public function findSellerById(): int
+    {
+        $user = app(UserServiceContract::class)->authenticate();
+        return $user->seller->id;
+    }
 }

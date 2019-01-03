@@ -22,19 +22,24 @@ class Listing extends Model
 
     protected $guarded = ['id'];
 
+    public $timestamps = true;
+
+
     public function geo()
     {
         return $this->hasOne('App\Models\ListingGeo');
     }
 
+
     public function images()
     {
-        return $this->hasMany('App\Models\Image', 'entity_id', 'id')
-            ->where('entity_type', Image::TYPE_LISTING);
+        return $this->hasMany('App\Models\Image', 'entity_id', 'id');
     }
+
 
     public function seller()
     {
         return $this->belongsTo('App\Models\Seller');
     }
+
 }

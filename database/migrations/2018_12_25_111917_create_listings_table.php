@@ -20,7 +20,7 @@ class CreateListingsTable extends Migration
             $table->text('description')->nullable();
             $table->boolean('is_featured')->default(0);
             $table->integer('seller_id')
-                ->comment('connected user table');
+                ->comment('connected seller table');
             $table->timestamps();
         });
     }

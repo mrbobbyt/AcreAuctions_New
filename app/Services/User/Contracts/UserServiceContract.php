@@ -14,7 +14,6 @@ interface UserServiceContract
 
     /**
      * Return authenticate user
-     *
      * @throws \Tymon\JWTAuth\Exceptions\JWTException
      */
     public function authenticate();
@@ -22,7 +21,6 @@ interface UserServiceContract
 
     /**
      * Update user
-     *
      * @param array $data
      * @return false|JWTSubject
      * @throws JWTException
@@ -32,7 +30,6 @@ interface UserServiceContract
 
     /**
      * Return id auth user
-     *
      * @return int
      */
     public function getID();
@@ -40,7 +37,6 @@ interface UserServiceContract
 
     /**
      * Delete auth user
-     *
      * @param int $id
      * @return bool
      * @throws Exception

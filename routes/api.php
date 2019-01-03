@@ -67,6 +67,9 @@ Route::post('admin', 'API\v1\AdminController@verify')
 
 Route::get('land-for-sale/{slug}', 'API\v1\ListingController@view');
 
+Route::post('land-for-sale/create', 'API\v1\ListingController@create')
+    ->middleware('jwt.verify');
+
 /*Route::get('reset/{token}', function($token) {
     $model = \App\Models\PasswordResets::where('token', '=', $token)->first();
 //    return new \App\Http\Resources\UserResource($model->user);

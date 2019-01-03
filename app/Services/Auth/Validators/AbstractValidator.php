@@ -11,13 +11,6 @@ interface AbstractValidator
 
     /**
      * Return validated array of data
-     *
-     * Can include into returned data some another data like
-     * return [
-     *     'company' => $company,
-     *     'body' => $this->validateBody($request)
-     * ];
-     *
      * @param Request $request
      * @return array
      */
@@ -26,7 +19,6 @@ interface AbstractValidator
 
     /**
      * Validate given data
-     *
      * @param Request $request
      * @return array
      */

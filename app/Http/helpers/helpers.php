@@ -1,7 +1,7 @@
 <?php
+declare(strict_types = 1);
 
 use Illuminate\Http\UploadedFile;
-
 
 
 if (! function_exists('get_image_path')) {
@@ -28,5 +28,17 @@ if (! function_exists('upload_image')) {
         }
 
         return $name;
+    }
+}
+
+if (! function_exists('makeUrl')) {
+    /**
+     * Return slug created from title
+     * @param string $title
+     * @return string
+     */
+    function makeUrl(string $title): string
+    {
+        return preg_replace('/[^a-z0-9]+/i', '_', $title);
     }
 }
