@@ -11,7 +11,6 @@ interface FacebookServiceContract
 
     /**
      * Get login url to fb
-     *
      * @throws FacebookSDKException
      * @return string
      */
@@ -20,7 +19,6 @@ interface FacebookServiceContract
 
     /**
      * Get user data
-     *
      * @throws FacebookSDKException
      * @return GraphNode
      */

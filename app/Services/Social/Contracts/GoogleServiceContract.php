@@ -10,7 +10,6 @@ interface GoogleServiceContract
 
     /**
      * Get login url to fb
-     *
      * @return string
      */
     public function getLogin();
@@ -18,7 +17,6 @@ interface GoogleServiceContract
 
     /**
      * Get user data
-     *
      * @return Google_Service_Oauth2_Userinfoplus
      */
     public function getProfile();

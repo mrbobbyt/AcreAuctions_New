@@ -13,10 +13,9 @@ class GoogleService implements GoogleServiceContract
 
     /**
      * Create connect to google
-     *
      * @return Google_Client
      */
-    public function createConnect(): Google_Client
+    protected function createConnect(): Google_Client
     {
         $google = new Google_Client();
         $google->setApplicationName(env('GOOGLE_APP_NAME'));
@@ -30,7 +29,6 @@ class GoogleService implements GoogleServiceContract
 
     /**
      * Get login url to google
-     *
      * @return string
      */
     public function getLogin(): string
@@ -44,7 +42,6 @@ class GoogleService implements GoogleServiceContract
 
     /**
      * Get user data
-     *
      * @return Google_Service_Oauth2_Userinfoplus
      */
     public function getProfile(): Google_Service_Oauth2_Userinfoplus

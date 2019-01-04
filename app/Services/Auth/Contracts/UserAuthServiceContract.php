@@ -62,4 +62,15 @@ interface UserAuthServiceContract
      * @throws Throwable
      */
     public function sendEmailWithToken(array $data);
+
+
+    /**
+     * Create or login user via socials
+     * @param array $data
+     * @return array
+     * @throws JWTException
+     * @throws Throwable
+     */
+    public function createOrLogin(array $data);
+
 }

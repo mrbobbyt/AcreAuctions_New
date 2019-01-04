@@ -29,19 +29,12 @@ class UserRepository implements UserRepositoryContract
 
 
     /**
-     * Find user using email
-     *
      * @param string $email
-     * @throws Exception
-     * @return User
+     * @return User|\Illuminate\Database\Eloquent\Builder|Model|object|null
      */
-    public function findByEmail(string $email): User
+    public function findByEmail(string $email)
     {
-        if ($user = User::query()->where('email', $email)->first()) {
-            return $user;
-        }
-
-        throw new Exception('User not exist.');
+        return User::query()->where('email', $email)->first();
     }
 
 

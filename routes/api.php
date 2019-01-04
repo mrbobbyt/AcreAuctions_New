@@ -13,7 +13,7 @@
 
 /***** Authentication *****/
 
-Route::post('register', 'API\v1\AuthController@handleForm');
+Route::post('register', 'API\v1\AuthController@register');
 
 Route::post('login', 'API\v1\AuthController@login');
 

@@ -34,7 +34,7 @@ class ListingController extends Controller
 
     /**
      * METHOD: get
-     * URL: /api/land-for-sale/{slug}
+     * URL: /land-for-sale/{slug}
      * @param string $slug
      * @throws Exception
      * @return JsonResponse
@@ -48,7 +48,7 @@ class ListingController extends Controller
             return response()->json([
                 'status' => 'Error',
                 'message' => $e->getMessage()
-            ], $e->getCode());
+            ], 500);
         }
 
         return response()->json([
@@ -61,7 +61,7 @@ class ListingController extends Controller
     /**
      * Create Listing
      * METHOD: post
-     * URL: /api/land-for-sale/create
+     * URL: /land-for-sale/create
      * @param Request $request
      * @throws ValidationException
      * @throws JWTException
@@ -89,7 +89,7 @@ class ListingController extends Controller
             return response()->json([
                 'status' => 'Error',
                 'message' => $e->getMessage()
-            ], $e->getCode());
+            ], 500);
         }
 
         return response()->json([
@@ -102,7 +102,7 @@ class ListingController extends Controller
     /**
      * Update Listing
      * METHOD: post
-     * URL: /api/land-for-sale/update/{id}
+     * URL: /land-for-sale/update/{id}
      * @param Request $request
      * @param int $id
      * @throws ValidationException
@@ -132,7 +132,7 @@ class ListingController extends Controller
             return response()->json([
                 'status' => 'Error',
                 'message' => 400
-            ], $e->getCode());
+            ], 500);
         } catch (Throwable $e) {
             return response()->json([
                 'status' => 'Error',
@@ -150,7 +150,7 @@ class ListingController extends Controller
     /**
      * Delete listing
      * METHOD: get
-     * URL: /api/land-for-sale/delete/{id}
+     * URL: /land-for-sale/delete/{id}
      * @param int $id
      * @return JsonResponse
      */

@@ -11,7 +11,6 @@ class FacebookRequestValidator
 
     /**
      * Return validated array of data
-     *
      * @param GraphNode $json
      * @return array
      */
@@ -32,7 +31,6 @@ class FacebookRequestValidator
 
     /**
      * Validate given data
-     *
      * @param $user
      * @return array
      */

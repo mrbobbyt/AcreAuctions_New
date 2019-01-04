@@ -58,8 +58,10 @@ class AuthController extends Controller
     public function index()
     {
         // Handle request from socials
-        if (request('code')) {
-            $this->handleSocialRequest();
+        if (request('code') && request('scope')) {
+            $this->handleGoogle();
+        } elseif (request('code') && request('state')) {
+            $this->handleFacebook();
         }
 
         // Get url to socials login
@@ -70,12 +72,12 @@ class AuthController extends Controller
             return response()->json([
                 'status' => 'Error',
                 'message' => $e->getMessage(),
-            ], $e->getCode());
+            ], 500);
         } catch (Throwable $e) {
             return response()->json([
                 'status' => 'Error',
                 'message' => $e->getMessage(),
-            ], $e->getCode());
+            ], 500);
         }
 
         return view('test-login', [
@@ -87,7 +89,7 @@ class AuthController extends Controller
 
     /**
      * METHOD: post
-     * URL: /api/login
+     * URL: /login
      * @param Request $request
      * @throws ValidationException
      * @return JsonResponse
@@ -120,168 +122,17 @@ class AuthController extends Controller
 
     /**
      * METHOD: post
-     * URL: /api/register
+     * URL: /register
      * @param Request $request
      * @throws ValidationException
+     * @throws JWTException
      * @throws Throwable
      * @return JsonResponse
      */
-    public function handleForm(Request $request): JsonResponse
+    public function register(Request $request): JsonResponse
     {
         try {
             $data = (new RegisterRequestUserServiceValidator())->attempt($request);
-
-        } catch (ValidationException $e) {
-            return response()->json([
-                'status' => 'Error',
-                'message' => $e->validator->errors()->first(),
-            ], 400);
-        } catch (Throwable $e) {
-            return response()->json([
-                'status' => 'Error',
-                'message' => $e->getMessage()
-            ], 500);
-        }
-
-        return $this->register($data);
-    }
-
-
-    /**
-     * Handle request from social networks
-     * @throws FacebookResponseException
-     * @throws FacebookSDKException
-     * @throws Throwable
-     * @throws ValidationException
-     * @throws JWTException
-     */
-    protected function handleSocialRequest()
-    {
-        if (request('scope')) {
-            $data = $this->handleGoogle();
-        } elseif (request('state')) {
-            $data = $this->handleFacebook();
-        }
-
-        if (empty($data)) {
-            return response()->json([
-                'status' => 'Error',
-                'message' => 'Sorry, can not register user via social network',
-            ], 401);
-        }
-
-        // check if user exist
-        if ($this->userRepo->checkUserExists($data['body']['email'])) {
-
-            // try to login user
-            try {
-                $user = $this->userRepo->findByEmail($data['body']['email']);
-                $token = $this->userService->createToken($data['body']);
-
-            } catch (JWTException $e) {
-                return response()->json([
-                    'status' => 'Error',
-                    'message' => 'Sorry, could not create token.'
-                ], 500);
-            } catch (Throwable $e) {
-                return response()->json([
-                    'status' => 'Error',
-                    'message' => $e->getMessage()
-                ], 500);
-            }
-
-            return response()->json([
-                'status' => 'Success',
-                'token' => $token,
-                'user' => UserResource::make($user)
-            ]);
-
-        }
-
-        return $this->register($data);
-    }
-
-
-    /**
-     * Get validated user data from Google
-     * @throws FacebookSDKException
-     * @throws FacebookResponseException
-     * @throws ValidationException
-     * @throws Throwable
-     * @return array
-     */
-    protected function handleFacebook(): array
-    {
-        try {
-            $client = $this->fbService->getProfile();
-            $data = (new FacebookRequestValidator())->attempt($client);
-
-        } catch(FacebookResponseException $e) {
-            // When Graph returns an error
-            return response()->json([
-                'status' => 'Error',
-                'message' => 'Graph returned an error: ' . $e->getMessage(),
-            ], $e->getCode());
-        } catch (FacebookSDKException $e) {
-            // When validation fails or other local issues
-            return response()->json([
-                'status' => 'Error',
-                'message' => 'Facebook SDK returned an error: ' . $e->getMessage(),
-            ], $e->getCode());
-        } catch (ValidationException $e) {
-            return response()->json([
-                'status' => 'Error',
-                'message' => $e->validator->errors()->first(),
-            ], 400);
-        } catch (Throwable $e) {
-            return response()->json([
-                'status' => 'Error',
-                'message' => $e->getMessage(),
-            ], $e->getCode());
-        }
-
-        return $data;
-    }
-
-
-    /**
-     * Get validated user data from Google
-     * @throws ValidationException
-     * @throws Throwable
-     * @return array
-     */
-    protected function handleGoogle(): array
-    {
-        try {
-            $client = $this->googleService->getProfile();
-            $data = (new GoogleRequestValidator())->attempt($client);
-
-        } catch (ValidationException $e) {
-            return response()->json([
-                'status' => 'Error',
-                'message' => $e->validator->errors()->first(),
-            ], 400);
-        } catch (Throwable $e) {
-            return response()->json([
-                'status' => 'Error',
-                'message' => $e->getMessage()
-            ], 500);
-        }
-
-        return $data;
-    }
-
-
-    /**
-     * Register user with validated data, getting different ways
-     * @param array $data
-     * @throws JWTException
-     * @throws Throwable
-     * @return JsonResponse
-     */
-    protected function register(array $data): JsonResponse
-    {
-        try {
             $user = $this->userService->create($data);
             $token = $this->userService->createToken($data['body']);
 
@@ -305,13 +156,104 @@ class AuthController extends Controller
         return response()->json([
             'status' => 'Success',
             'token' => $token,
+            'user' => UserResource::make($user)
+        ]);
+    }
+
+
+    /**
+     * Get validated user data from Google
+     * @throws FacebookSDKException
+     * @throws FacebookResponseException
+     * @throws ValidationException
+     * @throws Throwable
+     * @return JsonResponse
+     */
+    protected function handleFacebook(): JsonResponse
+    {
+        try {
+            $client = $this->fbService->getProfile();
+            $data = (new FacebookRequestValidator())->attempt($client);
+            $user = $this->userService->createOrLogin($data);
+
+        } catch(FacebookResponseException $e) {
+            // When Graph returns an error
+            return response()->json([
+                'status' => 'Error',
+                'message' => 'Graph returned an error: ' . $e->getMessage(),
+            ], 500);
+        } catch (FacebookSDKException $e) {
+            // When validation fails or other local issues
+            return response()->json([
+                'status' => 'Error',
+                'message' => 'Facebook SDK returned an error: ' . $e->getMessage(),
+            ], 500);
+        } catch (ValidationException $e) {
+            return response()->json([
+                'status' => 'Error',
+                'message' => $e->validator->errors()->first(),
+            ], 400);
+        } catch (JWTException $e) {
+            return response()->json([
+                'status' => 'Error',
+                'message' => 'Sorry, could not create token.'
+            ], 500);
+        } catch (Throwable $e) {
+            return response()->json([
+                'status' => 'Error',
+                'message' => $e->getMessage(),
+            ], 500);
+        }
+
+        return response()->json([
+            'status' => 'Success',
+            'token' => $user['token'],
+            'user' => UserResource::make($user['user'])
+        ]);
+    }
+
+
+    /**
+     * Get validated user data from Google
+     * @throws ValidationException
+     * @throws Throwable
+     * @return JsonResponse
+     */
+    protected function handleGoogle(): JsonResponse
+    {
+        try {
+            $client = $this->googleService->getProfile();
+            $data = (new GoogleRequestValidator())->attempt($client);
+            $user = $this->userService->createOrLogin($data);
+
+        } catch (ValidationException $e) {
+            return response()->json([
+                'status' => 'Error',
+                'message' => $e->validator->errors()->first(),
+            ], 400);
+        } catch (JWTException $e) {
+            return response()->json([
+                'status' => 'Error',
+                'message' => 'Sorry, could not create token.'
+            ], 500);
+        } catch (Throwable $e) {
+            return response()->json([
+                'status' => 'Error',
+                'message' => $e->getMessage()
+            ], 500);
+        }
+
+        return response()->json([
+            'status' => 'Success',
+            'token' => $user['token'],
+            'user' => UserResource::make($user['user'])
         ]);
     }
 
 
     /**
      * METHOD: get
-     * URL: /api/logout
+     * URL: /logout
      * @throws JWTException
      * @throws Throwable
      * @return JsonResponse
@@ -342,7 +284,7 @@ class AuthController extends Controller
 
     /**
      * METHOD: post
-     * URL: /api/forgot
+     * URL: /forgot
      * @param Request $request
      * @throws ValidationException
      * @throws Throwable
@@ -371,17 +313,13 @@ class AuthController extends Controller
             'message' => 'The invitation token has been sent! Please check your email.'
         ]);
 
-        /*
-         * when user went on link with received token - redirect him on reset password page
-         *
-         * */
-
+        /** when user went on link with received token - redirect him on reset password page **/
     }
 
 
     /**
      * METHOD: post
-     * URL: /api/reset
+     * URL: /reset
      * @param Request $request
      * @throws ValidationException
      * @throws JWTException
@@ -412,9 +350,11 @@ class AuthController extends Controller
             ], 500);
         }
 
-//        have to sent new token
-//        maybe need to sent email with access token
-//        return response()->json(['The reset password has been sent! Please check your email.']);
+        /**
+         * have to sent new token
+         * maybe need to sent email with access token
+         * return response()->json(['The reset password has been sent! Please check your email.']);
+         */
 
         return response()->json([
             'status' => 'Success',

@@ -40,11 +40,13 @@ class UserAuthService implements UserAuthServiceContract
      */
     public function create(array $data): object
     {
-        $data['body']['password'] = bcrypt(array_get($data['body'], 'password'));
+        if (isset($data['body']['password'])) {
+            $data['body']['password'] = bcrypt($data['body']['password']);
+        }
         $user = $this->model->query()->make()->fill($data['body']);
         $user->saveOrFail();
 
-        if ($data['image']) {
+        if (isset($data['image']) && $data['image']) {
             $this->createAvatar($data['image'], $user->id);
         }
 
@@ -178,5 +180,27 @@ class UserAuthService implements UserAuthServiceContract
         ]);
 
         return $image->saveOrFail();
+    }
+
+
+    /**
+     * Create or login user via socials
+     * @param array $data
+     * @return array
+     * @throws JWTException
+     * @throws Throwable
+     */
+    public function createOrLogin(array $data): array
+    {
+        $user = $this->userRepo->findByEmail($data['body']['email']);
+        if ($user === null) {
+            $user = $this->create($data);
+        }
+        $token = $this->createToken($data['body']);
+
+        return [
+            'user' => $user,
+            'token' => $token,
+        ];
     }
 }

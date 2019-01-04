@@ -39,7 +39,7 @@ class SellerController extends Controller
     /**
      * View company-seller
      * METHOD: get
-     * URL: /api/seller/{id}
+     * URL: /seller/{id}
      * @param string $slug
      * @throws Exception
      * @throw JWTException
@@ -64,7 +64,7 @@ class SellerController extends Controller
             return response()->json([
                 'status' => 'Error',
                 'message' => $e->getMessage()
-            ], $e->getCode());
+            ], 500);
         }
 
         return response()->json([
@@ -77,7 +77,7 @@ class SellerController extends Controller
     /**
      * Create Seller
      * METHOD: post
-     * URL: /api/seller/create
+     * URL: /seller/create
      * @param Request $request
      * @throws ValidationException
      * @throws JWTException
@@ -105,7 +105,7 @@ class SellerController extends Controller
             return response()->json([
                 'status' => 'Error',
                 'message' => $e->getMessage()
-            ], $e->getCode());
+            ], 500);
         }
 
         return response()->json([
@@ -118,7 +118,7 @@ class SellerController extends Controller
     /**
      * Update Seller
      * METHOD: post
-     * URL: /api/seller/update/{id}
+     * URL: /seller/update/{id}
      * @param Request $request
      * @param int $id
      * @throws ValidationException
@@ -148,12 +148,12 @@ class SellerController extends Controller
             return response()->json([
                 'status' => 'Error',
                 'message' => $e->getMessage()
-            ], $e->getCode());
+            ], 500);
         } catch (Throwable $e) {
             return response()->json([
                 'status' => 'Error',
                 'message' => $e->getMessage()
-            ], $e->getCode());
+            ], 500);
         }
 
         return response()->json([
@@ -166,7 +166,7 @@ class SellerController extends Controller
     /**
      * Delete Seller
      * METHOD: get
-     * URL: /api/seller/delete/{id}
+     * URL: /seller/delete/{id}
      * @param int $id
      * @throw JWTException
      * @return JsonResponse

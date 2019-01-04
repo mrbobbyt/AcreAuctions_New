@@ -11,7 +11,6 @@ class GoogleRequestValidator
 
     /**
      * Return validated array of data
-     *
      * @param Google_Service_Oauth2_Userinfoplus $data
      * @return array
      */
@@ -30,7 +29,6 @@ class GoogleRequestValidator
 
     /**
      * Validate given data
-     *
      * @param $user
      * @return array
      */
