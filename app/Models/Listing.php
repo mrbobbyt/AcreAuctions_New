@@ -33,7 +33,8 @@ class Listing extends Model
 
     public function images()
     {
-        return $this->hasMany('App\Models\Image', 'entity_id', 'id');
+        return $this->hasMany('App\Models\Image', 'entity_id', 'id')
+            ->where('entity_type', Image::TYPE_LISTING);
     }
 
 

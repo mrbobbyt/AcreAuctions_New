@@ -55,7 +55,6 @@ class ListingRepository implements ListingRepositoryContract
     protected function getImages(ListingResource $listing): array
     {
         return $listing->images()
-            ->where('entity_type', Image::TYPE_LISTING)
             ->get()->pluck('name')->toArray();
     }
 

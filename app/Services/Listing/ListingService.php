@@ -164,4 +164,33 @@ class ListingService implements ListingServiceContract
 
         return $geo->saveOrFail();
     }
+
+
+    /**
+     * Delete listing and related models
+     * @param Model $listing
+     * @return bool
+     * @throws Exception
+     */
+    public function delete(Model $listing): bool
+    {
+        $geo = $this->listingRepo->findGeoByPk($listing->id);
+        if (!$geo->delete()) {
+            throw new Exception('Can not delete geo listing.', 500);
+        }
+
+        $images = $listing->images;
+        foreach ($images as $image) {
+            if (!$image->delete()) {
+                throw new Exception('Can not delete images.', 500);
+            }
+        }
+
+        if (!$listing->delete()) {
+            throw new Exception('Can not delete listing.', 500);
+        }
+
+        return true;
+    }
+
 }

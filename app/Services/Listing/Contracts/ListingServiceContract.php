@@ -39,4 +39,13 @@ interface ListingServiceContract
      */
     public function update(Model $listing, array $data);
 
+
+    /**
+     * Delete listing and related models
+     * @param Model $listing
+     * @return bool
+     * @throws Exception
+     */
+    public function delete(Model $listing);
+
 }

@@ -146,4 +146,36 @@ class ListingController extends Controller
         ]);
     }
 
+
+    /**
+     * Delete listing
+     * METHOD: get
+     * URL: /api/land-for-sale/delete/{id}
+     * @param int $id
+     * @return JsonResponse
+     */
+    public function delete(int $id): JsonResponse
+    {
+        try {
+            $seller = $this->listingService->checkPermission($id);
+            $this->listingService->delete($seller);
+
+        } catch (JWTException $e) {
+            return response()->json([
+                'status' => 'Error',
+                'message' => $e->getMessage()
+            ], 403);
+        } catch (Throwable $e) {
+            return response()->json([
+                'status' => 'Error',
+                'message' => $e->getMessage()
+            ], 500);
+        }
+
+        return response()->json([
+            'status' => 'Success',
+            'message' => 'Listing successfully deleted.'
+        ]);
+    }
+
 }
