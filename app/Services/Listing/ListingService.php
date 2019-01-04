@@ -6,8 +6,10 @@ namespace App\Services\Listing;
 use App\Models\Image;
 use App\Models\Listing;
 use App\Models\ListingGeo;
+use App\Models\User;
 use App\Repositories\Listing\Contracts\ListingRepositoryContract;
 use App\Services\Listing\Contracts\ListingServiceContract;
+use App\Services\User\Contracts\UserServiceContract;
 use Exception;
 use Illuminate\Database\Eloquent\Model;
 use Throwable;
@@ -84,4 +86,82 @@ class ListingService implements ListingServiceContract
         return $image->saveOrFail();
     }
 
+
+    /**
+     * Check user`s permission to make action
+     * @param int $id
+     * @return Model
+     * @throws Exception
+     * @throws JWTException
+     */
+    public function checkPermission(int $id): Model
+    {
+        $user = app(UserServiceContract::class)->authenticate();
+        $listing = $this->listingRepo->findByPk($id);
+
+        if ($listing && $listing->seller->id !== $user->id && $user->role !== User::ROLE_ADMIN) {
+            throw new Exception('You have no permission.', 403);
+        }
+
+        if (empty($listing->seller->id)) {
+            throw new Exception('Seller not found.', 404);
+        }
+
+        return $listing;
+    }
+
+
+    /**
+     * Update listing
+     * @param Model $listing
+     * @param array $data
+     * @return Model
+     * @throws Exception
+     * @throws Throwable
+     */
+    public function update(Model $listing, array $data): Model
+    {
+        if ($data['body']) {
+            if (isset($data['body']['title']) && $data['body']['title']) {
+                $data['body']['slug'] = makeUrl($data['body']['title']);
+            }
+
+            foreach ($data['body'] as $key => $property) {
+                $listing->$key = $property;
+            }
+
+            $listing->saveOrFail();
+        }
+
+        if ($data['geo'] && !$this->updateGeo($data['geo'], $listing->id)) {
+            throw new Exception('Can not update geo listing.', 500);
+        }
+
+        /***** create new image *****/
+        if ($data['image'] && !$this->createImage($data['image'], $listing->id)) {
+            throw new Exception('Can not update images.', 500);
+        }
+        /***** end *****/
+
+        return $listing;
+    }
+
+
+    /**
+     * Update geo listing
+     * @param array $data
+     * @param int $id
+     * @return bool
+     * @throws Throwable
+     */
+    protected function updateGeo(array $data, int $id): bool
+    {
+        $geo = $this->listingRepo->findGeoByPk($id);
+
+        foreach ($data as $key => $property) {
+            $geo->$key = $property;
+        }
+
+        return $geo->saveOrFail();
+    }
 }

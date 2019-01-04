@@ -5,19 +5,20 @@ namespace App\Services\Listing\Validator;
 
 use App\Rules\CheckSizeType;
 use App\Services\Auth\Validators\AbstractValidator;
+use Exception;
 use Illuminate\Http\Request;
 use Validator;
 
-class CreateListingRequestValidator implements AbstractValidator
+class UpdateListingRequestValidator implements AbstractValidator
 {
 
     /**
      * Return validated array of data
      * @param Request $request
      * @return array
-     * @throws \Exception
+     * @throws Exception
      */
-    public function attempt(Request $request): array
+    public function attempt(Request $request)
     {
         return [
             'body' => $this->validateBody($request),
@@ -30,12 +31,11 @@ class CreateListingRequestValidator implements AbstractValidator
      * Validate given data
      * @param Request $request
      * @return array
-     * @throws \Exception
      */
-    public function validateBody(Request $request): array
+    public function validateBody(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'title' => 'required|string|max:255|min:3',
+            'title' => 'nullable|string|max:255|min:3',
             'subtitle' => 'nullable|string|max:255|min:3',
             'description' => 'nullable|string',
         ]);
@@ -48,18 +48,18 @@ class CreateListingRequestValidator implements AbstractValidator
      * Validate given data
      * @param Request $request
      * @return array
-     * @throws \Exception
+     * @throws Exception
      */
     public function validateGeo(Request $request): array
     {
         $validator = Validator::make($request->all(), [
-            'size_type' => ['required', 'string', new CheckSizeType],
-            'state' => 'required|string',
-            'county' => 'required|string',
-            'city' => 'required|string',
-            'address' => 'required|string',
-            'longitude' => 'required|numeric',
-            'latitude' => 'required|numeric',
+            'size_type' => ['nullable', 'string', new CheckSizeType],
+            'state' => 'nullable|string',
+            'county' => 'nullable|string',
+            'city' => 'nullable|string',
+            'address' => 'nullable|string',
+            'longitude' => 'nullable|numeric',
+            'latitude' => 'nullable|numeric',
         ]);
 
         return $validator->validate();
@@ -80,4 +80,5 @@ class CreateListingRequestValidator implements AbstractValidator
 
         return $validator->validate();
     }
+
 }

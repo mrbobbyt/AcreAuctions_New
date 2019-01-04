@@ -122,14 +122,11 @@ class SellerService implements SellerServiceContract
      */
     public function update(Model $seller, array $data): Model
     {
-        if (isset($data['body']['title']) && $data['body']['title']) {
-            $data['body']['slug'] = makeUrl($data['body']['title']);
-        }
-
-        // Update images
-        foreach ($data['image'] as $name => $item) {
-            if ($item && !$this->updateImages($name, $item, $seller->id)) {
-                throw new Exception('Can not save '. $name);
+        if ($data['image']) {
+            foreach ($data['image'] as $name => $item) {
+                if ($item && !$this->updateImages($name, $item, $seller->id)) {
+                    throw new Exception('Can not save ' . $name);
+                }
             }
         }
 
@@ -145,11 +142,17 @@ class SellerService implements SellerServiceContract
         }
         /** end **/
 
-        foreach ($data['body'] as $key=>$property) {
-            $seller->$key = $property;
-        }
+        if ($data['body']) {
+            if (isset($data['body']['title']) && $data['body']['title']) {
+                $data['body']['slug'] = makeUrl($data['body']['title']);
+            }
 
-        $seller->saveOrFail();
+            foreach ($data['body'] as $key => $property) {
+                $seller->$key = $property;
+            }
+
+            $seller->saveOrFail();
+        }
 
         return $seller;
     }
@@ -172,7 +175,7 @@ class SellerService implements SellerServiceContract
             throw new Exception('Can not delete emails.');
         }
 
-        if (!$this->deleteTelephoness($seller)) {
+        if (!$this->deleteTelephones($seller)) {
             throw new Exception('Can not delete telephones.');
         }
 
@@ -199,8 +202,6 @@ class SellerService implements SellerServiceContract
             'entity_id' => $id,
             'entity_type' => ($name === 'logo') ? Image::TYPE_SELLER_LOGO : Image::TYPE_SELLER_COVER,
             'name' => upload_image($item, class_basename($this->model), $name),
-            'created_at' => date('Y-m-d H:i:s'),
-            'updated_at' => date('Y-m-d H:i:s'),
         ]);
 
         return $image->saveOrFail();
@@ -272,8 +273,6 @@ class SellerService implements SellerServiceContract
                 'entity_id' => $id,
                 'entity_type' => Email::TYPE_SELLER,
                 'email' => $email,
-                'created_at' => date('Y-m-d H:i:s'),
-                'updated_at' => date('Y-m-d H:i:s'),
             ]);
 
             return $model->saveOrFail();
@@ -295,8 +294,6 @@ class SellerService implements SellerServiceContract
                 'entity_id' => $id,
                 'entity_type' => Telephone::TYPE_SELLER,
                 'number' => $tel,
-                'created_at' => date('Y-m-d H:i:s'),
-                'updated_at' => date('Y-m-d H:i:s'),
             ]);
 
             return $model->saveOrFail();
@@ -322,7 +319,7 @@ class SellerService implements SellerServiceContract
      * @param Model $seller
      * @return mixed
      */
-    protected function deleteTelephoness(Model $seller)
+    protected function deleteTelephones(Model $seller)
     {
         return $seller->telephones->each(function ($item, $key) {
             $item->delete();

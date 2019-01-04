@@ -4,6 +4,7 @@ declare(strict_types = 1);
 namespace App\Repositories\Listing\Contracts;
 
 use App\Http\Resources\ListingResource;
+use Exception;
 use Illuminate\Database\Eloquent\Model;
 use Tymon\JWTAuth\Exceptions\JWTException;
 
@@ -40,5 +41,14 @@ interface ListingRepositoryContract
      * @throws JWTException
      */
     public function findSellerById();
+
+
+    /**
+     * Find geo listing by listing id
+     * @param int $id
+     * @return Model
+     * @throws Exception
+     */
+    public function findGeoByPk(int $id);
 
 }

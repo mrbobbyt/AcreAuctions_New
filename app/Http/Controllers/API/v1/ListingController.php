@@ -12,6 +12,7 @@ use App\Repositories\Listing\Contracts\ListingRepositoryContract;
 use App\Services\Listing\Contracts\ListingServiceContract;
 
 use App\Services\Listing\Validator\CreateListingRequestValidator;
+use App\Services\Listing\Validator\UpdateListingRequestValidator;
 
 use Exception;
 use Illuminate\Validation\ValidationException;
@@ -58,7 +59,7 @@ class ListingController extends Controller
 
 
     /**
-     * Create Seller
+     * Create Listing
      * METHOD: post
      * URL: /api/land-for-sale/create
      * @param Request $request
@@ -89,6 +90,54 @@ class ListingController extends Controller
                 'status' => 'Error',
                 'message' => $e->getMessage()
             ], $e->getCode());
+        }
+
+        return response()->json([
+            'status' => 'Success',
+            'listing' => ListingResource::make($listing)
+        ]);
+    }
+
+
+    /**
+     * Update Listing
+     * METHOD: post
+     * URL: /api/land-for-sale/update/{id}
+     * @param Request $request
+     * @param int $id
+     * @throws ValidationException
+     * @throws JWTException
+     * @throws Exception
+     * @throws Throwable
+     * @return JsonResponse
+     */
+    public function update(Request $request, int $id): JsonResponse
+    {
+        try {
+            $data = (new UpdateListingRequestValidator)->attempt($request);
+            $oldListing = $this->listingService->checkPermission($id);
+            $listing = $this->listingService->update($oldListing, $data);
+
+        } catch (ValidationException $e) {
+            return response()->json([
+                'status' => 'Error',
+                'message' => $e->validator->errors()->first(),
+            ], 400);
+        } catch (JWTException $e) {
+            return response()->json([
+                'status' => 'Error',
+                'message' => $e->getMessage()
+            ], 403);
+        } catch (Exception $e) {
+            return response()->json([
+                'status' => 'Error',
+                'message' => 400
+            ], $e->getCode());
+        } catch (Throwable $e) {
+            return response()->json([
+                'status' => 'Error',
+                'message' => $e->getMessage()
+            ], 500);
         }
 
         return response()->json([

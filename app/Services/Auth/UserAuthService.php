@@ -139,7 +139,6 @@ class UserAuthService implements UserAuthServiceContract
         $pwd = PasswordResets::query()->make()->fill([
             'email' => $data['body']['email'],
             'token' => $token,
-            'created_at' => date('Y-m-d H:i:s')
         ]);
 
         return $pwd->saveOrFail();
@@ -176,8 +175,6 @@ class UserAuthService implements UserAuthServiceContract
             'entity_id' => $id,
             'entity_type' => Image::TYPE_USER_AVATAR,
             'name' => upload_image($data['avatar'], class_basename($this->model), 'avatar'),
-            'created_at' => date('Y-m-d H:i:s'),
-            'updated_at' => date('Y-m-d H:i:s'),
         ]);
 
         return $image->saveOrFail();

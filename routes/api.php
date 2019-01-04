@@ -70,6 +70,10 @@ Route::get('land-for-sale/{slug}', 'API\v1\ListingController@view');
 Route::post('land-for-sale/create', 'API\v1\ListingController@create')
     ->middleware('jwt.verify');
 
+Route::post('land-for-sale/update/{id}', 'API\v1\ListingController@update')
+    ->middleware('jwt.verify');
+
+
 /*Route::get('reset/{token}', function($token) {
     $model = \App\Models\PasswordResets::where('token', '=', $token)->first();
 //    return new \App\Http\Resources\UserResource($model->user);

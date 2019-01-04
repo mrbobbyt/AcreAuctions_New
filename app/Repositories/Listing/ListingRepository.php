@@ -6,6 +6,7 @@ namespace App\Repositories\Listing;
 use App\Http\Resources\ListingResource;
 use App\Models\Image;
 use App\Models\Listing;
+use App\Models\ListingGeo;
 use Tymon\JWTAuth\Exceptions\JWTException;
 use App\Repositories\Listing\Contracts\ListingRepositoryContract;
 use App\Services\User\Contracts\UserServiceContract;
@@ -85,4 +86,21 @@ class ListingRepository implements ListingRepositoryContract
         $user = app(UserServiceContract::class)->authenticate();
         return $user->seller->id;
     }
+
+
+    /**
+     * Find geo listing by listing id
+     * @param int $id
+     * @return Model
+     * @throws Exception
+     */
+    public function findGeoByPk(int $id): Model
+    {
+        if ($listing = ListingGeo::query()->where('listing_id', $id)->first()) {
+            return $listing;
+        }
+
+        throw new Exception('Geo Listing not exist.', 404);
+    }
+
 }
