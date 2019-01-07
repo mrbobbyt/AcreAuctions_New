@@ -7,7 +7,7 @@ use App\Models\Email;
 use App\Models\Image;
 use App\Models\Seller;
 use App\Models\Telephone;
-use App\Services\User\Contracts\UserServiceContract;
+use App\Repositories\User\Contracts\UserRepositoryContract;
 use Exception;
 use File;
 use Illuminate\Database\Eloquent\Model;
@@ -22,13 +22,13 @@ class SellerService implements SellerServiceContract
 
     protected $model;
     protected $sellerRepo;
-    protected $userService;
+    protected $userRepo;
 
-    public function __construct(Seller $seller, SellerRepositoryContract $sellerRepo, UserServiceContract $userService)
+    public function __construct(Seller $seller, SellerRepositoryContract $sellerRepo, UserRepositoryContract $userRepo)
     {
         $this->model = $seller;
         $this->sellerRepo = $sellerRepo;
-        $this->userService = $userService;
+        $this->userRepo = $userRepo;
     }
 
 
@@ -42,7 +42,7 @@ class SellerService implements SellerServiceContract
      */
     public function create(array $data): Model
     {
-        $data['body']['user_id'] = $this->userService->getID();
+        $data['body']['user_id'] = $this->userRepo->authenticate()->getJWTIdentifier();
 
         // Create slug from title
         $data['body']['slug'] = make_url($data['body']['title']);
@@ -97,7 +97,7 @@ class SellerService implements SellerServiceContract
      */
     public function checkPermission(int $id): Model
     {
-        $userID = $this->userService->getID();
+        $userID = $this->userRepo->authenticate()->getJWTIdentifier();
         $seller = $this->sellerRepo->findByPk($id);
 
         if ($seller && $seller->user_id !== $userID) {

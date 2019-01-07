@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Repositories\User\Contracts\UserRepositoryContract;
 use App\Services\User\Contracts\UserServiceContract;
 use App\Services\User\Validators\UpdateRequestUserServiceValidator;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\JsonResponse;
 use App\Http\Resources\UserResource;
 use Illuminate\Http\Request;
@@ -34,7 +35,7 @@ class UserController extends Controller
     /**
      * Return auth user profile
      * METHOD: get
-     * URL: /profile
+     * URL: /user/profile
      * @throws JWTException
      * @throws TokenInvalidException
      * @throws TokenExpiredException
@@ -44,7 +45,7 @@ class UserController extends Controller
     public function profile(): JsonResponse
     {
         try {
-            $user = $this->userService->authenticate();
+            $user = $this->userRepo->authenticate();
 
         } catch (TokenExpiredException $e) {
             return response()->json([
@@ -78,7 +79,7 @@ class UserController extends Controller
     /**
      * Return user profile by id
      * METHOD: get
-     * URL: /view/{id}
+     * URL: /user/{id}
      * @param int $id
      * @return JsonResponse
      */
@@ -87,6 +88,11 @@ class UserController extends Controller
         try {
             $user = $this->userRepo->findByPk($id);
 
+        } catch (ModelNotFoundException $e) {
+            return response()->json([
+                'status' => 'Error',
+                'message' => 'User not exist.'
+            ], 404);
         } catch (Throwable $e) {
             return response()->json([
                 'status' => 'Error',
@@ -104,7 +110,7 @@ class UserController extends Controller
     /**
      * Update auth user info
      * METHOD: post
-     * URL: /update/{id}
+     * URL: /{id}/update
      * @param Request $request
      * @param int $id
      * @throws ValidationException
@@ -116,14 +122,20 @@ class UserController extends Controller
     public function update(Request $request, int $id): JsonResponse
     {
         try {
-            $data = app(UpdateRequestUserServiceValidator::class)->attempt($request, $id);
-            $user = $this->userService->update($data);
+            $this->userRepo->checkPermission($id);
+            $data = (new UpdateRequestUserServiceValidator)->attempt($request);
+            $user = $this->userService->update($data, $id);
 
         } catch (ValidationException $e) {
             return response()->json([
                 'status' => 'Error',
                 'message' => $e->validator->errors()->first(),
             ], 400);
+        } catch (ModelNotFoundException $e) {
+            return response()->json([
+                'status' => 'Error',
+                'message' => 'User not exist.'
+            ], 404);
         } catch (JWTException $e) {
             return response()->json([
                 'status' => 'Error',
@@ -146,7 +158,7 @@ class UserController extends Controller
     /**
      * Delete auth user
      * METHOD: get
-     * URL: /delete/{id}
+     * URL: /{id}/delete
      * @param int $id
      * @throws JWTException
      * @return JsonResponse
@@ -154,9 +166,14 @@ class UserController extends Controller
     public function delete(int $id): JsonResponse
     {
         try {
-            $this->userService->checkPermission($id);
+            $this->userRepo->checkPermission($id);
             $this->userService->delete($id);
 
+        } catch (ModelNotFoundException $e) {
+            return response()->json([
+                'status' => 'Error',
+                'message' => 'User not exist.'
+            ], 404);
         } catch (JWTException $e) {
             return response()->json([
                 'status' => 'Error',

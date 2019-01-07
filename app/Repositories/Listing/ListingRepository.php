@@ -6,11 +6,12 @@ namespace App\Repositories\Listing;
 use App\Http\Resources\ListingResource;
 use App\Models\Listing;
 use App\Models\ListingGeo;
+use App\Repositories\User\Contracts\UserRepositoryContract;
 use Tymon\JWTAuth\Exceptions\JWTException;
 use App\Repositories\Listing\Contracts\ListingRepositoryContract;
-use App\Services\User\Contracts\UserServiceContract;
 use Exception;
 use Illuminate\Database\Eloquent\Model;
+use Tymon\JWTAuth\Exceptions\TokenInvalidException;
 
 class ListingRepository implements ListingRepositoryContract
 {
@@ -78,10 +79,11 @@ class ListingRepository implements ListingRepositoryContract
      * Get seller id
      * @return int
      * @throws JWTException
+     * @throws TokenInvalidException
      */
     public function findSellerById(): int
     {
-        $user = app(UserServiceContract::class)->authenticate();
+        $user = app(UserRepositoryContract::class)->authenticate();
         return $user->seller->id;
     }
 

@@ -4,6 +4,7 @@ declare(strict_types = 1);
 namespace App\Services\Social\Validators;
 
 use Google_Service_Oauth2_Userinfoplus;
+use Illuminate\Validation\ValidationException;
 use Validator;
 
 class GoogleRequestValidator
@@ -13,6 +14,7 @@ class GoogleRequestValidator
      * Return validated array of data
      * @param Google_Service_Oauth2_Userinfoplus $data
      * @return array
+     * @throws ValidationException
      */
     public function attempt(Google_Service_Oauth2_Userinfoplus $data)
     {
@@ -30,6 +32,7 @@ class GoogleRequestValidator
     /**
      * Validate given data
      * @param $user
+     * @throws ValidationException
      * @return array
      */
     public function validateBody($user)

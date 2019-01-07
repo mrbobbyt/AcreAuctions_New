@@ -3,38 +3,22 @@ declare(strict_types = 1);
 
 namespace App\Services\User\Validators;
 
-use App\Repositories\User\Contracts\UserRepositoryContract;
 use App\Rules\CheckRole;
-use App\Services\User\Contracts\UserServiceContract;
+use App\Services\Auth\Validators\AbstractValidator;
 use Illuminate\Http\Request;
-use Exception;
+use Illuminate\Validation\ValidationException;
 use Validator;
 
-class UpdateRequestUserServiceValidator
+class UpdateRequestUserServiceValidator implements AbstractValidator
 {
-
-    protected $userService;
-
-    public function __construct(UserServiceContract $userService)
-    {
-        $this->userService = $userService;
-    }
-
-
     /**
      * Return validated array of data
      * @param Request $request
-     * @param int $id
      * @return array
-     * @throws Exception
+     * @throws ValidationException
      */
-    public function attempt(Request $request, int $id)
+    public function attempt(Request $request)
     {
-        $userID = $this->userService->getID();
-        if ($id != $userID) {
-            throw new Exception('You are not permitted to update this user.');
-        }
-
         return [
             'body' => $this->validateBody($request),
             'image' => $this->validateImage($request),
@@ -45,6 +29,7 @@ class UpdateRequestUserServiceValidator
     /**
      * Validate given data
      * @param Request $request
+     * @throws ValidationException
      * @return array
      */
     public function validateBody(Request $request)
@@ -63,6 +48,7 @@ class UpdateRequestUserServiceValidator
     /**
      * Validate avatar
      * @param Request $request
+     * @throws ValidationException
      * @return array
      */
     protected function validateImage(Request $request)

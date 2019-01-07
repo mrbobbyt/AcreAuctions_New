@@ -4,17 +4,14 @@ declare(strict_types = 1);
 namespace App\Services\User;
 
 use App\Models\Image;
-use App\Models\User;
 use App\Repositories\User\Contracts\UserRepositoryContract;
 use App\Services\User\Contracts\UserServiceContract;
-use Exception;
 use File;
-use Throwable;
-use Tymon\JWTAuth\Contracts\JWTSubject;
-use JWTAuth;
 use Illuminate\Database\Eloquent\Model;
 
 use Tymon\JWTAuth\Exceptions\JWTException;
+use Exception;
+use Throwable;
 
 class UserService implements UserServiceContract
 {
@@ -28,28 +25,17 @@ class UserService implements UserServiceContract
 
 
     /**
-     * Return authenticate user
-     * @throws JWTException
-     * @throws Exception
-     * @return JWTSubject
-     */
-    public function authenticate(): JWTSubject
-    {
-        return JWTAuth::parseToken()->authenticate();
-    }
-
-
-    /**
      * Update user
      * @param array $data
+     * @param int $id
      * @return Model
      * @throws JWTException
      * @throws Exception
      * @throws Throwable
      */
-    public function update(array $data): Model
+    public function update(array $data, int $id): Model
     {
-        $user = $this->userRepo->findByPk($this->getID());
+        $user = $this->userRepo->findByPk($id);
 
         foreach ($data['body'] as $key=>$property) {
             $user->$key = $property;
@@ -60,22 +46,6 @@ class UserService implements UserServiceContract
         }
 
         return $user;
-    }
-
-
-    /**
-     * Return id auth user
-     * @throw JWTException
-     * @throws Exception
-     * @return int
-     */
-    public function getID(): int
-    {
-        if ($user = JWTAuth::parseToken()->authenticate()) {
-            return $user->id;
-        }
-
-        throw new Exception('Invalid token.');
     }
 
 
@@ -145,22 +115,5 @@ class UserService implements UserServiceContract
         }
 
         return true;
-    }
-
-
-    /**
-     * Check user`s permission to make action
-     * @param int $id
-     * @return bool
-     * @throws Exception
-     * @throws JWTException
-     */
-    public function checkPermission(int $id): bool
-    {
-        if ($id == $this->getID() || JWTAuth::user()->role === User::ROLE_ADMIN) {
-            return true;
-        }
-
-        throw new Exception('You are not permitted to delete this user.');
     }
 }

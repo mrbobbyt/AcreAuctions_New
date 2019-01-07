@@ -4,6 +4,7 @@ declare(strict_types = 1);
 namespace App\Services\Social\Validators;
 
 use Facebook\GraphNodes\GraphNode;
+use Illuminate\Validation\ValidationException;
 use Validator;
 
 class FacebookRequestValidator
@@ -12,6 +13,7 @@ class FacebookRequestValidator
     /**
      * Return validated array of data
      * @param GraphNode $json
+     * @throws ValidationException
      * @return array
      */
     public function attempt(GraphNode $json)
@@ -32,6 +34,7 @@ class FacebookRequestValidator
     /**
      * Validate given data
      * @param $user
+     * @throws ValidationException
      * @return array
      */
     public function validateBody($user)

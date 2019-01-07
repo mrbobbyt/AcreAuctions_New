@@ -3,16 +3,16 @@ declare(strict_types = 1);
 
 namespace App\Rules;
 
-use App\Models\User;
 use Hash;
 use Illuminate\Contracts\Validation\Rule;
+use Illuminate\Database\Eloquent\Model;
 
 class CheckPassword implements Rule
 {
 
     protected $user;
 
-    public function __construct(User $user)
+    public function __construct(Model $user)
     {
         $this->user = $user;
     }

@@ -8,6 +8,7 @@ use App\Models\Image;
 use App\Models\PasswordResets;
 use App\Models\User;
 use Exception;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Mail;
 
 use App\Repositories\User\Contracts\UserRepositoryContract;
@@ -20,10 +21,8 @@ use Tymon\JWTAuth\Exceptions\JWTException;
 class UserAuthService implements UserAuthServiceContract
 
 {
-
     protected $model;
     protected $userRepo;
-
 
     public function __construct(User $user, UserRepositoryContract $userRepo)
     {
@@ -76,6 +75,7 @@ class UserAuthService implements UserAuthServiceContract
 
     /**
      * Logout user and break token
+     * @throws JWTException
      */
     public function breakToken()
     {
@@ -87,15 +87,12 @@ class UserAuthService implements UserAuthServiceContract
      * Reset user password
      * @param array $data
      * @return bool
+     * @throws ModelNotFoundException
      * @throws Throwable
      */
     public function resetPassword(array $data): bool
     {
         $user = $this->userRepo->findByEmail($data['email']);
-        if ($user === null) {
-            throw new Exception('User not found.');
-        }
-
         $user->password = bcrypt($data['password']);
 
         return $user->saveOrFail();
@@ -145,10 +142,6 @@ class UserAuthService implements UserAuthServiceContract
     {
         $user = $this->userRepo->findByEmail($email);
 
-        if ($user === null) {
-            throw new Exception('User not found.');
-        }
-
         if ($token = JWTAuth::fromUser($user)) {
             return $token;
         }
@@ -186,9 +179,6 @@ class UserAuthService implements UserAuthServiceContract
     public function createOrLogin(array $data): array
     {
         $user = $this->userRepo->findByEmail($data['body']['email']);
-        if ($user === null) {
-            $user = $this->create($data);
-        }
         $token = $this->createToken($data['body']);
 
         return [

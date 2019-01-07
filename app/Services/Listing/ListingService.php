@@ -8,12 +8,13 @@ use App\Models\Listing;
 use App\Models\ListingGeo;
 use App\Models\User;
 use App\Repositories\Listing\Contracts\ListingRepositoryContract;
+use App\Repositories\User\Contracts\UserRepositoryContract;
 use App\Services\Listing\Contracts\ListingServiceContract;
-use App\Services\User\Contracts\UserServiceContract;
 use Exception;
 use Illuminate\Database\Eloquent\Model;
 use Throwable;
 use Tymon\JWTAuth\Exceptions\JWTException;
+use Tymon\JWTAuth\Exceptions\TokenInvalidException;
 
 class ListingService implements ListingServiceContract
 {
@@ -93,10 +94,11 @@ class ListingService implements ListingServiceContract
      * @return Model
      * @throws Exception
      * @throws JWTException
+     * @throws TokenInvalidException
      */
     public function checkPermission(int $id): Model
     {
-        $user = app(UserServiceContract::class)->authenticate();
+        $user = app(UserRepositoryContract::class)->authenticate();
         $listing = $this->listingRepo->findByPk($id);
 
         if ($listing && $listing->seller->id !== $user->id && $user->role !== User::ROLE_ADMIN) {

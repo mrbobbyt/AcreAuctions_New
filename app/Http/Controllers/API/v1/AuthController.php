@@ -9,6 +9,7 @@ use App\Repositories\User\Contracts\UserRepositoryContract;
 use App\Services\Auth\Contracts\UserAuthServiceContract;
 use App\Services\Social\Contracts\FacebookServiceContract;
 use App\Services\Social\Contracts\GoogleServiceContract;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use App\Http\Resources\UserResource;
@@ -92,6 +93,7 @@ class AuthController extends Controller
      * URL: /login
      * @param Request $request
      * @throws ValidationException
+     * @throws ModelNotFoundException
      * @return JsonResponse
      */
     public function login(Request $request): JsonResponse
@@ -99,12 +101,18 @@ class AuthController extends Controller
         try {
             $data = app(LoginRequestUserServiceValidator::class)->attempt($request);
             $token = $this->userService->createToken($data['body']);
+            $user = $this->userRepo->findByEmail($data['body']['email']);
 
         } catch (ValidationException $e) {
             return response()->json([
                 'status' => 'Error',
                 'message' => $e->validator->errors()->first(),
             ], 400);
+        } catch (ModelNotFoundException $e) {
+            return response()->json([
+                'status' => 'Error',
+                'message' => 'User not exist.'
+            ], 404);
         } catch (Throwable $e) {
             return response()->json([
                 'status' => 'Error',
@@ -115,7 +123,7 @@ class AuthController extends Controller
         return response()->json([
             'status' => 'Success',
             'token' => $token,
-            'user' => UserResource::make($data['user'])
+            'user' => UserResource::make($user)
         ]);
     }
 
@@ -166,6 +174,7 @@ class AuthController extends Controller
      * @throws FacebookSDKException
      * @throws FacebookResponseException
      * @throws ValidationException
+     * @throws JWTException
      * @throws Throwable
      * @return JsonResponse
      */
@@ -216,6 +225,7 @@ class AuthController extends Controller
     /**
      * Get validated user data from Google
      * @throws ValidationException
+     * @throws JWTException
      * @throws Throwable
      * @return JsonResponse
      */
@@ -263,11 +273,6 @@ class AuthController extends Controller
         try {
             $this->userService->breakToken();
 
-        } catch (JWTException $e) {
-            return response()->json([
-                'status' => 'Error',
-                'message' => $e->getMessage()
-            ], 401);
         } catch (Throwable $e) {
             return response()->json([
                 'status' => 'Error',
@@ -338,6 +343,11 @@ class AuthController extends Controller
                 'status' => 'Error',
                 'message' => $e->validator->errors()->first(),
             ], 400);
+        } catch (ModelNotFoundException $e) {
+            return response()->json([
+                'status' => 'Error',
+                'message' => 'User not exist.'
+            ], 404);
         } catch (JWTException $e) {
             return response()->json([
                 'status' => 'Error',

@@ -8,21 +8,25 @@ use App\Models\Email;
 use App\Models\Seller;
 use App\Models\Telephone;
 use App\Repositories\Seller\Contracts\SellerRepositoryContract;
+use App\Repositories\User\Contracts\UserRepositoryContract;
 use App\Services\User\Contracts\UserServiceContract;
 use Exception;
 use Illuminate\Database\Eloquent\Model;
 use JWTAuth;
+use Tymon\JWTAuth\Exceptions\TokenInvalidException;
 
 class SellerRepository implements SellerRepositoryContract
 {
 
     protected $model;
     protected $userService;
+    protected $userRepo;
 
-    public function __construct(Seller $seller, UserServiceContract $userService)
+    public function __construct(Seller $seller, UserServiceContract $userService, UserRepositoryContract $userRepo)
     {
         $this->model = $seller;
         $this->userService = $userService;
+        $this->userRepo = $userRepo;
     }
 
 
@@ -88,13 +92,14 @@ class SellerRepository implements SellerRepositoryContract
      * @param Model $seller
      * @return bool
      * @throws Exception
+     * @throws TokenInvalidException
      */
     public function checkVerification(Model $seller): bool
     {
+        $user = $this->userRepo->authenticate();
         if ($seller->is_verified ||
                 (JWTAuth::check(JWTAuth::getToken()) &&
-                    ($this->userService->authenticate()->isAdmin() ||
-                    $seller->user_id === $this->userService->getID() )
+                    ($user->isAdmin() || $seller->user_id === $user->getJWTIdentifier())
                 )
         ) {
             return true;

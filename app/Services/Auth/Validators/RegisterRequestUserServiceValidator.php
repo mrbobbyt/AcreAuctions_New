@@ -5,6 +5,7 @@ namespace App\Services\Auth\Validators;
 
 use App\Rules\CheckRole;
 use Illuminate\Http\Request;
+use Illuminate\Validation\ValidationException;
 use Validator;
 
 class RegisterRequestUserServiceValidator implements AbstractValidator
@@ -14,6 +15,7 @@ class RegisterRequestUserServiceValidator implements AbstractValidator
      * Return validated array of data
      * @param Request $request
      * @return array
+     * @throws ValidationException
      */
     public function attempt(Request $request)
     {
@@ -27,6 +29,7 @@ class RegisterRequestUserServiceValidator implements AbstractValidator
     /**
      * Validate given data
      * @param Request $request
+     * @throws ValidationException
      * @return array
      */
     public function validateBody(Request $request)
@@ -46,6 +49,7 @@ class RegisterRequestUserServiceValidator implements AbstractValidator
     /**
      * Validate avatar
      * @param Request $request
+     * @throws ValidationException
      * @return array
      */
     protected function validateImage(Request $request)

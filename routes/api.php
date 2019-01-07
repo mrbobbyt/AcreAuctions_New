@@ -31,15 +31,15 @@ Route::get('', 'API\v1\AuthController@index')
 
 /********** User **********/
 
-Route::get('profile', 'API\v1\UserController@profile')
+Route::get('user/profile', 'API\v1\UserController@profile')
     ->middleware('jwt.verify');
 
-Route::get('user/view/{id}', 'API\v1\UserController@view');
+Route::get('user/{id}', 'API\v1\UserController@view');
 
-Route::post('user/update/{id}', 'API\v1\UserController@update')
+Route::post('user/{id}/update', 'API\v1\UserController@update')
     ->middleware('jwt.verify');
 
-Route::get('user/delete/{id}', 'API\v1\UserController@delete')
+Route::get('user/{id}/delete', 'API\v1\UserController@delete')
     ->middleware('jwt.verify');
 
 
