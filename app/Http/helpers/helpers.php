@@ -5,7 +5,13 @@ use Illuminate\Http\UploadedFile;
 
 
 if (! function_exists('get_image_path')) {
-    function get_image_path($model, $name)
+    /**
+     * Create path to the image
+     * @param $model
+     * @param $name
+     * @return string
+     */
+    function get_image_path($model, $name): string
     {
         return public_path().'/images/'. $model .'/' . $name;
     }
@@ -20,7 +26,7 @@ if (! function_exists('upload_image')) {
      * @return string
      * @throws Exception
      */
-    function upload_image($img, $folder, $type)
+    function upload_image($img, $folder, $type): string
     {
         $name = time() .'_'. $type .'_'. $img->getClientOriginalName();
         if (!$img->move('images/'. $folder, $name)) {
@@ -31,13 +37,13 @@ if (! function_exists('upload_image')) {
     }
 }
 
-if (! function_exists('makeUrl')) {
+if (! function_exists('make_url')) {
     /**
      * Return slug created from title
      * @param string $title
      * @return string
      */
-    function makeUrl(string $title): string
+    function make_url(string $title): string
     {
         return preg_replace('/[^a-z0-9]+/i', '_', $title);
     }

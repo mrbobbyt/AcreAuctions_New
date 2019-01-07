@@ -49,16 +49,7 @@ class SellerController extends Controller
     {
         try {
             $seller = $this->sellerRepo->findBySlug($slug);
-
-            if (!$seller->is_verified) {
-                // check if user is authenticate and not an admin or company head
-                if ( !JWTAuth::check(JWTAuth::getToken()) ||
-                    !$seller->getHead->isAdmin() ||
-                    $seller->user_id !== $this->userService->getID()
-                ) {
-                    throw new Exception('Seller is not verified', 404);
-                }
-            }
+            $this->sellerRepo->checkVerification($seller);
 
         } catch (Throwable $e) {
             return response()->json([

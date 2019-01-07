@@ -21,15 +21,6 @@ interface UserAuthServiceContract
 
 
     /**
-     * Create token for auth User
-     *
-     * @param array $data
-     * @return string
-     */
-    public function getToken(array $data);
-
-
-    /**
      * Create token for new User
      *
      * @param $user

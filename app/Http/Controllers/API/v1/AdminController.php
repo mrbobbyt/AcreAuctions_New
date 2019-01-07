@@ -27,10 +27,8 @@ class AdminController extends Controller
 
     /**
      * Make seller verified
-     *
      * METHOD: post
      * URL: /admin
-     *
      * @param Request $request
      * @throws ValidationException
      * @throws Exception

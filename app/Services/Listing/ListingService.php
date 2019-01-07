@@ -42,7 +42,7 @@ class ListingService implements ListingServiceContract
         $data['body']['seller_id'] = $this->listingRepo->findSellerById();
 
         // Create slug from title
-        $data['body']['slug'] = makeUrl($data['body']['title']);
+        $data['body']['slug'] = make_url($data['body']['title']);
         if ($this->listingRepo->findBySlug($data['body']['slug'])) {
             throw new Exception('Listing with the same title already exists, please, choose another.', 400);
         }
@@ -123,7 +123,7 @@ class ListingService implements ListingServiceContract
     {
         if ($data['body']) {
             if (isset($data['body']['title']) && $data['body']['title']) {
-                $data['body']['slug'] = makeUrl($data['body']['title']);
+                $data['body']['slug'] = make_url($data['body']['title']);
             }
 
             foreach ($data['body'] as $key => $property) {

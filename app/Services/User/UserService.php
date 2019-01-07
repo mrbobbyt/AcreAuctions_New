@@ -136,8 +136,8 @@ class UserService implements UserServiceContract
      */
     protected function deleteAvatar(Model $user): bool
     {
-        if (File::exists(public_path('images/User/' . $user->avatar->name))) {
-            File::delete(public_path('images/User/' . $user->avatar->name));
+        if (File::exists(get_image_path('User', $user->avatar->name))) {
+            File::delete(get_image_path('User', $user->avatar->name));
         }
 
         if ($user->avatar) {

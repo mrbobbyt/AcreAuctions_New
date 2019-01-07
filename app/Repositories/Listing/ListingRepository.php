@@ -4,7 +4,6 @@ declare(strict_types = 1);
 namespace App\Repositories\Listing;
 
 use App\Http\Resources\ListingResource;
-use App\Models\Image;
 use App\Models\Listing;
 use App\Models\ListingGeo;
 use Tymon\JWTAuth\Exceptions\JWTException;
@@ -68,7 +67,7 @@ class ListingRepository implements ListingRepositoryContract
     {
         $array = [];
         foreach ($this->getImages($listing) as $i) {
-            array_push($array, public_path().'/images/Listing/'.$i);
+            array_push($array, get_image_path('Listing', $i));
         }
 
         return $array;

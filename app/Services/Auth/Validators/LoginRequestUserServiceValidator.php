@@ -7,6 +7,7 @@ use App\Models\User;
 use App\Repositories\User\Contracts\UserRepositoryContract;
 use App\Rules\CheckPassword;
 use App\Services\Auth\Contracts\UserAuthServiceContract;
+use Exception;
 use Illuminate\Http\Request;
 use Validator;
 
@@ -28,10 +29,15 @@ class LoginRequestUserServiceValidator
      *
      * @param Request $request
      * @return array
+     * @throws Exception
      */
     public function attempt(Request $request): array
     {
         $user = $this->userRepo->findByEmail($request->input('email'));
+
+        if ($user === null) {
+            throw new Exception('User not found.');
+        }
 
         return [
             'body' => $this->validateBody($request, $user),

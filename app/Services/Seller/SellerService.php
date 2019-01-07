@@ -45,7 +45,7 @@ class SellerService implements SellerServiceContract
         $data['body']['user_id'] = $this->userService->getID();
 
         // Create slug from title
-        $data['body']['slug'] = makeUrl($data['body']['title']);
+        $data['body']['slug'] = make_url($data['body']['title']);
         if ($this->sellerRepo->findBySlug($data['body']['slug'])) {
             throw new Exception('Seller with the same name already exists, please, choose another.', 400);
         }
@@ -144,7 +144,7 @@ class SellerService implements SellerServiceContract
 
         if ($data['body']) {
             if (isset($data['body']['title']) && $data['body']['title']) {
-                $data['body']['slug'] = makeUrl($data['body']['title']);
+                $data['body']['slug'] = make_url($data['body']['title']);
             }
 
             foreach ($data['body'] as $key => $property) {
@@ -242,15 +242,15 @@ class SellerService implements SellerServiceContract
     protected function deleteImages(Model $seller): bool
     {
         if ($seller->logo) {
-            if (File::exists(public_path('images/Seller/' . $seller->logo->name))) {
-                File::delete(public_path('images/Seller/' . $seller->logo->name));
+            if (File::exists(get_image_path('Seller', $seller->logo->name))) {
+                File::delete(get_image_path('Seller', $seller->logo->name));
             }
             $seller->logo->delete();
         }
 
         if ($seller->cover) {
-            if (File::exists(public_path('images/Seller/' . $seller->cover->name))) {
-                File::delete(public_path('images/Seller/' . $seller->cover->name));
+            if (File::exists(get_image_path('Seller', $seller->cover->name))) {
+                File::delete(get_image_path('Seller', $seller->cover->name));
             }
             $seller->cover->delete();
         }

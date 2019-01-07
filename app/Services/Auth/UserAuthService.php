@@ -55,22 +55,6 @@ class UserAuthService implements UserAuthServiceContract
 
 
     /**
-     * Create token for auth User
-     * @param array $data
-     * @return string
-     * @throws Exception
-     */
-    public function getToken(array $data): string
-    {
-        if($token = JWTAuth::attempt(['email' => $data['email'], 'password' => $data['password']])) {
-            return $token;
-        }
-
-        throw new Exception('The email or the password is wrong.');
-    }
-
-
-    /**
      * Create token for new User
      * @param $data
      * @return string
@@ -108,6 +92,10 @@ class UserAuthService implements UserAuthServiceContract
     public function resetPassword(array $data): bool
     {
         $user = $this->userRepo->findByEmail($data['email']);
+        if ($user === null) {
+            throw new Exception('User not found.');
+        }
+
         $user->password = bcrypt($data['password']);
 
         return $user->saveOrFail();
@@ -153,9 +141,14 @@ class UserAuthService implements UserAuthServiceContract
      * @return string
      * @throws JWTException
      */
-    protected function createTokenWithoutPassword (string $email): string
+    protected function createTokenWithoutPassword(string $email): string
     {
         $user = $this->userRepo->findByEmail($email);
+
+        if ($user === null) {
+            throw new Exception('User not found.');
+        }
+
         if ($token = JWTAuth::fromUser($user)) {
             return $token;
         }

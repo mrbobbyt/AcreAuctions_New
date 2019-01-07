@@ -98,7 +98,7 @@ class AuthController extends Controller
     {
         try {
             $data = app(LoginRequestUserServiceValidator::class)->attempt($request);
-            $token = $this->userService->getToken($data['body']);
+            $token = $this->userService->createToken($data['body']);
 
         } catch (ValidationException $e) {
             return response()->json([
@@ -331,7 +331,7 @@ class AuthController extends Controller
         try {
             $data = (new ResetPasswordRequestValidator())->attempt($request);
             $this->userService->resetPassword($data['body']);
-            $token = $this->userService->getToken($data['body']);
+            $token = $this->userService->createToken($data['body']);
 
         } catch (ValidationException $e) {
             return response()->json([
