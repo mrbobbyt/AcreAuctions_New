@@ -23,4 +23,5 @@ class ListingGeo extends Model
     ];
 
     protected $guarded = ['id'];
+
 }

@@ -5,7 +5,6 @@ namespace App\Services\Auth\Validators;
 
 use App\Repositories\User\Contracts\UserRepositoryContract;
 use App\Rules\CheckPassword;
-use App\Services\Auth\Contracts\UserAuthServiceContract;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;

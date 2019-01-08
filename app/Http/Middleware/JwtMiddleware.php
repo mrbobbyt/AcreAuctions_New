@@ -4,22 +4,20 @@ declare(strict_types = 1);
 namespace App\Http\Middleware;
 
 use Closure;
-use Exception;
 use Illuminate\Http\Request;
+use Throwable;
 use Tymon\JWTAuth\Exceptions\JWTException;
 use Tymon\JWTAuth\Http\Middleware\BaseMiddleware;
 use JWTAuth;
-use \Tymon\JWTAuth\Exceptions\TokenInvalidException;
-use \Tymon\JWTAuth\Exceptions\TokenExpiredException;
-
+use Tymon\JWTAuth\Exceptions\TokenInvalidException;
+use Tymon\JWTAuth\Exceptions\TokenExpiredException;
 
 class JwtMiddleware extends BaseMiddleware
 {
     /**
      * Handle an incoming request.
-     *
-     * @param  Request  $request
-     * @param  Closure  $next
+     * @param Request $request
+     * @param Closure $next
      * @return mixed
      */
     public function handle(Request $request, Closure $next)
@@ -42,34 +40,12 @@ class JwtMiddleware extends BaseMiddleware
                 ], 400);
             }
             $user = JWTAuth::setToken($refreshed)->toUser();
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             return response()->json([
                 'status' => 'Error',
                 'message' => 'Authorization Token not found'
             ], 403);
         }
-
-
-        /*catch (Exception $e) {
-            dd($e->getMessage());
-            if ($e instanceof TokenInvalidException) {
-                return response()->json([
-                    'status' => 'Error',
-                    'message' => 'Token is Invalid'
-                ], 400);
-            } else if ($e instanceof TokenExpiredException) {
-                return response()->json([
-                    'status' => 'Error',
-                    'message' => 'sdsdsd'
-                ], 400);
-                //JWTAuth::refresh(JWTAuth::check(JWTAuth::getToken()));
-            } else {
-                return response()->json([
-                    'status' => 'Error',
-                    'message' => 'Authorization Token not found'
-                ], 403);
-            }
-        }*/
 
         return $next($request);
     }

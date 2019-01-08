@@ -4,13 +4,14 @@ declare(strict_types = 1);
 namespace App\Repositories\Listing\Contracts;
 
 use App\Http\Resources\ListingResource;
-use Exception;
+use App\Repositories\User\Exceptions\NoPermissionException;
 use Illuminate\Database\Eloquent\Model;
 use Tymon\JWTAuth\Exceptions\JWTException;
+use Tymon\JWTAuth\Exceptions\TokenExpiredException;
+use Tymon\JWTAuth\Exceptions\TokenInvalidException;
 
 interface ListingRepositoryContract
 {
-
     /**
      * Find seller by url
      * @param string $slug
@@ -47,6 +48,8 @@ interface ListingRepositoryContract
      * Get seller id
      * @return int
      * @throws JWTException
+     * @throws TokenInvalidException
+     * @throws TokenExpiredException
      */
     public function findSellerById();
 
@@ -55,7 +58,6 @@ interface ListingRepositoryContract
      * Find geo listing by listing id
      * @param int $id
      * @return Model
-     * @throws Exception
      */
     public function findGeoByPk(int $id);
 
@@ -64,8 +66,8 @@ interface ListingRepositoryContract
      * Check user`s permission to make action
      * @param int $id
      * @return bool
-     * @throws Exception
      * @throws JWTException
+     * @throws NoPermissionException
      */
     public function checkPermission(int $id);
 

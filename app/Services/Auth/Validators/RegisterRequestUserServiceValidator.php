@@ -10,7 +10,6 @@ use Validator;
 
 class RegisterRequestUserServiceValidator implements AbstractValidator
 {
-
     /**
      * Return validated array of data
      * @param Request $request

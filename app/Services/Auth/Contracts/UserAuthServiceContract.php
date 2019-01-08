@@ -9,10 +9,8 @@ use Tymon\JWTAuth\Exceptions\JWTException;
 
 interface UserAuthServiceContract
 {
-
     /**
      * Create User
-     *
      * @param array $data
      * @return Model
      * @throws Throwable
@@ -22,23 +20,15 @@ interface UserAuthServiceContract
 
     /**
      * Create token for new User
-     *
      * @param $user
+     * @throws JWTException
      * @return string
      */
     public function createToken($user);
 
 
     /**
-     * Logout user and break token
-     *
-     */
-    public function breakToken();
-
-
-    /**
      * Reset user password
-     *
      * @param array $data
      * @return bool
      * @throws Throwable
@@ -48,7 +38,6 @@ interface UserAuthServiceContract
 
     /**
      * Send email with invitation token when user forgot password
-     *
      * @param array $data
      * @throws Throwable
      */

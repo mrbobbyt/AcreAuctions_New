@@ -8,19 +8,18 @@ use App\Models\Image;
 use App\Models\Seller;
 use App\Models\Telephone;
 use App\Repositories\User\Contracts\UserRepositoryContract;
+use App\Services\Seller\Exceptions\SellerAlreadyExistsException;
 use Exception;
 use File;
 use Illuminate\Database\Eloquent\Model;
 use App\Repositories\Seller\Contracts\SellerRepositoryContract;
 use App\Services\Seller\Contracts\SellerServiceContract;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\UploadedFile;
 use Throwable;
 use Tymon\JWTAuth\Exceptions\JWTException;
 
 class SellerService implements SellerServiceContract
 {
-
     protected $model;
     protected $sellerRepo;
     protected $userRepo;
@@ -37,29 +36,27 @@ class SellerService implements SellerServiceContract
      * Create new seller
      * @param array $data
      * @return Model
-     * @throws Throwable
      * @throws JWTException
-     * @throws Exception
+     * @throws SellerAlreadyExistsException
+     * @throws Throwable
      */
     public function create(array $data): Model
     {
         $data['body']['user_id'] = $this->userRepo->getId();
 
         if ($this->sellerRepo->findByTitle($data['body']['title'])) {
-            throw new Exception('Seller with the same title already exists, please, choose another.', 400);
+            throw new SellerAlreadyExistsException();
         }
         $data['body']['slug'] = make_url($data['body']['title']);
 
         $seller = $this->model->query()->make()->fill($data['body']);
 
-        if (!$seller->saveOrFail()) {
-            throw new Exception('Can not save seller');
-        }
+        $seller->saveOrFail();
 
         // Create images
         foreach ($data['image'] as $name => $item) {
-            if ($item && !$this->createImages($name, $item, $seller->id)) {
-                throw new Exception('Can not save '. $name);
+            if ($item) {
+                $this->createImages($name, $item, $seller->id);
             }
         }
 
@@ -90,10 +87,10 @@ class SellerService implements SellerServiceContract
 
     /**
      * Update seller
-     * @param int $id
      * @param array $data
+     * @param int $id
      * @return Model
-     * @throws Exception
+     * @throws SellerAlreadyExistsException
      * @throws Throwable
      */
     public function update(array $data, int $id): Model
@@ -102,8 +99,8 @@ class SellerService implements SellerServiceContract
 
         if ($data['image']) {
             foreach ($data['image'] as $name => $item) {
-                if ($item && !$this->updateImages($name, $item, $id)) {
-                    throw new Exception('Can not save ' . $name);
+                if ($item) {
+                    $this->updateImages($name, $item, $id);
                 }
             }
         }
@@ -123,7 +120,7 @@ class SellerService implements SellerServiceContract
         if ($data['body']) {
             if (isset($data['body']['title']) && $data['body']['title']) {
                 if ($this->sellerRepo->findByTitle($data['body']['title'])) {
-                    throw new Exception('Seller with the same title already exists, please, choose another.', 400);
+                    throw new SellerAlreadyExistsException();
                 }
                 $data['body']['slug'] = make_url($data['body']['title']);
             }
@@ -142,29 +139,16 @@ class SellerService implements SellerServiceContract
     /**
      * Delete seller
      * @param int $id
-     * @throws Exception
-     * @throws Throwable
      * @return bool
+     * @throws Exception
      */
     public function delete(int $id): bool
     {
         $seller = $this->sellerRepo->findByPk($id);
-
-        if (!$this->deleteImages($seller)) {
-            throw new Exception('Can not delete images.');
-        }
-
-        if (!$this->deleteEmails($seller)) {
-            throw new Exception('Can not delete emails.');
-        }
-
-        if (!$this->deleteTelephones($seller)) {
-            throw new Exception('Can not delete telephones.');
-        }
-
-        if (!$seller->delete()) {
-            throw new Exception('Can not delete seller.');
-        }
+        $this->deleteImages($seller);
+        $this->deleteEmails($seller);
+        $this->deleteTelephones($seller);
+        $seller->delete();
 
         return true;
     }
@@ -219,8 +203,6 @@ class SellerService implements SellerServiceContract
      * Delete User avatar
      * @param Model $seller
      * @return bool
-     * @throws Throwable
-     * @throws Exception
      */
     protected function deleteImages(Model $seller): bool
     {

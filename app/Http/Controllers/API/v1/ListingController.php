@@ -4,6 +4,8 @@ declare(strict_types = 1);
 namespace App\Http\Controllers\API\v1;
 
 use App\Http\Resources\ListingResource;
+use App\Repositories\User\Exceptions\NoPermissionException;
+use App\Services\Listing\Exceptions\ListingAlreadyExistsException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
@@ -15,14 +17,14 @@ use App\Services\Listing\Contracts\ListingServiceContract;
 use App\Services\Listing\Validator\CreateListingRequestValidator;
 use App\Services\Listing\Validator\UpdateListingRequestValidator;
 
-use Exception;
 use Illuminate\Validation\ValidationException;
 use Throwable;
 use Tymon\JWTAuth\Exceptions\JWTException;
+use Tymon\JWTAuth\Exceptions\TokenExpiredException;
+use Tymon\JWTAuth\Exceptions\TokenInvalidException;
 
 class ListingController extends Controller
 {
-
     protected $listingService;
     protected $listingRepo;
 
@@ -37,7 +39,6 @@ class ListingController extends Controller
      * METHOD: get
      * URL: /land-for-sale/{slug}
      * @param string $slug
-     * @throws ModelNotFoundException
      * @return JsonResponse
      */
     public function view(string $slug): JsonResponse
@@ -53,7 +54,7 @@ class ListingController extends Controller
         } catch (Throwable $e) {
             return response()->json([
                 'status' => 'Error',
-                'message' => $e->getMessage()
+                'message' => 'Listing show error.'
             ], 500);
         }
 
@@ -69,11 +70,6 @@ class ListingController extends Controller
      * METHOD: post
      * URL: /land-for-sale/create
      * @param Request $request
-     * @throws ValidationException
-     * @throws JWTException
-     * @throws Exception
-     * @throws ModelNotFoundException
-     * @throws Throwable
      * @return JsonResponse
      */
     public function create(Request $request): JsonResponse
@@ -87,20 +83,20 @@ class ListingController extends Controller
                 'status' => 'Error',
                 'message' => $e->validator->errors()->first(),
             ], 400);
+        } catch (TokenExpiredException | TokenInvalidException | ListingAlreadyExistsException $e) {
+            return response()->json([
+                'status' => 'Error',
+                'message' => $e->getMessage()
+            ], 400);
         } catch (ModelNotFoundException $e) {
             return response()->json([
                 'status' => 'Error',
                 'message' => 'Seller not exist.'
             ], 404);
-        } catch (JWTException $e) {
+        } catch (JWTException | Throwable $e) {
             return response()->json([
                 'status' => 'Error',
-                'message' => $e->getMessage()
-            ], 403);
-        } catch (Throwable $e) {
-            return response()->json([
-                'status' => 'Error',
-                'message' => $e->getMessage()
+                'message' => 'Listing create error.'
             ], 500);
         }
 
@@ -117,11 +113,6 @@ class ListingController extends Controller
      * URL: /land-for-sale/{id}/update
      * @param Request $request
      * @param int $id
-     * @throws ValidationException
-     * @throws JWTException
-     * @throws ModelNotFoundException
-     * @throws Exception
-     * @throws Throwable
      * @return JsonResponse
      */
     public function update(Request $request, int $id): JsonResponse
@@ -131,30 +122,30 @@ class ListingController extends Controller
             $data = (new UpdateListingRequestValidator)->attempt($request);
             $listing = $this->listingService->update($data, $id);
 
+        } catch (NoPermissionException $e) {
+            return response()->json([
+                'status' => 'Error',
+                'message' => $e->getMessage()
+            ], 403);
         } catch (ValidationException $e) {
             return response()->json([
                 'status' => 'Error',
                 'message' => $e->validator->errors()->first(),
             ], 400);
-        } catch (JWTException $e) {
+        } catch (ListingAlreadyExistsException $e) {
             return response()->json([
                 'status' => 'Error',
                 'message' => $e->getMessage()
-            ], 403);
+            ], 400);
         } catch (ModelNotFoundException $e) {
             return response()->json([
                 'status' => 'Error',
                 'message' => 'Listing not exist.'
             ], 404);
-        } catch (Exception $e) {
+        } catch (JWTException | Throwable $e) {
             return response()->json([
                 'status' => 'Error',
-                'message' => $e->getMessage()
-            ], 500);
-        } catch (Throwable $e) {
-            return response()->json([
-                'status' => 'Error',
-                'message' => $e->getMessage()
+                'message' => 'Listing update error.'
             ], 500);
         }
 
@@ -170,8 +161,6 @@ class ListingController extends Controller
      * METHOD: get
      * URL: /land-for-sale/{id}/delete
      * @param int $id
-     * @throws JWTException
-     * @throws ModelNotFoundException
      * @return JsonResponse
      */
     public function delete(int $id): JsonResponse
@@ -180,20 +169,15 @@ class ListingController extends Controller
             $this->listingRepo->checkPermission($id);
             $this->listingService->delete($id);
 
-        } catch (JWTException $e) {
-            return response()->json([
-                'status' => 'Error',
-                'message' => $e->getMessage()
-            ], 403);
         } catch (ModelNotFoundException $e) {
             return response()->json([
                 'status' => 'Error',
                 'message' => 'Listing not exist.'
             ], 404);
-        } catch (Throwable $e) {
+        } catch (JWTException | Throwable $e) {
             return response()->json([
                 'status' => 'Error',
-                'message' => $e->getMessage()
+                'message' => 'Listing delete error.'
             ], 500);
         }
 

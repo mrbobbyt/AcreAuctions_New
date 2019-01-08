@@ -10,7 +10,6 @@ use Google_Service_Oauth2_Userinfoplus;
 
 class GoogleService implements GoogleServiceContract
 {
-
     /**
      * Create connect to google
      * @return Google_Client
@@ -26,6 +25,7 @@ class GoogleService implements GoogleServiceContract
 
         return $google;
     }
+
 
     /**
      * Get login url to google

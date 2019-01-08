@@ -3,17 +3,20 @@ declare(strict_types = 1);
 
 namespace App\Services\Seller\Contracts;
 
+use App\Services\Seller\Exceptions\SellerAlreadyExistsException;
 use Exception;
 use Illuminate\Database\Eloquent\Model;
 use Throwable;
+use Tymon\JWTAuth\Exceptions\JWTException;
 
 interface SellerServiceContract
 {
-
     /**
      * @param array $data
      * @return Model
      * @throws Throwable
+     * @throws JWTException
+     * @throws SellerAlreadyExistsException
      */
     public function create(array $data);
 
@@ -31,7 +34,8 @@ interface SellerServiceContract
      * @param int $id
      * @param array $data
      * @return Model
-     * @throws Exception
+     * @throws SellerAlreadyExistsException
+     * @throws Throwable
      */
     public function update(array $data, int $id);
 

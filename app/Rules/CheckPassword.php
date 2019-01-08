@@ -9,7 +9,6 @@ use Illuminate\Database\Eloquent\Model;
 
 class CheckPassword implements Rule
 {
-
     protected $user;
 
     public function __construct(Model $user)

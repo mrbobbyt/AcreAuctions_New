@@ -7,7 +7,6 @@ use Google_Service_Oauth2_Userinfoplus;
 
 interface GoogleServiceContract
 {
-
     /**
      * Get login url to fb
      * @return string

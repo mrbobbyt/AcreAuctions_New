@@ -15,6 +15,9 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Exception;
 use Throwable;
 use Tymon\JWTAuth\Exceptions\JWTException;
+use Tymon\JWTAuth\Exceptions\TokenExpiredException;
+use Tymon\JWTAuth\Exceptions\TokenInvalidException;
+use App\Services\Listing\Exceptions\ListingAlreadyExistsException;
 
 class ListingService implements ListingServiceContract
 {
@@ -34,35 +37,30 @@ class ListingService implements ListingServiceContract
      * Create new seller
      * @param array $data
      * @return Model
-     * @throws Throwable
      * @throws JWTException
-     * @throws ModelNotFoundException
-     * @throws Exception
+     * @throws ListingAlreadyExistsException
+     * @throws Throwable
+     * @throws TokenInvalidException
+     * @throws TokenExpiredException
      */
     public function create(array $data): Model
     {
         $data['body']['seller_id'] = $this->listingRepo->findSellerById();
 
         if ($this->listingRepo->findByTitle($data['body']['title'])) {
-            throw new Exception('Listing with the same title already exists, please, choose another.', 400);
+            throw new ListingAlreadyExistsException();
         }
         $data['body']['slug'] = make_url($data['body']['title']);
 
         $listing = $this->model->query()->make()->fill($data['body']);
-
-        if (!$listing->saveOrFail()) {
-            throw new Exception('Can not save listing.');
-        }
+        $listing->saveOrFail();
 
         $listingGeo = $this->modelGeo->query()->make()->fill($data['geo']);
         $listingGeo->listing_id = $listing->id;
+        $listingGeo->saveOrFail();
 
-        if (!$listingGeo->saveOrFail()) {
-            throw new Exception('Can not save geo listing.');
-        }
-
-        if ($data['image'] && !$this->createImage($data['image'], $listing->id)) {
-            throw new Exception('Can not save images.');
+        if ($data['image']) {
+            $this->createImage($data['image'], $listing->id);
         }
 
         return $listing;
@@ -93,8 +91,8 @@ class ListingService implements ListingServiceContract
      * @param int $id
      * @param array $data
      * @return Model
-     * @throws Exception
      * @throws Throwable
+     * @throws ListingAlreadyExistsException
      */
     public function update(array $data, int $id): Model
     {
@@ -103,7 +101,7 @@ class ListingService implements ListingServiceContract
         if ($data['body']) {
             if (isset($data['body']['title']) && $data['body']['title']) {
                 if ($this->listingRepo->findByTitle($data['body']['title'])) {
-                    throw new Exception('Listing with the same title already exists, please, choose another.', 400);
+                    throw new ListingAlreadyExistsException();
                 }
                 $data['body']['slug'] = make_url($data['body']['title']);
             }
@@ -111,17 +109,16 @@ class ListingService implements ListingServiceContract
             foreach ($data['body'] as $key => $property) {
                 $listing->$key = $property;
             }
-
             $listing->saveOrFail();
         }
 
-        if ($data['geo'] && !$this->updateGeo($data['geo'], $id)) {
-            throw new Exception('Can not update geo listing.', 500);
+        if ($data['geo']) {
+            $this->updateGeo($data['geo'], $id);
         }
 
         /***** create new image *****/
-        if ($data['image'] && !$this->createImage($data['image'], $id)) {
-            throw new Exception('Can not update images.', 500);
+        if ($data['image']) {
+            $this->createImage($data['image'], $id);
         }
         /***** end *****/
 
@@ -158,22 +155,16 @@ class ListingService implements ListingServiceContract
     public function delete(int $id): bool
     {
         $listing = $this->listingRepo->findByPk($id);
+
         $geo = $this->listingRepo->findGeoByPk($listing->id);
+        $geo->delete();
+
         $images = $listing->images;
-
-        if (!$geo->delete()) {
-            throw new Exception('Can not delete geo listing.', 500);
-        }
-
         foreach ($images as $image) {
-            if (!$image->delete()) {
-                throw new Exception('Can not delete images.', 500);
-            }
+            $image->delete();
         }
 
-        if (!$listing->delete()) {
-            throw new Exception('Can not delete listing.', 500);
-        }
+        $listing->delete();
 
         return true;
     }

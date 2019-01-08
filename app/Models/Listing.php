@@ -4,6 +4,9 @@ declare(strict_types = 1);
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
  * @property int id
@@ -25,12 +28,20 @@ class Listing extends Model
     public $timestamps = true;
 
 
+    /**
+     * Get related geo listing
+     * @return HasOne
+     */
     public function geo()
     {
         return $this->hasOne('App\Models\ListingGeo');
     }
 
 
+    /**
+     * Get related images
+     * @return HasMany
+     */
     public function images()
     {
         return $this->hasMany('App\Models\Image', 'entity_id', 'id')
@@ -38,6 +49,10 @@ class Listing extends Model
     }
 
 
+    /**
+     * Get related seller
+     * @return BelongsTo
+     */
     public function seller()
     {
         return $this->belongsTo('App\Models\Seller');

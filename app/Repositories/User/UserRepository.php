@@ -5,16 +5,17 @@ namespace App\Repositories\User;
 
 use App\Models\User;
 use App\Repositories\User\Contracts\UserRepositoryContract;
-use Exception;
+use App\Repositories\User\Exceptions\NoPermissionException;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use JWTAuth;
 use Tymon\JWTAuth\Contracts\JWTSubject;
 use Tymon\JWTAuth\Exceptions\JWTException;
+use Tymon\JWTAuth\Exceptions\TokenExpiredException;
+use Tymon\JWTAuth\Exceptions\TokenInvalidException;
 
 class UserRepository implements UserRepositoryContract
 {
-
     /**
      * Find user using id
      * @param int $id
@@ -54,6 +55,8 @@ class UserRepository implements UserRepositoryContract
     /**
      * Return authenticate user
      * @throws JWTException
+     * @throws TokenExpiredException
+     * @throws TokenInvalidException
      * @return JWTSubject
      */
     public function authenticate(): JWTSubject
@@ -77,8 +80,8 @@ class UserRepository implements UserRepositoryContract
      * Check user`s permission to make action
      * @param int $id
      * @return bool
-     * @throws Exception
      * @throws JWTException
+     * @throws NoPermissionException
      */
     public function checkPermission(int $id): bool
     {
@@ -86,7 +89,7 @@ class UserRepository implements UserRepositoryContract
             return true;
         }
 
-        throw new Exception('You have no permission.');
+        throw new NoPermissionException();
     }
 
 
@@ -107,5 +110,15 @@ class UserRepository implements UserRepositoryContract
     public function checkToken(): bool
     {
         return (bool)JWTAuth::check(JWTAuth::getToken());
+    }
+
+
+    /**
+     * Logout user and break token
+     * @throws JWTException
+     */
+    public function breakToken()
+    {
+        return JWTAuth::invalidate(JWTAuth::getToken());
     }
 }

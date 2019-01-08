@@ -3,13 +3,13 @@ declare(strict_types = 1);
 
 namespace App\Services\Seller\Validators;
 
+use App\Services\Auth\Validators\AbstractValidator;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
 use Validator;
 
-class UpdateSellerRequestValidator
+class UpdateSellerRequestValidator implements AbstractValidator
 {
-
     /**
      * Return validated array of data
      * @param Request $request

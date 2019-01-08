@@ -12,19 +12,15 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  */
 class PasswordResets extends Model
 {
-
     protected $table = 'password_resets';
 
-    protected $fillable = [
-        'email', 'token', 'created_at'
-    ];
+    protected $fillable = ['email', 'token', 'created_at'];
 
     public $timestamps = false;
 
 
     /**
      * Get belongs user model
-     *
      * @return BelongsTo
      */
     public function user()

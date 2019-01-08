@@ -3,14 +3,15 @@ declare(strict_types = 1);
 
 namespace App\Repositories\User\Contracts;
 
-use Exception;
+use App\Repositories\User\Exceptions\NoPermissionException;
 use Illuminate\Database\Eloquent\Model;
 use Tymon\JWTAuth\Contracts\JWTSubject;
 use Tymon\JWTAuth\Exceptions\JWTException;
+use Tymon\JWTAuth\Exceptions\TokenExpiredException;
+use Tymon\JWTAuth\Exceptions\TokenInvalidException;
 
 interface UserRepositoryContract
 {
-
     /**
      * Find user using id
      * @param int $id
@@ -38,6 +39,8 @@ interface UserRepositoryContract
     /**
      * Return authenticate user
      * @throws JWTException
+     * @throws TokenExpiredException
+     * @throws TokenInvalidException
      * @return JWTSubject
      */
     public function authenticate();
@@ -55,7 +58,7 @@ interface UserRepositoryContract
      * Check user`s permission to make action
      * @param int $id
      * @return bool
-     * @throws Exception
+     * @throws NoPermissionException
      * @throws JWTException
      */
     public function checkPermission(int $id);
@@ -73,4 +76,10 @@ interface UserRepositoryContract
      */
     public function checkToken();
 
+
+    /**
+     * Logout user and break token
+     * @throws JWTException
+     */
+    public function breakToken();
 }

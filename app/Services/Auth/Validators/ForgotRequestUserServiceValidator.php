@@ -8,9 +8,7 @@ use Illuminate\Validation\ValidationException;
 use Validator;
 
 class ForgotRequestUserServiceValidator implements AbstractValidator
-
 {
-
     /**
      * Return validated array of data
      * @param Request $request

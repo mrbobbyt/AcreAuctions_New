@@ -5,6 +5,7 @@ namespace App\Http\Controllers\API\v1;
 
 use App\Http\Controllers\Controller;
 use App\Repositories\User\Contracts\UserRepositoryContract;
+use App\Repositories\User\Exceptions\NoPermissionException;
 use App\Services\User\Contracts\UserServiceContract;
 use App\Services\User\Validators\UpdateRequestUserServiceValidator;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
@@ -17,11 +18,9 @@ use Throwable;
 use Tymon\JWTAuth\Exceptions\TokenExpiredException;
 use Tymon\JWTAuth\Exceptions\TokenInvalidException;
 use Tymon\JWTAuth\Exceptions\JWTException;
-use Exception;
 
 class UserController extends Controller
 {
-
     protected $userService;
     protected $userRepo;
 
@@ -36,10 +35,6 @@ class UserController extends Controller
      * Return auth user profile
      * METHOD: get
      * URL: /user/profile
-     * @throws JWTException
-     * @throws TokenInvalidException
-     * @throws TokenExpiredException
-     * @throws Throwable
      * @return JsonResponse
      */
     public function profile(): JsonResponse
@@ -47,25 +42,15 @@ class UserController extends Controller
         try {
             $user = $this->userRepo->authenticate();
 
-        } catch (TokenExpiredException $e) {
+        } catch (TokenExpiredException | TokenInvalidException $e) {
             return response()->json([
                 'status' => 'Error',
                 'message' => $e->getMessage()
             ], 400);
-        } catch (TokenInvalidException $e) {
+        } catch (JWTException | Throwable $e) {
             return response()->json([
                 'status' => 'Error',
-                'message' => $e->getMessage()
-            ], 400);
-        } catch (JWTException $e) {
-            return response()->json([
-                'status' => 'Error',
-                'message' => $e->getMessage()
-            ], 403);
-        } catch (Throwable $e) {
-            return response()->json([
-                'status' => 'Error',
-                'message' => $e->getMessage()
+                'message' => 'Profile show error.'
             ], 500);
         }
 
@@ -96,7 +81,7 @@ class UserController extends Controller
         } catch (Throwable $e) {
             return response()->json([
                 'status' => 'Error',
-                'message' => $e->getMessage()
+                'message' => 'User show error.'
             ], 500);
         }
 
@@ -113,10 +98,6 @@ class UserController extends Controller
      * URL: /{id}/update
      * @param Request $request
      * @param int $id
-     * @throws ValidationException
-     * @throws JWTException
-     * @throws Exception
-     * @throws Throwable
      * @return JsonResponse
      */
     public function update(Request $request, int $id): JsonResponse
@@ -126,6 +107,11 @@ class UserController extends Controller
             $data = (new UpdateRequestUserServiceValidator)->attempt($request);
             $user = $this->userService->update($data, $id);
 
+        } catch (NoPermissionException $e) {
+            return response()->json([
+                'status' => 'Error',
+                'message' => $e->getMessage()
+            ], 403);
         } catch (ValidationException $e) {
             return response()->json([
                 'status' => 'Error',
@@ -136,15 +122,10 @@ class UserController extends Controller
                 'status' => 'Error',
                 'message' => 'User not exist.'
             ], 404);
-        } catch (JWTException $e) {
+        } catch (JWTException | Throwable $e) {
             return response()->json([
                 'status' => 'Error',
-                'message' => $e->getMessage()
-            ], 403);
-        } catch (Throwable $e) {
-            return response()->json([
-                'status' => 'Error',
-                'message' => $e->getMessage()
+                'message' => 'User update error.'
             ], 500);
         }
 
@@ -160,7 +141,6 @@ class UserController extends Controller
      * METHOD: get
      * URL: /{id}/delete
      * @param int $id
-     * @throws JWTException
      * @return JsonResponse
      */
     public function delete(int $id): JsonResponse
@@ -169,20 +149,20 @@ class UserController extends Controller
             $this->userRepo->checkPermission($id);
             $this->userService->delete($id);
 
+        } catch (NoPermissionException $e) {
+            return response()->json([
+                'status' => 'Error',
+                'message' => $e->getMessage()
+            ], 403);
         } catch (ModelNotFoundException $e) {
             return response()->json([
                 'status' => 'Error',
                 'message' => 'User not exist.'
             ], 404);
-        } catch (JWTException $e) {
+        } catch (JWTException | Throwable $e) {
             return response()->json([
                 'status' => 'Error',
-                'message' => $e->getMessage()
-            ], 403);
-        } catch (Throwable $e) {
-            return response()->json([
-                'status' => 'Error',
-                'message' => $e->getMessage()
+                'message' => 'User delete error.'
             ], 500);
         }
 

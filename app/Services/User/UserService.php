@@ -9,13 +9,11 @@ use App\Services\User\Contracts\UserServiceContract;
 use File;
 use Illuminate\Database\Eloquent\Model;
 
-use Tymon\JWTAuth\Exceptions\JWTException;
 use Exception;
 use Throwable;
 
 class UserService implements UserServiceContract
 {
-
     protected $userRepo;
 
     public function __construct(UserRepositoryContract $userRepo)
@@ -29,7 +27,6 @@ class UserService implements UserServiceContract
      * @param array $data
      * @param int $id
      * @return Model
-     * @throws JWTException
      * @throws Exception
      * @throws Throwable
      */
@@ -53,21 +50,14 @@ class UserService implements UserServiceContract
      * Delete auth user
      * @param int $id
      * @throws Exception
-     * @throws JWTException
      * @throws Throwable
      * @return bool
      */
     public function delete(int $id): bool
     {
         $user = $this->userRepo->findByPk($id);
-
-        if (!$this->deleteAvatar($user)) {
-            throw new Exception('Error image delete.');
-        }
-
-        if (!$user->delete()) {
-            throw new Exception('Error user delete.');
-        }
+        $this->deleteAvatar($user);
+        $user->delete();
 
         return true;
     }
@@ -78,7 +68,6 @@ class UserService implements UserServiceContract
      * @param array $data
      * @param int $id
      * @return bool
-     * @throws Throwable
      * @throws Exception
      */
     protected function updateAvatar(array $data, int $id): bool
@@ -101,8 +90,6 @@ class UserService implements UserServiceContract
      * Delete User avatar
      * @param Model $user
      * @return bool
-     * @throws Throwable
-     * @throws Exception
      */
     protected function deleteAvatar(Model $user): bool
     {

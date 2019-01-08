@@ -16,20 +16,24 @@ use App\Services\Seller\Validators\CreateSellerRequestValidator;
 use App\Services\Seller\Validators\UpdateSellerRequestValidator;
 
 use Illuminate\Validation\ValidationException;
-use Exception;
 use Throwable;
 use Tymon\JWTAuth\Exceptions\JWTException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use App\Repositories\User\Exceptions\NoPermissionException;
+use App\Services\Seller\Exceptions\SellerAlreadyExistsException;
+use App\Repositories\Seller\Exceptions\SellerNotVerifiedException;
 
 class SellerController extends Controller
 {
-
     protected $sellerRepo;
     protected $sellerService;
     protected $userService;
 
-    public function __construct(SellerRepository $sellerRepo, SellerServiceContract $sellerService, UserServiceContract $userService)
-    {
+    public function __construct(
+        SellerRepository $sellerRepo,
+        SellerServiceContract $sellerService,
+        UserServiceContract $userService
+    ) {
         $this->sellerRepo = $sellerRepo;
         $this->sellerService = $sellerService;
         $this->userService = $userService;
@@ -41,9 +45,6 @@ class SellerController extends Controller
      * METHOD: get
      * URL: /seller/{id}
      * @param string $slug
-     * @throws Exception
-     * @throw JWTException
-     * @throws ModelNotFoundException
      * @return JsonResponse
      */
     public function view(string $slug): JsonResponse
@@ -57,10 +58,15 @@ class SellerController extends Controller
                 'status' => 'Error',
                 'message' => 'Seller not exist.'
             ], 404);
-        } catch (Throwable $e) {
+        } catch (SellerNotVerifiedException $e) {
             return response()->json([
                 'status' => 'Error',
                 'message' => $e->getMessage()
+            ], 403);
+        } catch (JWTException | Throwable $e) {
+            return response()->json([
+                'status' => 'Error',
+                'message' => 'Seller show error.'
             ], 500);
         }
 
@@ -76,10 +82,6 @@ class SellerController extends Controller
      * METHOD: post
      * URL: /seller/create
      * @param Request $request
-     * @throws ValidationException
-     * @throws JWTException
-     * @throws Exception
-     * @throws Throwable
      * @return JsonResponse
      */
     public function create(Request $request): JsonResponse
@@ -93,15 +95,15 @@ class SellerController extends Controller
                 'status' => 'Error',
                 'message' => $e->validator->errors()->first(),
             ], 400);
-        } catch (JWTException $e) {
+        } catch (SellerAlreadyExistsException $e) {
             return response()->json([
                 'status' => 'Error',
-                'message' => $e->getMessage()
-            ], 403);
-        } catch (Throwable $e) {
+                'message' =>$e->getMessage()
+            ], 400);
+        } catch (JWTException | Throwable $e) {
             return response()->json([
                 'status' => 'Error',
-                'message' => $e->getMessage()
+                'message' => 'Seller create error.'
             ], 500);
         }
 
@@ -118,11 +120,6 @@ class SellerController extends Controller
      * URL: /seller/{id}/update
      * @param Request $request
      * @param int $id
-     * @throws ValidationException
-     * @throws JWTException
-     * @throws Exception
-     * @throws ModelNotFoundException
-     * @throws Throwable
      * @return JsonResponse
      */
     public function update(Request $request, int $id): JsonResponse
@@ -132,30 +129,30 @@ class SellerController extends Controller
             $data = (new UpdateSellerRequestValidator)->attempt($request);
             $seller = $this->sellerService->update($data, $id);
 
+        } catch (NoPermissionException $e) {
+            return response()->json([
+                'status' => 'Error',
+                'message' => $e->getMessage()
+            ], 403);
         } catch (ValidationException $e) {
             return response()->json([
                 'status' => 'Error',
                 'message' => $e->validator->errors()->first(),
             ], 400);
-        } catch (JWTException $e) {
+        } catch (SellerAlreadyExistsException $e) {
             return response()->json([
                 'status' => 'Error',
-                'message' => $e->getMessage()
-            ], 403);
+                'message' =>$e->getMessage()
+            ], 400);
         } catch (ModelNotFoundException $e) {
             return response()->json([
                 'status' => 'Error',
                 'message' => 'Seller not exist.'
             ], 404);
-        } catch (Exception $e) {
+        } catch (JWTException | Throwable $e) {
             return response()->json([
                 'status' => 'Error',
-                'message' => $e->getMessage()
-            ], 500);
-        } catch (Throwable $e) {
-            return response()->json([
-                'status' => 'Error',
-                'message' => $e->getMessage()
+                'message' => 'Seller update error.'
             ], 500);
         }
 
@@ -171,8 +168,6 @@ class SellerController extends Controller
      * METHOD: get
      * URL: /seller/{id}/delete
      * @param int $id
-     * @throw JWTException
-     * @throws ModelNotFoundException
      * @return JsonResponse
      */
     public function delete(int $id)
@@ -181,7 +176,7 @@ class SellerController extends Controller
             $this->sellerRepo->checkPermission($id);
             $this->sellerService->delete($id);
 
-        } catch (JWTException $e) {
+        } catch (NoPermissionException $e) {
             return response()->json([
                 'status' => 'Error',
                 'message' => $e->getMessage()
@@ -191,10 +186,10 @@ class SellerController extends Controller
                 'status' => 'Error',
                 'message' => 'Seller not exist.'
             ], 404);
-        } catch (Throwable $e) {
+        } catch (JWTException | Throwable $e) {
             return response()->json([
                 'status' => 'Error',
-                'message' => $e->getMessage()
+                'message' => 'Seller delete error.'
             ], 500);
         }
 

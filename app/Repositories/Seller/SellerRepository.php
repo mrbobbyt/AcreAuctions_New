@@ -8,17 +8,16 @@ use App\Models\Email;
 use App\Models\Seller;
 use App\Models\Telephone;
 use App\Repositories\Seller\Contracts\SellerRepositoryContract;
+use App\Repositories\Seller\Exceptions\SellerNotVerifiedException;
 use App\Repositories\User\Contracts\UserRepositoryContract;
+use App\Repositories\User\Exceptions\NoPermissionException;
 use App\Services\User\Contracts\UserServiceContract;
-use Exception;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Tymon\JWTAuth\Exceptions\JWTException;
-use Tymon\JWTAuth\Exceptions\TokenInvalidException;
 
 class SellerRepository implements SellerRepositoryContract
 {
-
     protected $model;
     protected $userService;
     protected $userRepo;
@@ -96,9 +95,8 @@ class SellerRepository implements SellerRepositoryContract
      * Check if seller is not verified OR user is authenticate AND not an admin OR company head
      * @param Model $seller
      * @return bool
-     * @throws Exception
+     * @throws SellerNotVerifiedException
      * @throws JWTException
-     * @throws TokenInvalidException
      */
     public function checkVerification(Model $seller): bool
     {
@@ -110,7 +108,7 @@ class SellerRepository implements SellerRepositoryContract
             return true;
         }
 
-        throw new Exception('Seller is not verified', 404);
+        throw new SellerNotVerifiedException();
     }
 
 
@@ -118,9 +116,9 @@ class SellerRepository implements SellerRepositoryContract
      * Check user`s permission to make action
      * @param int $id
      * @return bool
-     * @throws Exception
      * @throws JWTException
      * @throws ModelNotFoundException
+     * @throws NoPermissionException
      */
     public function checkPermission(int $id): bool
     {

@@ -9,7 +9,6 @@ use Validator;
 
 class FacebookRequestValidator
 {
-
     /**
      * Return validated array of data
      * @param GraphNode $json

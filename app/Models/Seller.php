@@ -18,7 +18,6 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
  */
 class Seller extends Model
 {
-
     protected $fillable = [
         'user_id', 'title', 'slug', 'description', 'logo', 'cover', 'is_verified', 'address'
     ];
@@ -34,6 +33,7 @@ class Seller extends Model
     {
         return $this->hasMany('App\Models\Telephone', 'entity_id', 'id');
     }
+
 
     /**
      * Get head of company

@@ -76,9 +76,3 @@ Route::post('land-for-sale/{id}/update', 'API\v1\ListingController@update')
 Route::get('land-for-sale/{id}/delete', 'API\v1\ListingController@delete')
     ->middleware('jwt.verify');
 
-
-/*Route::get('reset/{token}', function($token) {
-    $model = \App\Models\PasswordResets::where('token', '=', $token)->first();
-//    return new \App\Http\Resources\UserResource($model->user);
-    return response()->json(['role' => $model->user->getRole]);
-});*/

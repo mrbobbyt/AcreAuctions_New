@@ -11,7 +11,6 @@ use Facebook\GraphNodes\GraphNode;
 
 class FacebookService implements FacebookServiceContract
 {
-
     /**
      * Create connect to fb
      * @return Facebook

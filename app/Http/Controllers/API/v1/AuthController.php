@@ -4,12 +4,10 @@ declare(strict_types = 1);
 namespace App\Http\Controllers\API\v1;
 
 use App\Http\Controllers\Controller;
-
 use App\Repositories\User\Contracts\UserRepositoryContract;
 use App\Services\Auth\Contracts\UserAuthServiceContract;
 use App\Services\Social\Contracts\FacebookServiceContract;
 use App\Services\Social\Contracts\GoogleServiceContract;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use App\Http\Resources\UserResource;
@@ -26,10 +24,10 @@ use Tymon\JWTAuth\Exceptions\JWTException;
 use Illuminate\Validation\ValidationException;
 use Facebook\Exceptions\FacebookResponseException;
 use Facebook\Exceptions\FacebookSDKException;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class AuthController extends Controller
 {
-
     protected $userService;
     protected $userRepo;
     protected $fbService;
@@ -51,9 +49,7 @@ class AuthController extends Controller
     /**
      * Login page for social networks
      * METHOD: get
-     * URL: /api
-     * @throws FacebookSDKException
-     * @throws Throwable
+     * URL: /
      * @return \Illuminate\View\View
      */
     public function index()
@@ -70,6 +66,7 @@ class AuthController extends Controller
             $loginUrlFb = $this->fbService->getLogin();
             $loginUrlGoogle = $this->googleService->getLogin();
         } catch (FacebookSDKException $e) {
+            // When Graph returns an error
             return response()->json([
                 'status' => 'Error',
                 'message' => $e->getMessage(),
@@ -77,7 +74,6 @@ class AuthController extends Controller
         } catch (Throwable $e) {
             return response()->json([
                 'status' => 'Error',
-                'message' => $e->getMessage(),
             ], 500);
         }
 
@@ -92,8 +88,6 @@ class AuthController extends Controller
      * METHOD: post
      * URL: /login
      * @param Request $request
-     * @throws ValidationException
-     * @throws ModelNotFoundException
      * @return JsonResponse
      */
     public function login(Request $request): JsonResponse
@@ -113,10 +107,10 @@ class AuthController extends Controller
                 'status' => 'Error',
                 'message' => 'User not exist.'
             ], 404);
-        } catch (Throwable $e) {
+        } catch (JWTException | Throwable $e) {
             return response()->json([
                 'status' => 'Error',
-                'message' => $e->getMessage()
+                'message' => 'Can not login.'
             ], 500);
         }
 
@@ -132,9 +126,6 @@ class AuthController extends Controller
      * METHOD: post
      * URL: /register
      * @param Request $request
-     * @throws ValidationException
-     * @throws JWTException
-     * @throws Throwable
      * @return JsonResponse
      */
     public function register(Request $request): JsonResponse
@@ -149,15 +140,10 @@ class AuthController extends Controller
                 'status' => 'Error',
                 'message' => $e->validator->errors()->first(),
             ], 400);
-        } catch (JWTException $e) {
+        } catch (JWTException | Throwable $e) {
             return response()->json([
                 'status' => 'Error',
-                'message' => 'Sorry, could not create token.'
-            ], 500);
-        } catch (Throwable $e) {
-            return response()->json([
-                'status' => 'Error',
-                'message' => $e->getMessage()
+                'message' => 'Can not register.'
             ], 500);
         }
 
@@ -171,11 +157,6 @@ class AuthController extends Controller
 
     /**
      * Get validated user data from Google
-     * @throws FacebookSDKException
-     * @throws FacebookResponseException
-     * @throws ValidationException
-     * @throws JWTException
-     * @throws Throwable
      * @return JsonResponse
      */
     protected function handleFacebook(): JsonResponse
@@ -185,32 +166,21 @@ class AuthController extends Controller
             $data = (new FacebookRequestValidator())->attempt($client);
             $user = $this->userService->createOrLogin($data);
 
-        } catch(FacebookResponseException $e) {
+        } catch (FacebookResponseException | FacebookSDKException $e) {
             // When Graph returns an error
             return response()->json([
                 'status' => 'Error',
-                'message' => 'Graph returned an error: ' . $e->getMessage(),
-            ], 500);
-        } catch (FacebookSDKException $e) {
-            // When validation fails or other local issues
-            return response()->json([
-                'status' => 'Error',
-                'message' => 'Facebook SDK returned an error: ' . $e->getMessage(),
+                'message' => $e->getMessage(),
             ], 500);
         } catch (ValidationException $e) {
             return response()->json([
                 'status' => 'Error',
                 'message' => $e->validator->errors()->first(),
             ], 400);
-        } catch (JWTException $e) {
+        } catch (JWTException | Throwable $e) {
             return response()->json([
                 'status' => 'Error',
-                'message' => 'Sorry, could not create token.'
-            ], 500);
-        } catch (Throwable $e) {
-            return response()->json([
-                'status' => 'Error',
-                'message' => $e->getMessage(),
+                'message' => 'Can not register.'
             ], 500);
         }
 
@@ -224,9 +194,6 @@ class AuthController extends Controller
 
     /**
      * Get validated user data from Google
-     * @throws ValidationException
-     * @throws JWTException
-     * @throws Throwable
      * @return JsonResponse
      */
     protected function handleGoogle(): JsonResponse
@@ -241,15 +208,10 @@ class AuthController extends Controller
                 'status' => 'Error',
                 'message' => $e->validator->errors()->first(),
             ], 400);
-        } catch (JWTException $e) {
+        } catch (JWTException | Throwable $e) {
             return response()->json([
                 'status' => 'Error',
-                'message' => 'Sorry, could not create token.'
-            ], 500);
-        } catch (Throwable $e) {
-            return response()->json([
-                'status' => 'Error',
-                'message' => $e->getMessage()
+                'message' => 'Can not register.'
             ], 500);
         }
 
@@ -264,19 +226,17 @@ class AuthController extends Controller
     /**
      * METHOD: get
      * URL: /logout
-     * @throws JWTException
-     * @throws Throwable
      * @return JsonResponse
      */
     public function logout(): JsonResponse
     {
         try {
-            $this->userService->breakToken();
+            $this->userRepo->breakToken();
 
-        } catch (Throwable $e) {
+        } catch (JWTException | Throwable $e) {
             return response()->json([
                 'status' => 'Error',
-                'message' => 'Sorry, the user cannot be logged out.'
+                'message' => 'User logout error.'
             ], 500);
         }
 
@@ -291,8 +251,6 @@ class AuthController extends Controller
      * METHOD: post
      * URL: /forgot
      * @param Request $request
-     * @throws ValidationException
-     * @throws Throwable
      * @return JsonResponse
      */
     public function forgotPassword(Request $request): JsonResponse
@@ -309,8 +267,8 @@ class AuthController extends Controller
         } catch (Throwable $e) {
             return response()->json([
                 'status' => 'Error',
-                'message' => $e->getMessage()
-                ], 401);
+                'message' => 'User action error.'
+                ], 500);
         }
 
         return response()->json([
@@ -326,9 +284,6 @@ class AuthController extends Controller
      * METHOD: post
      * URL: /reset
      * @param Request $request
-     * @throws ValidationException
-     * @throws JWTException
-     * @throws Throwable
      * @return JsonResponse
      */
     public function resetPassword(Request $request): JsonResponse
@@ -348,15 +303,10 @@ class AuthController extends Controller
                 'status' => 'Error',
                 'message' => 'User not exist.'
             ], 404);
-        } catch (JWTException $e) {
+        } catch (JWTException | Throwable $e) {
             return response()->json([
                 'status' => 'Error',
-                'message' => $e->getMessage()
-                ], 401);
-        } catch (Throwable $e) {
-            return response()->json([
-                'status' => 'Error',
-                'message' => $e->getMessage()
+                'message' => 'User action error.'
             ], 500);
         }
 

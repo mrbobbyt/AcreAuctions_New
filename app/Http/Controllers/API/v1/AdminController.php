@@ -29,8 +29,6 @@ class AdminController extends Controller
      * METHOD: post
      * URL: /admin/verify-seller
      * @param Request $request
-     * @throws ValidationException
-     * @throws Throwable
      * @return JsonResponse
      */
     public function verifySeller(Request $request): JsonResponse
@@ -42,7 +40,7 @@ class AdminController extends Controller
         } catch (ValidationException $e) {
             return response()->json([
                 'status' => 'Error',
-                'message' => $e->errors()->first(),
+                'message' => $e->validator->errors()->first(),
             ], 400);
         } catch (ModelNotFoundException $e) {
             return response()->json([
@@ -52,7 +50,7 @@ class AdminController extends Controller
         } catch (Throwable $e) {
             return response()->json([
                 'status' => 'Error',
-                'message' => $e->getMessage()
+                'message' => 'Verify seller error.'
             ], 500);
         }
 

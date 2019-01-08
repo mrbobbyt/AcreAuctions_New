@@ -7,7 +7,6 @@ use Illuminate\Contracts\Validation\Rule;
 
 class CheckRole implements Rule
 {
-
     /**
      * Determine if the validation rule passes.
      * @param  string  $attribute

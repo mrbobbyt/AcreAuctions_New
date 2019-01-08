@@ -4,11 +4,9 @@ declare(strict_types = 1);
 namespace App\Services\Auth\Validators;
 
 use Illuminate\Http\Request;
-use Validator;
 
 interface AbstractValidator
 {
-
     /**
      * Return validated array of data
      * @param Request $request

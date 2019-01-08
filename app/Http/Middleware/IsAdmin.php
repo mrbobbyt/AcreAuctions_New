@@ -6,16 +6,17 @@ namespace App\Http\Middleware;
 use App\Models\User;
 use Closure;
 use JWTAuth;
+use Illuminate\Http\Request;
 
 class IsAdmin
 {
     /**
      * Handle an incoming request.
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \Closure  $next
+     * @param Request $request
+     * @param Closure $next
      * @return mixed
      */
-    public function handle($request, Closure $next)
+    public function handle(Request $request, Closure $next)
     {
         if (JWTAuth::user() && JWTAuth::user()->role === User::ROLE_ADMIN) {
             return $next($request);

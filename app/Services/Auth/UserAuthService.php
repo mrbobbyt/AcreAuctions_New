@@ -7,7 +7,6 @@ use App\Mail\ForgotPasswordMail;
 use App\Models\Image;
 use App\Models\PasswordResets;
 use App\Models\User;
-use Exception;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Mail;
 
@@ -70,16 +69,6 @@ class UserAuthService implements UserAuthServiceContract
         }
 
         throw new JWTException();
-    }
-
-
-    /**
-     * Logout user and break token
-     * @throws JWTException
-     */
-    public function breakToken()
-    {
-        return JWTAuth::invalidate(JWTAuth::getToken());
     }
 
 
@@ -178,7 +167,11 @@ class UserAuthService implements UserAuthServiceContract
      */
     public function createOrLogin(array $data): array
     {
-        $user = $this->userRepo->findByEmail($data['body']['email']);
+        if ($this->userRepo->checkUserExists($data['body']['email'])) {
+            $user = $this->userRepo->findByEmail($data['body']['email']);
+        } else {
+            $user = $this->create($data);
+        }
         $token = $this->createToken($data['body']);
 
         return [

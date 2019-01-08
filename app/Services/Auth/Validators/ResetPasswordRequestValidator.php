@@ -9,7 +9,6 @@ use Validator;
 
 class ResetPasswordRequestValidator implements AbstractValidator
 {
-
     /**
      * Return validated array of data
      * @param Request $request

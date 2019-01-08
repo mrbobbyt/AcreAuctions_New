@@ -9,7 +9,6 @@ use Validator;
 
 class GoogleRequestValidator
 {
-
     /**
      * Return validated array of data
      * @param Google_Service_Oauth2_Userinfoplus $data
