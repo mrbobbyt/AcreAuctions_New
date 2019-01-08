@@ -58,7 +58,18 @@ class UserRepository implements UserRepositoryContract
      */
     public function authenticate(): JWTSubject
     {
-        return JWTAuth::user();
+        return JWTAuth::parseToken()->authenticate();
+    }
+
+
+    /**
+     * Return authenticate user
+     * @throws JWTException
+     * @return int
+     */
+    public function getId(): int
+    {
+        return $this->authenticate()->getJWTIdentifier();
     }
 
 
@@ -71,10 +82,30 @@ class UserRepository implements UserRepositoryContract
      */
     public function checkPermission(int $id): bool
     {
-        if ($id === $this->authenticate()->getJWTIdentifier() || $this->authenticate()->role === User::ROLE_ADMIN) {
+        if ($id === $this->getId() || $this->isAdmin()) {
             return true;
         }
 
         throw new Exception('You have no permission.');
+    }
+
+
+    /**
+     * @return bool
+     * @throws JWTException
+     */
+    public function isAdmin(): bool
+    {
+        return $this->authenticate()->role === User::ROLE_ADMIN;
+    }
+
+
+    /**
+     * Check existing token
+     * @return bool
+     */
+    public function checkToken(): bool
+    {
+        return (bool)JWTAuth::check(JWTAuth::getToken());
     }
 }

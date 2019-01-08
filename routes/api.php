@@ -50,16 +50,16 @@ Route::get('seller/{slug}', 'API\v1\SellerController@view');
 Route::post('seller/create', 'API\v1\SellerController@create')
     ->middleware('jwt.verify');
 
-Route::post('seller/update/{id}', 'API\v1\SellerController@update')
+Route::post('seller/{id}/update', 'API\v1\SellerController@update')
     ->middleware('jwt.verify');
 
-Route::get('seller/delete/{id}', 'API\v1\SellerController@delete')
+Route::get('seller/{id}/delete', 'API\v1\SellerController@delete')
     ->middleware('jwt.verify');
 
 
 /********* Admin *********/
 
-Route::post('admin', 'API\v1\AdminController@verify')
+Route::post('admin/verify-seller', 'API\v1\AdminController@verifySeller')
     ->middleware('jwt.verify', 'admin');
 
 

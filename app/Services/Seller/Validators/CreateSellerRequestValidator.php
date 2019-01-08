@@ -5,6 +5,7 @@ namespace App\Services\Seller\Validators;
 
 use App\Services\Auth\Validators\AbstractValidator;
 use Illuminate\Http\Request;
+use Illuminate\Validation\ValidationException;
 use Validator;
 
 class CreateSellerRequestValidator implements AbstractValidator
@@ -13,6 +14,7 @@ class CreateSellerRequestValidator implements AbstractValidator
     /**
      * Return validated array of data
      * @param Request $request
+     * @throws ValidationException
      * @return array
      */
     public function attempt(Request $request)
@@ -29,6 +31,7 @@ class CreateSellerRequestValidator implements AbstractValidator
     /**
      * Validate given data
      * @param Request $request
+     * @throws ValidationException
      * @return array
      */
     public function validateBody(Request $request)
@@ -47,6 +50,7 @@ class CreateSellerRequestValidator implements AbstractValidator
     /**
      * Validate images
      * @param Request $request
+     * @throws ValidationException
      * @return array
      */
     protected function validateImage(Request $request)
@@ -63,6 +67,7 @@ class CreateSellerRequestValidator implements AbstractValidator
     /**
      * Validate email
      * @param Request $request
+     * @throws ValidationException
      * @return array
      */
     protected function validateEmail(Request $request)
@@ -78,6 +83,7 @@ class CreateSellerRequestValidator implements AbstractValidator
     /**
      * Validate telephone
      * @param Request $request
+     * @throws ValidationException
      * @return array
      */
     protected function validateTelephone(Request $request)

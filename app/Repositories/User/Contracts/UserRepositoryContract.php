@@ -44,6 +44,14 @@ interface UserRepositoryContract
 
 
     /**
+     * Return authenticate user
+     * @throws JWTException
+     * @return int
+     */
+    public function getId();
+
+
+    /**
      * Check user`s permission to make action
      * @param int $id
      * @return bool
@@ -51,5 +59,18 @@ interface UserRepositoryContract
      * @throws JWTException
      */
     public function checkPermission(int $id);
+
+
+    /**
+     * @return bool
+     */
+    public function isAdmin();
+
+
+    /**
+     * Check existing token
+     * @return bool
+     */
+    public function checkToken();
 
 }

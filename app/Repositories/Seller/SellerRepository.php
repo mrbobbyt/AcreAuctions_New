@@ -12,7 +12,8 @@ use App\Repositories\User\Contracts\UserRepositoryContract;
 use App\Services\User\Contracts\UserServiceContract;
 use Exception;
 use Illuminate\Database\Eloquent\Model;
-use JWTAuth;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Tymon\JWTAuth\Exceptions\JWTException;
 use Tymon\JWTAuth\Exceptions\TokenInvalidException;
 
 class SellerRepository implements SellerRepositoryContract
@@ -34,30 +35,34 @@ class SellerRepository implements SellerRepositoryContract
      * Find seller by url
      * @param string $slug
      * @return Model
-     * @throws Exception
+     * @throws ModelNotFoundException
      */
-    public function findBySlug(string $slug)
+    public function findBySlug(string $slug): Model
     {
-        if ($seller = $this->model::query()->where('slug', $slug)->first()) {
-            return $seller;
-        }
+        return $this->model::query()->where('slug', $slug)->firstOrFail();
+    }
 
-        throw new Exception('Seller is not found', 404);
+
+    /**
+     * Check existing seller by title
+     * @param string $title
+     * @return bool
+     */
+    public function findByTitle(string $title): bool
+    {
+        return $this->model::query()->where('title', $title)->exists();
     }
 
 
     /**
      * Find seller by id
      * @param int $id
-     * @return Model | bool
+     * @return Model
+     * @throws ModelNotFoundException
      */
-    public function findByPk(int $id)
+    public function findByPk(int $id): Model
     {
-        if ($seller = $this->model::query()->find($id)) {
-            return $seller;
-        }
-
-        return false;
+        return $this->model::query()->findOrFail($id);
     }
 
 
@@ -88,18 +93,18 @@ class SellerRepository implements SellerRepositoryContract
 
 
     /**
-     * Check if seller is not verified OR user is authenticate and not an admin or company head
+     * Check if seller is not verified OR user is authenticate AND not an admin OR company head
      * @param Model $seller
      * @return bool
      * @throws Exception
+     * @throws JWTException
      * @throws TokenInvalidException
      */
     public function checkVerification(Model $seller): bool
     {
-        $user = $this->userRepo->authenticate();
         if ($seller->is_verified ||
-                (JWTAuth::check(JWTAuth::getToken()) &&
-                    ($user->isAdmin() || $seller->user_id === $user->getJWTIdentifier())
+                ($this->userRepo->checkToken() &&
+                    ($this->userRepo->isAdmin() || $seller->user_id === $this->userRepo->getId())
                 )
         ) {
             return true;
@@ -107,4 +112,19 @@ class SellerRepository implements SellerRepositoryContract
 
         throw new Exception('Seller is not verified', 404);
     }
+
+
+    /**
+     * Check user`s permission to make action
+     * @param int $id
+     * @return bool
+     * @throws Exception
+     * @throws JWTException
+     * @throws ModelNotFoundException
+     */
+    public function checkPermission(int $id): bool
+    {
+         return $this->userRepo->checkPermission( $this->findByPk($id)->user_id );
+    }
+
 }

@@ -4,7 +4,6 @@ declare(strict_types = 1);
 namespace App\Models;
 
 use Illuminate\Notifications\Notifiable;
-use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Tymon\JWTAuth\Contracts\JWTSubject;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -93,15 +92,6 @@ class User extends Authenticatable implements JWTSubject
     {
         return $this->hasOne('App\Models\Image', 'entity_id', 'id')
             ->where('entity_type', Image::TYPE_USER_AVATAR);
-    }
-
-
-    /**
-     * @return bool
-     */
-    public function isAdmin(): bool
-    {
-        return $this->role === $this::ROLE_ADMIN;
     }
 
 

@@ -17,9 +17,9 @@ use App\Services\Seller\Validators\UpdateSellerRequestValidator;
 
 use Illuminate\Validation\ValidationException;
 use Exception;
-use JWTAuth;
 use Throwable;
 use Tymon\JWTAuth\Exceptions\JWTException;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class SellerController extends Controller
 {
@@ -43,6 +43,7 @@ class SellerController extends Controller
      * @param string $slug
      * @throws Exception
      * @throw JWTException
+     * @throws ModelNotFoundException
      * @return JsonResponse
      */
     public function view(string $slug): JsonResponse
@@ -51,6 +52,11 @@ class SellerController extends Controller
             $seller = $this->sellerRepo->findBySlug($slug);
             $this->sellerRepo->checkVerification($seller);
 
+        } catch (ModelNotFoundException $e) {
+            return response()->json([
+                'status' => 'Error',
+                'message' => 'Seller not exist.'
+            ], 404);
         } catch (Throwable $e) {
             return response()->json([
                 'status' => 'Error',
@@ -109,21 +115,22 @@ class SellerController extends Controller
     /**
      * Update Seller
      * METHOD: post
-     * URL: /seller/update/{id}
+     * URL: /seller/{id}/update
      * @param Request $request
      * @param int $id
      * @throws ValidationException
      * @throws JWTException
      * @throws Exception
+     * @throws ModelNotFoundException
      * @throws Throwable
      * @return JsonResponse
      */
     public function update(Request $request, int $id): JsonResponse
     {
         try {
+            $this->sellerRepo->checkPermission($id);
             $data = (new UpdateSellerRequestValidator)->attempt($request);
-            $oldSeller = $this->sellerService->checkPermission($id);
-            $seller = $this->sellerService->update($oldSeller, $data);
+            $seller = $this->sellerService->update($data, $id);
 
         } catch (ValidationException $e) {
             return response()->json([
@@ -135,6 +142,11 @@ class SellerController extends Controller
                 'status' => 'Error',
                 'message' => $e->getMessage()
             ], 403);
+        } catch (ModelNotFoundException $e) {
+            return response()->json([
+                'status' => 'Error',
+                'message' => 'Seller not exist.'
+            ], 404);
         } catch (Exception $e) {
             return response()->json([
                 'status' => 'Error',
@@ -157,22 +169,28 @@ class SellerController extends Controller
     /**
      * Delete Seller
      * METHOD: get
-     * URL: /seller/delete/{id}
+     * URL: /seller/{id}/delete
      * @param int $id
      * @throw JWTException
+     * @throws ModelNotFoundException
      * @return JsonResponse
      */
     public function delete(int $id)
     {
         try {
-            $seller = $this->sellerService->checkPermission($id);
-            $this->sellerService->delete($seller);
+            $this->sellerRepo->checkPermission($id);
+            $this->sellerService->delete($id);
 
         } catch (JWTException $e) {
             return response()->json([
                 'status' => 'Error',
                 'message' => $e->getMessage()
             ], 403);
+        } catch (ModelNotFoundException $e) {
+            return response()->json([
+                'status' => 'Error',
+                'message' => 'Seller not exist.'
+            ], 404);
         } catch (Throwable $e) {
             return response()->json([
                 'status' => 'Error',

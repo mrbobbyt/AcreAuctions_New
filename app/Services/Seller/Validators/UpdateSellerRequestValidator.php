@@ -3,8 +3,8 @@ declare(strict_types = 1);
 
 namespace App\Services\Seller\Validators;
 
-use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Validation\ValidationException;
 use Validator;
 
 class UpdateSellerRequestValidator
@@ -15,7 +15,7 @@ class UpdateSellerRequestValidator
      * @param Request $request
      * @param int $id
      * @return array
-     * @throws Exception
+     * @throws ValidationException
      */
     public function attempt(Request $request)
     {
@@ -31,6 +31,7 @@ class UpdateSellerRequestValidator
     /**
      * Validate given data
      * @param Request $request
+     * @throws ValidationException
      * @return array
      */
     public function validateBody(Request $request)
@@ -48,6 +49,7 @@ class UpdateSellerRequestValidator
     /**
      * Validate images
      * @param Request $request
+     * @throws ValidationException
      * @return array
      */
     protected function validateImage(Request $request)
@@ -64,6 +66,7 @@ class UpdateSellerRequestValidator
     /**
      * Validate email
      * @param Request $request
+     * @throws ValidationException
      * @return array
      */
     protected function validateEmail(Request $request)
@@ -79,6 +82,7 @@ class UpdateSellerRequestValidator
     /**
      * Validate telephone
      * @param Request $request
+     * @throws ValidationException
      * @return array
      */
     protected function validateTelephone(Request $request)

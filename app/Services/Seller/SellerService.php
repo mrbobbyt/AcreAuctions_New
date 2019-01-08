@@ -13,6 +13,7 @@ use File;
 use Illuminate\Database\Eloquent\Model;
 use App\Repositories\Seller\Contracts\SellerRepositoryContract;
 use App\Services\Seller\Contracts\SellerServiceContract;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\UploadedFile;
 use Throwable;
 use Tymon\JWTAuth\Exceptions\JWTException;
@@ -42,13 +43,12 @@ class SellerService implements SellerServiceContract
      */
     public function create(array $data): Model
     {
-        $data['body']['user_id'] = $this->userRepo->authenticate()->getJWTIdentifier();
+        $data['body']['user_id'] = $this->userRepo->getId();
 
-        // Create slug from title
-        $data['body']['slug'] = make_url($data['body']['title']);
-        if ($this->sellerRepo->findBySlug($data['body']['slug'])) {
-            throw new Exception('Seller with the same name already exists, please, choose another.', 400);
+        if ($this->sellerRepo->findByTitle($data['body']['title'])) {
+            throw new Exception('Seller with the same title already exists, please, choose another.', 400);
         }
+        $data['body']['slug'] = make_url($data['body']['title']);
 
         $seller = $this->model->query()->make()->fill($data['body']);
 
@@ -89,42 +89,20 @@ class SellerService implements SellerServiceContract
 
 
     /**
-     * Check user`s permission to make action
-     * @param int $id
-     * @return Model $seller
-     * @throws Exception
-     * @throws JWTException
-     */
-    public function checkPermission(int $id): Model
-    {
-        $userID = $this->userRepo->authenticate()->getJWTIdentifier();
-        $seller = $this->sellerRepo->findByPk($id);
-
-        if ($seller && $seller->user_id !== $userID) {
-            throw new Exception('You have no permission.');
-        }
-
-        if (empty($seller)) {
-            throw new Exception('Seller not found.');
-        }
-
-        return $seller;
-    }
-
-
-    /**
      * Update seller
-     * @param Model $seller
+     * @param int $id
      * @param array $data
      * @return Model
      * @throws Exception
      * @throws Throwable
      */
-    public function update(Model $seller, array $data): Model
+    public function update(array $data, int $id): Model
     {
+        $seller = $this->sellerRepo->findByPk($id);
+
         if ($data['image']) {
             foreach ($data['image'] as $name => $item) {
-                if ($item && !$this->updateImages($name, $item, $seller->id)) {
+                if ($item && !$this->updateImages($name, $item, $id)) {
                     throw new Exception('Can not save ' . $name);
                 }
             }
@@ -135,10 +113,10 @@ class SellerService implements SellerServiceContract
          * don`t understand how best realize without front
          */
         if ($data['email']) {
-            $this->createEmail($data['email'], $seller->id);
+            $this->createEmail($data['email'], $id);
         }
         if ($data['tel']) {
-            $this->createTelephone($data['tel'], $seller->id);
+            $this->createTelephone($data['tel'], $id);
         }
         /** end **/
 
@@ -160,13 +138,15 @@ class SellerService implements SellerServiceContract
 
     /**
      * Delete seller
-     * @param Model $seller
+     * @param int $id
      * @throws Exception
      * @throws Throwable
      * @return bool
      */
-    public function delete(Model $seller): bool
+    public function delete(int $id): bool
     {
+        $seller = $this->sellerRepo->findByPk($id);
+
         if (!$this->deleteImages($seller)) {
             throw new Exception('Can not delete images.');
         }

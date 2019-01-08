@@ -11,12 +11,11 @@ use Illuminate\Http\JsonResponse;
 use App\Services\Seller\Validators\VerifySellerRequestValidator;
 
 use Throwable;
-use Exception;
 use Illuminate\Validation\ValidationException;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class AdminController extends Controller
 {
-
     protected $sellerService;
 
     public function __construct(SellerServiceContract $sellerService)
@@ -28,14 +27,13 @@ class AdminController extends Controller
     /**
      * Make seller verified
      * METHOD: post
-     * URL: /admin
+     * URL: /admin/verify-seller
      * @param Request $request
      * @throws ValidationException
-     * @throws Exception
      * @throws Throwable
      * @return JsonResponse
      */
-    public function verify(Request $request): JsonResponse
+    public function verifySeller(Request $request): JsonResponse
     {
         try {
             $data = app(VerifySellerRequestValidator::class)->attempt($request);
@@ -46,6 +44,11 @@ class AdminController extends Controller
                 'status' => 'Error',
                 'message' => $e->errors()->first(),
             ], 400);
+        } catch (ModelNotFoundException $e) {
+            return response()->json([
+                'status' => 'Error',
+                'message' => 'Seller not exist.'
+            ], 404);
         } catch (Throwable $e) {
             return response()->json([
                 'status' => 'Error',

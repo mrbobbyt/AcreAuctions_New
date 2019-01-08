@@ -5,8 +5,9 @@ namespace App\Services\Seller\Validators;
 
 use App\Repositories\Seller\Contracts\SellerRepositoryContract;
 use App\Services\Auth\Validators\AbstractValidator;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
-use Exception;
+use Illuminate\Validation\ValidationException;
 use Validator;
 
 class VerifySellerRequestValidator implements AbstractValidator
@@ -21,16 +22,14 @@ class VerifySellerRequestValidator implements AbstractValidator
 
     /**
      * Return validated array of data
-     *
      * @param Request $request
      * @return array
-     * @throws Exception
+     * @throws ValidationException
+     * @throws ModelNotFoundException
      */
     public function attempt(Request $request)
     {
-        if (!$seller = $this->sellerRepo->findByPk((int)$request->input('id'))) {
-            throw new Exception('Can not find seller.');
-        }
+        $seller = $this->sellerRepo->findByPk((int)$request->input('id'));
 
         return [
             'seller' => $seller,
@@ -40,8 +39,8 @@ class VerifySellerRequestValidator implements AbstractValidator
 
     /**
      * Validate given data
-     *
      * @param Request $request
+     * @throws ValidationException
      * @return array
      */
     public function validateBody(Request $request)

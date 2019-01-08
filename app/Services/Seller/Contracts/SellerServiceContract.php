@@ -20,7 +20,6 @@ interface SellerServiceContract
 
     /**
      * Make seller verified
-     *
      * @param object $seller
      * @return bool
      */
@@ -28,32 +27,21 @@ interface SellerServiceContract
 
 
     /**
-     * Check user`s permission to make action
-     *
-     * @param int $id
-     * @return Model $seller
-     * @throws Exception
-     */
-    public function checkPermission(int $id);
-
-
-    /**
      * Update seller
-     *
-     * @param Model $seller
+     * @param int $id
      * @param array $data
      * @return Model
      * @throws Exception
      */
-    public function update(Model $seller, array $data);
+    public function update(array $data, int $id);
 
 
     /**
      * Delete seller
-     *
-     * @param Model $seller
+     * @param int $id
      * @throws Exception
      * @return bool
      */
-    public function delete(Model $seller);
+    public function delete(int $id);
+
 }
