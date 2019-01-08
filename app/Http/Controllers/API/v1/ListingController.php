@@ -4,6 +4,7 @@ declare(strict_types = 1);
 namespace App\Http\Controllers\API\v1;
 
 use App\Http\Resources\ListingResource;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
@@ -36,7 +37,7 @@ class ListingController extends Controller
      * METHOD: get
      * URL: /land-for-sale/{slug}
      * @param string $slug
-     * @throws Exception
+     * @throws ModelNotFoundException
      * @return JsonResponse
      */
     public function view(string $slug): JsonResponse
@@ -44,6 +45,11 @@ class ListingController extends Controller
         try {
             $listing = $this->listingRepo->findBySlug($slug);
 
+        } catch (ModelNotFoundException $e) {
+            return response()->json([
+                'status' => 'Error',
+                'message' => 'Listing not exist.'
+            ], 404);
         } catch (Throwable $e) {
             return response()->json([
                 'status' => 'Error',
@@ -66,6 +72,7 @@ class ListingController extends Controller
      * @throws ValidationException
      * @throws JWTException
      * @throws Exception
+     * @throws ModelNotFoundException
      * @throws Throwable
      * @return JsonResponse
      */
@@ -80,6 +87,11 @@ class ListingController extends Controller
                 'status' => 'Error',
                 'message' => $e->validator->errors()->first(),
             ], 400);
+        } catch (ModelNotFoundException $e) {
+            return response()->json([
+                'status' => 'Error',
+                'message' => 'Seller not exist.'
+            ], 404);
         } catch (JWTException $e) {
             return response()->json([
                 'status' => 'Error',
@@ -102,11 +114,12 @@ class ListingController extends Controller
     /**
      * Update Listing
      * METHOD: post
-     * URL: /land-for-sale/update/{id}
+     * URL: /land-for-sale/{id}/update
      * @param Request $request
      * @param int $id
      * @throws ValidationException
      * @throws JWTException
+     * @throws ModelNotFoundException
      * @throws Exception
      * @throws Throwable
      * @return JsonResponse
@@ -114,9 +127,9 @@ class ListingController extends Controller
     public function update(Request $request, int $id): JsonResponse
     {
         try {
+            $this->listingRepo->checkPermission($id);
             $data = (new UpdateListingRequestValidator)->attempt($request);
-            $oldListing = $this->listingService->checkPermission($id);
-            $listing = $this->listingService->update($oldListing, $data);
+            $listing = $this->listingService->update($data, $id);
 
         } catch (ValidationException $e) {
             return response()->json([
@@ -128,10 +141,15 @@ class ListingController extends Controller
                 'status' => 'Error',
                 'message' => $e->getMessage()
             ], 403);
+        } catch (ModelNotFoundException $e) {
+            return response()->json([
+                'status' => 'Error',
+                'message' => 'Listing not exist.'
+            ], 404);
         } catch (Exception $e) {
             return response()->json([
                 'status' => 'Error',
-                'message' => 400
+                'message' => $e->getMessage()
             ], 500);
         } catch (Throwable $e) {
             return response()->json([
@@ -150,21 +168,28 @@ class ListingController extends Controller
     /**
      * Delete listing
      * METHOD: get
-     * URL: /land-for-sale/delete/{id}
+     * URL: /land-for-sale/{id}/delete
      * @param int $id
+     * @throws JWTException
+     * @throws ModelNotFoundException
      * @return JsonResponse
      */
     public function delete(int $id): JsonResponse
     {
         try {
-            $seller = $this->listingService->checkPermission($id);
-            $this->listingService->delete($seller);
+            $this->listingRepo->checkPermission($id);
+            $this->listingService->delete($id);
 
         } catch (JWTException $e) {
             return response()->json([
                 'status' => 'Error',
                 'message' => $e->getMessage()
             ], 403);
+        } catch (ModelNotFoundException $e) {
+            return response()->json([
+                'status' => 'Error',
+                'message' => 'Listing not exist.'
+            ], 404);
         } catch (Throwable $e) {
             return response()->json([
                 'status' => 'Error',

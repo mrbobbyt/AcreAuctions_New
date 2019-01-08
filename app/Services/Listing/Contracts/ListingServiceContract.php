@@ -6,7 +6,6 @@ namespace App\Services\Listing\Contracts;
 use Exception;
 use Illuminate\Database\Eloquent\Model;
 use Throwable;
-use Tymon\JWTAuth\Exceptions\JWTException;
 
 interface ListingServiceContract
 {
@@ -20,32 +19,22 @@ interface ListingServiceContract
 
 
     /**
-     * Check user`s permission to make action
-     * @param int $id
-     * @return Model
-     * @throws Exception
-     * @throws JWTException
-     */
-    public function checkPermission(int $id);
-
-
-    /**
      * Update listing
-     * @param Model $listing
+     * @param int $id
      * @param array $data
      * @return Model
      * @throws Exception
      * @throws Throwable
      */
-    public function update(Model $listing, array $data);
+    public function update(array $data, int $id);
 
 
     /**
      * Delete listing and related models
-     * @param Model $listing
+     * @param int $id
      * @return bool
      * @throws Exception
      */
-    public function delete(Model $listing);
+    public function delete(int $id);
 
 }

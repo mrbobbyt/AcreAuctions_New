@@ -14,7 +14,7 @@ interface ListingRepositoryContract
     /**
      * Find seller by url
      * @param string $slug
-     * @return Model | bool
+     * @return Model
      */
     public function findBySlug(string $slug);
 
@@ -22,9 +22,17 @@ interface ListingRepositoryContract
     /**
      * Find seller by id
      * @param int $id
-     * @return Model | bool
+     * @return Model
      */
     public function findByPk(int $id);
+
+
+    /**
+     * Check existing Listing by title
+     * @param string $title
+     * @return bool
+     */
+    public function findByTitle(string $title);
 
 
     /**
@@ -50,5 +58,15 @@ interface ListingRepositoryContract
      * @throws Exception
      */
     public function findGeoByPk(int $id);
+
+
+    /**
+     * Check user`s permission to make action
+     * @param int $id
+     * @return bool
+     * @throws Exception
+     * @throws JWTException
+     */
+    public function checkPermission(int $id);
 
 }

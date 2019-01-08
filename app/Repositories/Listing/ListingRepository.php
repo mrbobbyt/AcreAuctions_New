@@ -15,35 +15,45 @@ use Tymon\JWTAuth\Exceptions\TokenInvalidException;
 
 class ListingRepository implements ListingRepositoryContract
 {
+    protected $userRepo;
+
+    public function __construct(UserRepositoryContract $userRepo)
+    {
+        $this->userRepo = $userRepo;
+    }
+
 
     /**
      * Find listing by url
      * @param string $slug
-     * @return Model | bool
+     * @return Model
      * @throws Exception
      */
-    public function findBySlug(string $slug)
+    public function findBySlug(string $slug): Model
     {
-        if ($listing = Listing::query()->where('slug', $slug)->first()) {
-            return $listing;
-        }
-
-        throw new Exception('Listing not exist.', 404);
+        return Listing::query()->where('slug', $slug)->firstOrFail();
     }
 
 
     /**
      * Find listing by id
      * @param int $id
-     * @return Model | bool
+     * @return Model
      */
-    public function findByPk(int $id)
+    public function findByPk(int $id): Model
     {
-        if ($listing = Listing::query()->find($id)) {
-            return $listing;
-        }
+        return Listing::query()->findOrFail($id);
+    }
 
-        return false;
+
+    /**
+     * Check existing Listing by title
+     * @param string $title
+     * @return bool
+     */
+    public function findByTitle(string $title): bool
+    {
+        return Listing::query()->where('title', $title)->exists();
     }
 
 
@@ -96,11 +106,21 @@ class ListingRepository implements ListingRepositoryContract
      */
     public function findGeoByPk(int $id): Model
     {
-        if ($listing = ListingGeo::query()->where('listing_id', $id)->first()) {
-            return $listing;
-        }
+        return ListingGeo::query()->where('listing_id', $id)->firstOrFail();
+    }
 
-        throw new Exception('Geo Listing not exist.', 404);
+
+    /**
+     * Check user`s permission to make action
+     * @param int $id
+     * @return bool
+     * @throws Exception
+     * @throws JWTException
+     * @throws TokenInvalidException
+     */
+    public function checkPermission(int $id): bool
+    {
+        return $this->userRepo->checkPermission( $this->findByPk($id)->seller->id );
     }
 
 }

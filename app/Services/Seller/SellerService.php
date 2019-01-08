@@ -122,6 +122,9 @@ class SellerService implements SellerServiceContract
 
         if ($data['body']) {
             if (isset($data['body']['title']) && $data['body']['title']) {
+                if ($this->sellerRepo->findByTitle($data['body']['title'])) {
+                    throw new Exception('Seller with the same title already exists, please, choose another.', 400);
+                }
                 $data['body']['slug'] = make_url($data['body']['title']);
             }
 

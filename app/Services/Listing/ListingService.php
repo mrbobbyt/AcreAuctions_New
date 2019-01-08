@@ -3,18 +3,18 @@ declare(strict_types = 1);
 
 namespace App\Services\Listing;
 
+use Illuminate\Database\Eloquent\Model;
 use App\Models\Image;
 use App\Models\Listing;
 use App\Models\ListingGeo;
-use App\Models\User;
+
 use App\Repositories\Listing\Contracts\ListingRepositoryContract;
-use App\Repositories\User\Contracts\UserRepositoryContract;
 use App\Services\Listing\Contracts\ListingServiceContract;
+
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Exception;
-use Illuminate\Database\Eloquent\Model;
 use Throwable;
 use Tymon\JWTAuth\Exceptions\JWTException;
-use Tymon\JWTAuth\Exceptions\TokenInvalidException;
 
 class ListingService implements ListingServiceContract
 {
@@ -36,17 +36,17 @@ class ListingService implements ListingServiceContract
      * @return Model
      * @throws Throwable
      * @throws JWTException
+     * @throws ModelNotFoundException
      * @throws Exception
      */
     public function create(array $data): Model
     {
         $data['body']['seller_id'] = $this->listingRepo->findSellerById();
 
-        // Create slug from title
-        $data['body']['slug'] = make_url($data['body']['title']);
-        if ($this->listingRepo->findBySlug($data['body']['slug'])) {
+        if ($this->listingRepo->findByTitle($data['body']['title'])) {
             throw new Exception('Listing with the same title already exists, please, choose another.', 400);
         }
+        $data['body']['slug'] = make_url($data['body']['title']);
 
         $listing = $this->model->query()->make()->fill($data['body']);
 
@@ -89,42 +89,22 @@ class ListingService implements ListingServiceContract
 
 
     /**
-     * Check user`s permission to make action
-     * @param int $id
-     * @return Model
-     * @throws Exception
-     * @throws JWTException
-     * @throws TokenInvalidException
-     */
-    public function checkPermission(int $id): Model
-    {
-        $user = app(UserRepositoryContract::class)->authenticate();
-        $listing = $this->listingRepo->findByPk($id);
-
-        if ($listing && $listing->seller->id !== $user->id && $user->role !== User::ROLE_ADMIN) {
-            throw new Exception('You have no permission.', 403);
-        }
-
-        if (empty($listing->seller->id)) {
-            throw new Exception('Seller not found.', 404);
-        }
-
-        return $listing;
-    }
-
-
-    /**
      * Update listing
-     * @param Model $listing
+     * @param int $id
      * @param array $data
      * @return Model
      * @throws Exception
      * @throws Throwable
      */
-    public function update(Model $listing, array $data): Model
+    public function update(array $data, int $id): Model
     {
+        $listing = $this->listingRepo->findByPk($id);
+
         if ($data['body']) {
             if (isset($data['body']['title']) && $data['body']['title']) {
+                if ($this->listingRepo->findByTitle($data['body']['title'])) {
+                    throw new Exception('Listing with the same title already exists, please, choose another.', 400);
+                }
                 $data['body']['slug'] = make_url($data['body']['title']);
             }
 
@@ -135,12 +115,12 @@ class ListingService implements ListingServiceContract
             $listing->saveOrFail();
         }
 
-        if ($data['geo'] && !$this->updateGeo($data['geo'], $listing->id)) {
+        if ($data['geo'] && !$this->updateGeo($data['geo'], $id)) {
             throw new Exception('Can not update geo listing.', 500);
         }
 
         /***** create new image *****/
-        if ($data['image'] && !$this->createImage($data['image'], $listing->id)) {
+        if ($data['image'] && !$this->createImage($data['image'], $id)) {
             throw new Exception('Can not update images.', 500);
         }
         /***** end *****/
@@ -170,18 +150,21 @@ class ListingService implements ListingServiceContract
 
     /**
      * Delete listing and related models
-     * @param Model $listing
+     * @param int $id
      * @return bool
+     * @throws ModelNotFoundException
      * @throws Exception
      */
-    public function delete(Model $listing): bool
+    public function delete(int $id): bool
     {
+        $listing = $this->listingRepo->findByPk($id);
         $geo = $this->listingRepo->findGeoByPk($listing->id);
+        $images = $listing->images;
+
         if (!$geo->delete()) {
             throw new Exception('Can not delete geo listing.', 500);
         }
 
-        $images = $listing->images;
         foreach ($images as $image) {
             if (!$image->delete()) {
                 throw new Exception('Can not delete images.', 500);

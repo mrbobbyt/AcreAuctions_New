@@ -5,8 +5,8 @@ namespace App\Services\Listing\Validator;
 
 use App\Rules\CheckSizeType;
 use App\Services\Auth\Validators\AbstractValidator;
-use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Validation\ValidationException;
 use Validator;
 
 class UpdateListingRequestValidator implements AbstractValidator
@@ -16,7 +16,7 @@ class UpdateListingRequestValidator implements AbstractValidator
      * Return validated array of data
      * @param Request $request
      * @return array
-     * @throws Exception
+     * @throws ValidationException
      */
     public function attempt(Request $request)
     {
@@ -30,6 +30,7 @@ class UpdateListingRequestValidator implements AbstractValidator
     /**
      * Validate given data
      * @param Request $request
+     * @throws ValidationException
      * @return array
      */
     public function validateBody(Request $request)
@@ -48,7 +49,7 @@ class UpdateListingRequestValidator implements AbstractValidator
      * Validate given data
      * @param Request $request
      * @return array
-     * @throws Exception
+     * @throws ValidationException
      */
     public function validateGeo(Request $request): array
     {
@@ -70,7 +71,7 @@ class UpdateListingRequestValidator implements AbstractValidator
      * Validate given data
      * @param Request $request
      * @return array
-     * @throws \Exception
+     * @throws ValidationException
      */
     public function validateImage(Request $request): array
     {
