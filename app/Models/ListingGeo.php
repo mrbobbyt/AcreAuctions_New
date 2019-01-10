@@ -24,4 +24,21 @@ class ListingGeo extends Model
 
     protected $guarded = ['id'];
 
+    protected $hidden = ['created_at', 'updated_at', 'listing_id'];
+
+
+    /**
+     * @param \Illuminate\Database\Eloquent\Builder $query
+     * @param array $fields
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
+    public function scopeWhereFields($query, array $fields)
+    {
+        $params = collect($fields)->filter(function ($value, $key) {
+            return in_array($key, $this->fillable);
+        })->all();
+
+        return $query->where($params);
+    }
+
 }

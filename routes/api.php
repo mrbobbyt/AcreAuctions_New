@@ -76,3 +76,7 @@ Route::post('land-for-sale/{id}/update', 'API\v1\ListingController@update')
 Route::get('land-for-sale/{id}/delete', 'API\v1\ListingController@delete')
     ->middleware('jwt.verify');
 
+
+/********* Search *********/
+
+Route::get('search', 'API\v1\SearchController@search');
