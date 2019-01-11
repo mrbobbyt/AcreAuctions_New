@@ -4,10 +4,15 @@ declare(strict_types = 1);
 namespace App\Repositories\SearchListing;
 
 use App\Models\Listing;
+use Illuminate\Database\Eloquent\Collection;
 
 class SearchListingRepository
 {
-    public function findAll()
+    /**
+     * Find all listings
+     * @return Collection
+     */
+    public function findAll(): Collection
     {
         $listings = Listing::with(['geo', 'images'])->get();
 
@@ -15,7 +20,13 @@ class SearchListingRepository
     }
 
 
-    public function findByParams(array $geoParams, array $price)
+    /**
+     * Find all listings with requested fields
+     * @param array $geoParams
+     * @param array $price
+     * @return Collection
+     */
+    public function findByParams(array $geoParams, array $price): Collection
     {
         // if ($geo xor $price)
         $listing = Listing::whereHas('geo', function ($q) use ($geoParams) {

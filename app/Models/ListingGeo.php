@@ -4,6 +4,7 @@ declare(strict_types = 1);
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Builder;
 
 /**
  * @property int id
@@ -19,7 +20,7 @@ use Illuminate\Database\Eloquent\Model;
 class ListingGeo extends Model
 {
     protected $fillable = [
-        'listing_id', 'size_type', 'state', 'county', 'city', 'address', 'longitude', 'latitude'
+        'listing_id', 'size_type', 'state', 'county', 'city', 'address', 'longitude', 'latitude', 'acreage'
     ];
 
     protected $guarded = ['id'];
@@ -28,9 +29,10 @@ class ListingGeo extends Model
 
 
     /**
-     * @param \Illuminate\Database\Eloquent\Builder $query
+     * Scope a query to only include requested fields
+     * @param Builder $query
      * @param array $fields
-     * @return \Illuminate\Database\Eloquent\Builder
+     * @return Builder
      */
     public function scopeWhereFields($query, array $fields)
     {

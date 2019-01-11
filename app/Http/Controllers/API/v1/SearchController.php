@@ -18,11 +18,11 @@ class SearchController extends Controller
 
     public function search(Request $request)
     {
-        $geo = $request->only('state', 'acreage');
-        $price = $request->only('price');
+        $geoParams = $request->only('state', 'acreage');
+        $priceParams = $request->only('price');
 
-        if ($geo || $price) {
-            $result = $this->searchRepo->findByParams($geo, $price);
+        if ($geoParams || $priceParams) {
+            $result = $this->searchRepo->findByParams($geoParams, $priceParams);
         } else {
             $result = $this->searchRepo->findAll();
         }
