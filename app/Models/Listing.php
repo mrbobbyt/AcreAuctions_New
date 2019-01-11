@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
  * @property int id
+ * @property int apn
  * @property string title
  * @property string subtitle
  * @property string slug
@@ -20,7 +21,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class Listing extends Model
 {
     protected $fillable = [
-        'title', 'subtitle', 'slug', 'description', 'is_featured', 'seller_id'
+        'title', 'subtitle', 'slug', 'description', 'is_featured', 'seller_id', 'apn'
     ];
 
     protected $guarded = ['id'];
@@ -60,4 +61,24 @@ class Listing extends Model
         return $this->belongsTo('App\Models\Seller');
     }
 
+
+    /**
+     * Get related price listing
+     * @return HasOne
+     */
+    public function price()
+    {
+        return $this->hasOne('App\Models\ListingPrice');
+    }
+
+
+    /**
+     * Get related documents
+     * @return HasMany
+     */
+    public function docs()
+    {
+        return $this->hasMany('App\Models\Doc', 'entity_id', 'id')
+            ->where('entity_type', Doc::TYPE_LISTING);
+    }
 }

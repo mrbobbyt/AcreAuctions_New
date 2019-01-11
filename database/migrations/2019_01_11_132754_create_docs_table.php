@@ -3,7 +3,7 @@
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class AddAcreageToListingGeo extends Migration
+class CreateDocsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -12,8 +12,12 @@ class AddAcreageToListingGeo extends Migration
      */
     public function up()
     {
-        Schema::table('listing_geos', function (Blueprint $table) {
-            $table->double('acreage')->nullable();
+        Schema::create('docs', function (Blueprint $table) {
+            $table->increments('id');
+            $table->integer('entity_id');
+            $table->integer('entity_type');
+            $table->string('name');
+            $table->timestamps();
         });
     }
 
@@ -24,8 +28,6 @@ class AddAcreageToListingGeo extends Migration
      */
     public function down()
     {
-        Schema::table('listing_geos', function (Blueprint $table) {
-            $table->dropColumn('acreage');
-        });
+        Schema::dropIfExists('docs');
     }
 }

@@ -122,4 +122,31 @@ class ListingRepository implements ListingRepositoryContract
         return $this->userRepo->checkPermission( $this->findByPk($id)->seller->id );
     }
 
+
+    /**
+     * Get related documents
+     * @param ListingResource $listing
+     * @return array
+     */
+    protected function getDocs(ListingResource $listing): array
+    {
+        return $listing->docs()
+            ->get()->pluck('name')->toArray();
+    }
+
+
+    /**
+     * Get related documents
+     * @param ListingResource $listing
+     * @return array
+     */
+    public function getDocNames(ListingResource $listing): array
+    {
+        $array = [];
+        foreach ($this->getDocs($listing) as $i) {
+            array_push($array, get_image_path('Doc', $i));
+        }
+
+        return $array;
+    }
 }

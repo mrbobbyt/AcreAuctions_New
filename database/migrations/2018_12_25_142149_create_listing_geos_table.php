@@ -15,12 +15,12 @@ class CreateListingGeosTable extends Migration
         Schema::create('listing_geos', function (Blueprint $table) {
             $table->increments('id');
             $table->integer('listing_id');
-            $table->enum('size_type', ['L', 'B'])
-                ->comment('size of the area');
+            $table->double('acreage');
             $table->string('state');
-            $table->string('county')->comment('district');
+            $table->string('county')->nullable()->comment('district');
             $table->string('city');
             $table->string('address');
+            $table->string('road_access');
             $table->double('longitude');
             $table->double('latitude');
             $table->timestamps();

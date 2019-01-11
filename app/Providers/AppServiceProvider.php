@@ -31,6 +31,9 @@ use App\Repositories\Listing\ListingRepository;
 use App\Services\Listing\Contracts\ListingServiceContract;
 use App\Services\Listing\ListingService;
 
+use App\Repositories\SearchListing\Contracts\SearchListingRepositoryContract;
+use App\Repositories\SearchListing\SearchListingRepository;
+
 class AppServiceProvider extends ServiceProvider
 {
     /**
@@ -97,6 +100,11 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(
             ListingServiceContract::class,
             ListingService::class
+        );
+
+        $this->app->bind(
+            SearchListingRepositoryContract::class,
+            SearchListingRepository::class
         );
     }
 }

@@ -4,9 +4,10 @@ declare(strict_types = 1);
 namespace App\Repositories\SearchListing;
 
 use App\Models\Listing;
+use App\Repositories\SearchListing\Contracts\SearchListingRepositoryContract;
 use Illuminate\Database\Eloquent\Collection;
 
-class SearchListingRepository
+class SearchListingRepository implements SearchListingRepositoryContract
 {
     /**
      * Find all listings

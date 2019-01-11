@@ -3,7 +3,7 @@ declare(strict_types = 1);
 
 namespace App\Http\Controllers\API\v1;
 
-use App\Repositories\SearchListing\SearchListingRepository;
+use App\Repositories\SearchListing\Contracts\SearchListingRepositoryContract;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 
@@ -11,7 +11,7 @@ class SearchController extends Controller
 {
     protected $searchRepo;
 
-    public function __construct(SearchListingRepository $searchRepo)
+    public function __construct(SearchListingRepositoryContract $searchRepo)
     {
         $this->searchRepo = $searchRepo;
     }

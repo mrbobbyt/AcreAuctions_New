@@ -22,7 +22,9 @@ class CreateListingRequestValidator implements AbstractValidator
         return [
             'body' => $this->validateBody($request),
             'geo' => $this->validateGeo($request),
+            'price' => $this->validatePrice($request),
             'image' => $this->validateImage($request),
+            'doc' => $this->validateDoc($request),
         ];
     }
 
@@ -36,6 +38,7 @@ class CreateListingRequestValidator implements AbstractValidator
     {
         $validator = Validator::make($request->all(), [
             'title' => 'required|string|max:255|min:3',
+            'apn' => 'required|numeric',
             'subtitle' => 'nullable|string|max:255|min:3',
             'description' => 'nullable|string',
         ]);
@@ -53,11 +56,12 @@ class CreateListingRequestValidator implements AbstractValidator
     public function validateGeo(Request $request): array
     {
         $validator = Validator::make($request->all(), [
-            'size_type' => ['required', 'string', new CheckSizeType],
+            'acreage' => 'required|numeric',
             'state' => 'required|string',
-            'county' => 'required|string',
+            'county' => 'nullable|string',
             'city' => 'required|string',
             'address' => 'required|string',
+            'road_access' => 'nullable|string',
             'longitude' => 'required|numeric',
             'latitude' => 'required|numeric',
         ]);
@@ -76,6 +80,43 @@ class CreateListingRequestValidator implements AbstractValidator
     {
         $validator = Validator::make($request->only('image'), [
             'image' => 'nullable|image',
+        ]);
+
+        return $validator->validate();
+    }
+
+
+    /**
+     * Validate given data
+     * @param Request $request
+     * @return array
+     * @throws ValidationException
+     */
+    public function validatePrice(Request $request): array
+    {
+        $validator = Validator::make($request->all(), [
+            'price' => 'required|numeric',
+            'monthly_payment' => 'required|numeric',
+            'processing_fee' => 'required|numeric',
+            'financial_term' => 'required|numeric',
+            'yearly_dues' => 'required|numeric',
+            'taxes' => 'required|numeric',
+        ]);
+
+        return $validator->validate();
+    }
+
+
+    /**
+     * Validate given data
+     * @param Request $request
+     * @return array
+     * @throws ValidationException
+     */
+    public function validateDoc(Request $request): array
+    {
+        $validator = Validator::make($request->only('doc'), [
+            'doc' => 'nullable|file',
         ]);
 
         return $validator->validate();

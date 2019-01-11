@@ -3,6 +3,8 @@ declare(strict_types = 1);
 
 namespace App\Services\Listing;
 
+use App\Models\Doc;
+use App\Models\ListingPrice;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\Image;
 use App\Models\Listing;
@@ -23,12 +25,18 @@ class ListingService implements ListingServiceContract
 {
     protected $model;
     protected $modelGeo;
+    protected $modelPrice;
     protected $listingRepo;
 
-    public function __construct(Listing $listing, ListingGeo $listingGeo, ListingRepositoryContract $listingRepo)
-    {
+    public function __construct(
+        Listing $listing,
+        ListingGeo $listingGeo,
+        ListingPrice $listingPrice,
+        ListingRepositoryContract $listingRepo
+    ) {
         $this->model = $listing;
         $this->modelGeo = $listingGeo;
+        $this->modelPrice = $listingPrice;
         $this->listingRepo = $listingRepo;
     }
 
@@ -59,8 +67,16 @@ class ListingService implements ListingServiceContract
         $listingGeo->listing_id = $listing->id;
         $listingGeo->saveOrFail();
 
+        $listingGeo = $this->modelPrice->query()->make()->fill($data['price']);
+        $listingGeo->listing_id = $listing->id;
+        $listingGeo->saveOrFail();
+
         if ($data['image']) {
             $this->createImage($data['image'], $listing->id);
+        }
+
+        if ($data['doc']) {
+            $this->createDoc($data['doc'], $listing->id);
         }
 
         return $listing;
@@ -80,6 +96,27 @@ class ListingService implements ListingServiceContract
             'entity_id' => $id,
             'entity_type' => Image::TYPE_LISTING,
             'name' => upload_image($item['image'], class_basename($this->model), 'listing'),
+        ]);
+
+        return $image->saveOrFail();
+    }
+
+
+    /**
+     * @param array $item
+     * @param string $id
+     * @return bool
+     * @throws Throwable
+     */
+    protected function createDoc($item, $id): bool
+    {
+
+        /*TODO - create files in separate directory*/
+
+        $image = Doc::query()->make()->fill([
+            'entity_id' => $id,
+            'entity_type' => Doc::TYPE_LISTING,
+            'name' => upload_image($item['doc'], class_basename($this->model), 'doc'),
         ]);
 
         return $image->saveOrFail();
