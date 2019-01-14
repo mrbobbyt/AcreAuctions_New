@@ -8,6 +8,7 @@ use Illuminate\Http\Resources\Json\JsonResource;
 
 /**
  * @property int id
+ * @property int inner_listing_id
  * @property int apn
  * @property string title
  * @property string subtitle
@@ -15,6 +16,9 @@ use Illuminate\Http\Resources\Json\JsonResource;
  * @property string description
  * @property bool is_featured
  * @property int seller_id
+ * @property string utilities
+ * @property string zoning
+ * @property string zoning_desc
  */
 class ListingResource extends JsonResource
 {
@@ -28,21 +32,19 @@ class ListingResource extends JsonResource
     {
         return [
             'id' => $this->id,
+            'listing_id' => $this->inner_listing_id,
             'apn' => $this->apn,
             'title' => $this->title,
             'subtitle' => $this->subtitle,
-            'images' => app(ListingRepositoryContract::class)->getImageNames($this) ?? null,
             'description' => $this->description,
             'seller' => $this->seller->title,
+            'utilities' => $this->getUtilities->name,
+            'zoning' => $this->getZoning->name,
+            'zoning_desc' => $this->zoning_desc,
 
-            'size_type' => $this->geo->acreage,
-            'state' => $this->geo->state,
-            'county' => $this->geo->county,
-            'city' => $this->geo->city,
-            'address' => $this->geo->address,
-            'longitude' => $this->geo->longitude,
-            'latitude' => $this->geo->latitude,
-
+            'geo' => $this->geo,
+            'price' =>$this->price,
+            'images' => app(ListingRepositoryContract::class)->getImageNames($this) ?? null,
             'docs' => app(ListingRepositoryContract::class)->getDocNames($this) ?? null,
         ];
     }

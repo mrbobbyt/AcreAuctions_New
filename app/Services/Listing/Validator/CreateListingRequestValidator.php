@@ -3,7 +3,8 @@ declare(strict_types = 1);
 
 namespace App\Services\Listing\Validator;
 
-use App\Rules\CheckSizeType;
+use App\Rules\CheckUtilities;
+use App\Rules\CheckZoning;
 use App\Services\Auth\Validators\AbstractValidator;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
@@ -41,6 +42,9 @@ class CreateListingRequestValidator implements AbstractValidator
             'apn' => 'required|numeric',
             'subtitle' => 'nullable|string|max:255|min:3',
             'description' => 'nullable|string',
+            'utilities' => ['required', 'numeric', new CheckUtilities()],
+            'zoning' => ['required', 'numeric', new CheckZoning()],
+            'zoning_desc' => 'nullable|string',
         ]);
 
         return $validator->validate();
@@ -96,11 +100,12 @@ class CreateListingRequestValidator implements AbstractValidator
     {
         $validator = Validator::make($request->all(), [
             'price' => 'required|numeric',
-            'monthly_payment' => 'required|numeric',
-            'processing_fee' => 'required|numeric',
+            'monthly_payment' => 'nullable|numeric',
+            'processing_fee' => 'nullable|numeric',
             'financial_term' => 'required|numeric',
-            'yearly_dues' => 'required|numeric',
-            'taxes' => 'required|numeric',
+            'percentage_rate' => 'required|numeric',
+            'yearly_dues' => 'nullable|numeric',
+            'taxes' => 'nullable|numeric',
         ]);
 
         return $validator->validate();

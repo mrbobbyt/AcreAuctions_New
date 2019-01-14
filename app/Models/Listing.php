@@ -10,18 +10,24 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
  * @property int id
+ * @property int inner_listing_id
  * @property int apn
  * @property string title
  * @property string subtitle
  * @property string slug
  * @property string description
  * @property bool is_featured
+ * @property bool is_verified
  * @property int seller_id
+ * @property int utilities
+ * @property int zoning
+ * @property string zoning_desc
  */
 class Listing extends Model
 {
     protected $fillable = [
-        'title', 'subtitle', 'slug', 'description', 'is_featured', 'seller_id', 'apn'
+        'inner_listing_id', 'apn', 'title', 'subtitle', 'slug', 'description', 'is_featured', 'is_verified',
+        'seller_id', 'utilities', 'zoning', 'zoning_desc',
     ];
 
     protected $guarded = ['id'];
@@ -80,5 +86,25 @@ class Listing extends Model
     {
         return $this->hasMany('App\Models\Doc', 'entity_id', 'id')
             ->where('entity_type', Doc::TYPE_LISTING);
+    }
+
+
+    /**
+     * Get listing utility
+     * @return BelongsTo
+     */
+    public function getUtilities()
+    {
+        return $this->belongsTo('App\Models\Utility', 'utilities', 'id');
+    }
+
+
+    /**
+     * Get listing zoning
+     * @return BelongsTo
+     */
+    public function getZoning()
+    {
+        return $this->belongsTo('App\Models\Zoning', 'zoning', 'id');
     }
 }

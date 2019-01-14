@@ -14,7 +14,7 @@ class CreateListingsTable extends Migration
     {
         Schema::create('listings', function (Blueprint $table) {
             $table->increments('id');
-            $table->integer('inner_listing_id')->nullable();
+            $table->string('inner_listing_id')->nullable();
             $table->string('apn');
             $table->string('title');
             $table->string('subtitle')->nullable();
@@ -27,7 +27,7 @@ class CreateListingsTable extends Migration
             $table->smallInteger('utilities');
             $table->smallInteger('zoning')
                 ->comment('categories');
-            $table->string('zoning_desc');
+            $table->string('zoning_desc')->nullable();
             $table->timestamps();
         });
     }
