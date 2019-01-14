@@ -110,13 +110,10 @@ class ListingService implements ListingServiceContract
      */
     protected function createDoc($item, $id): bool
     {
-
-        /*TODO - create files in separate directory*/
-
         $image = Doc::query()->make()->fill([
             'entity_id' => $id,
             'entity_type' => Doc::TYPE_LISTING,
-            'name' => upload_image($item['doc'], class_basename($this->model), 'doc'),
+            'name' => upload_doc($item['doc'], $id, 'doc'),
         ]);
 
         return $image->saveOrFail();

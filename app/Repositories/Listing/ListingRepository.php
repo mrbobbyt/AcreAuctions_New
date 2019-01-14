@@ -131,7 +131,7 @@ class ListingRepository implements ListingRepositoryContract
     protected function getDocs(ListingResource $listing): array
     {
         return $listing->docs()
-            ->get()->pluck('name')->toArray();
+            ->get()->pluck('name', 'id')->toArray();
     }
 
 
@@ -144,7 +144,7 @@ class ListingRepository implements ListingRepositoryContract
     {
         $array = [];
         foreach ($this->getDocs($listing) as $i) {
-            array_push($array, get_image_path('Doc', $i));
+            array_push($array, get_doc_path($listing->id, $i));
         }
 
         return $array;
