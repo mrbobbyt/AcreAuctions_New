@@ -63,12 +63,27 @@ interface ListingRepositoryContract
 
 
     /**
+     * Find price listing by listing id
+     * @param int $id
+     * @return Model
+     */
+    public function findPriceByPk(int $id);
+
+
+    /**
      * Check user`s permission to make action
+     * @param $user
      * @param int $id
      * @return bool
-     * @throws JWTException
      * @throws NoPermissionException
      */
-    public function checkPermission(int $id);
+    public function checkPermission($user, int $id);
 
+
+    /**
+     * @param int $key
+     * @param int $id
+     * @return Model | bool
+     */
+    public function findImage(int $key, int $id);
 }

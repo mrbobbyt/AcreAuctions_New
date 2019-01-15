@@ -118,7 +118,7 @@ class ListingController extends Controller
     public function update(Request $request, int $id): JsonResponse
     {
         try {
-            $this->listingRepo->checkPermission($id);
+            $this->listingRepo->checkPermission(\JWTAuth::user(), $id);
             $data = (new UpdateListingRequestValidator)->attempt($request);
             $listing = $this->listingService->update($data, $id);
 

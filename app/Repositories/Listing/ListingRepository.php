@@ -4,8 +4,10 @@ declare(strict_types = 1);
 namespace App\Repositories\Listing;
 
 use App\Http\Resources\ListingResource;
+use App\Models\Image;
 use App\Models\Listing;
 use App\Models\ListingGeo;
+use App\Models\ListingPrice;
 use App\Repositories\User\Contracts\UserRepositoryContract;
 use App\Repositories\User\Exceptions\NoPermissionException;
 use Tymon\JWTAuth\Exceptions\JWTException;
@@ -111,15 +113,30 @@ class ListingRepository implements ListingRepositoryContract
 
 
     /**
+     * Find price listing by listing id
+     * @param int $id
+     * @return Model
+     */
+    public function findPriceByPk(int $id): Model
+    {
+        return ListingPrice::query()->where('listing_id', $id)->firstOrFail();
+    }
+
+
+    /**
      * Check user`s permission to make action
+     * @param $user
      * @param int $id
      * @return bool
-     * @throws JWTException
      * @throws NoPermissionException
      */
-    public function checkPermission(int $id): bool
+    public function checkPermission($user, int $id): bool
     {
-        return $this->userRepo->checkPermission( $this->findByPk($id)->seller->id );
+        if ($user->id === $this->findByPk($id)->seller->id || $this->userRepo->isAdmin()) {
+            return true;
+        }
+
+        throw new NoPermissionException();
     }
 
 
@@ -148,5 +165,17 @@ class ListingRepository implements ListingRepositoryContract
         }
 
         return $array;
+    }
+
+    /**
+     * @param int $key
+     * @param int $id
+     * @return Model | bool
+     */
+    public function findImage(int $key, int $id)
+    {
+        $image = $this->findByPk($id)->images->where('id', $key)->first();
+
+        return ($image === null) ? false : $image;
     }
 }

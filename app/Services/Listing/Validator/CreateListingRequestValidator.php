@@ -83,7 +83,8 @@ class CreateListingRequestValidator implements AbstractValidator
     public function validateImage(Request $request): array
     {
         $validator = Validator::make($request->only('image'), [
-            'image' => 'nullable|image',
+            'image' => 'array',
+            'image.*' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
 
         return $validator->validate();
@@ -121,7 +122,8 @@ class CreateListingRequestValidator implements AbstractValidator
     public function validateDoc(Request $request): array
     {
         $validator = Validator::make($request->only('doc'), [
-            'doc' => 'nullable|file',
+            'doc' => 'array',
+            'doc.*' => 'nullable|file|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
 
         return $validator->validate();

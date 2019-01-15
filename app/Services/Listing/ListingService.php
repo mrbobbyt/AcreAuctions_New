@@ -5,6 +5,7 @@ namespace App\Services\Listing;
 
 use App\Models\Doc;
 use App\Models\ListingPrice;
+use File;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\Image;
 use App\Models\Listing;
@@ -15,6 +16,7 @@ use App\Services\Listing\Contracts\ListingServiceContract;
 
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Exception;
+use Illuminate\Http\UploadedFile;
 use Throwable;
 use Tymon\JWTAuth\Exceptions\JWTException;
 use Tymon\JWTAuth\Exceptions\TokenExpiredException;
@@ -72,11 +74,15 @@ class ListingService implements ListingServiceContract
         $listingGeo->saveOrFail();
 
         if ($data['image']) {
-            $this->createImage($data['image'], $listing->id);
+            foreach ($data['image']['image'] as $key => $item) {
+                $this->createImage($item, $listing->id);
+            }
         }
 
         if ($data['doc']) {
-            $this->createDoc($data['doc'], $listing->id);
+            foreach ($data['doc']['doc'] as $key => $item) {
+                $this->createDoc($item, $listing->id);
+            }
         }
 
         return $listing;
@@ -85,17 +91,17 @@ class ListingService implements ListingServiceContract
 
 
     /**
-     * @param array $item
-     * @param string $id
+     * @param UploadedFile $item
+     * @param int $id
      * @return bool
      * @throws Throwable
      */
-    protected function createImage($item, $id): bool
+    protected function createImage(UploadedFile $item, int $id): bool
     {
         $image = Image::query()->make()->fill([
             'entity_id' => $id,
             'entity_type' => Image::TYPE_LISTING,
-            'name' => upload_image($item['image'], class_basename($this->model), 'listing'),
+            'name' => upload_image($item, class_basename($this->model), 'listing'),
         ]);
 
         return $image->saveOrFail();
@@ -103,20 +109,38 @@ class ListingService implements ListingServiceContract
 
 
     /**
-     * @param array $item
-     * @param string $id
+     * @param UploadedFile $item
+     * @param int $key
+     * @param int $id
      * @return bool
      * @throws Throwable
      */
-    protected function createDoc($item, $id): bool
+    protected function updateImage(int $key, UploadedFile $item, int $id): bool
     {
-        $image = Doc::query()->make()->fill([
+        if ($image = $this->listingRepo->findImage($key, $id)) {
+            $this->deleteImage($image);
+        }
+        $this->createImage($item, $id);
+
+        return true;
+    }
+
+
+    /**
+     * @param UploadedFile $item
+     * @param int $id
+     * @return bool
+     * @throws Throwable
+     */
+    protected function createDoc(UploadedFile $item, int $id): bool
+    {
+        $doc = Doc::query()->make()->fill([
             'entity_id' => $id,
             'entity_type' => Doc::TYPE_LISTING,
-            'name' => upload_doc($item['doc'], $id, 'doc'),
+            'name' => upload_doc($item, $id, 'doc'),
         ]);
 
-        return $image->saveOrFail();
+        return $doc->saveOrFail();
     }
 
 
@@ -150,11 +174,15 @@ class ListingService implements ListingServiceContract
             $this->updateGeo($data['geo'], $id);
         }
 
-        /***** create new image *****/
-        if ($data['image']) {
-            $this->createImage($data['image'], $id);
+        if ($data['price']) {
+            $this->updatePrice($data['price'], $id);
         }
-        /***** end *****/
+
+        if ($data['image']) {
+            foreach ($data['image']['image'] as $key => $item) {
+                $this->updateImage($key, $item, $id);
+            }
+        }
 
         return $listing;
     }
@@ -180,6 +208,25 @@ class ListingService implements ListingServiceContract
 
 
     /**
+     * Update price listing
+     * @param array $data
+     * @param int $id
+     * @return bool
+     * @throws Throwable
+     */
+    protected function updatePrice(array $data, int $id): bool
+    {
+        $price = $this->listingRepo->findPriceByPk($id);
+
+        foreach ($data as $key => $property) {
+            $price->$key = $property;
+        }
+
+        return $price->saveOrFail();
+    }
+
+
+    /**
      * Delete listing and related models
      * @param int $id
      * @return bool
@@ -195,10 +242,30 @@ class ListingService implements ListingServiceContract
 
         $images = $listing->images;
         foreach ($images as $image) {
-            $image->delete();
+            $this->deleteImage($image);
         }
 
         $listing->delete();
+
+        return true;
+    }
+
+
+    /**
+     * Delete User avatar
+     * @param Model $image
+     * @return bool
+     * @throws Exception
+     */
+    protected function deleteImage(Model $image): bool
+    {
+        if (File::exists(get_image_path('Listing', $image->name))) {
+            File::delete(get_image_path('Listing', $image->name));
+        }
+
+        if ($image) {
+            $image->delete();
+        }
 
         return true;
     }
