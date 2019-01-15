@@ -237,12 +237,20 @@ class ListingService implements ListingServiceContract
     {
         $listing = $this->listingRepo->findByPk($id);
 
-        $geo = $this->listingRepo->findGeoByPk($listing->id);
+        $geo = $this->listingRepo->findGeoByPk($id);
         $geo->delete();
+
+        $price = $this->listingRepo->findPriceByPk($id);
+        $price->delete();
 
         $images = $listing->images;
         foreach ($images as $image) {
             $this->deleteImage($image);
+        }
+
+        $docs = $listing->docs;
+        foreach ($docs as $doc) {
+            $this->deleteDoc($doc);
         }
 
         $listing->delete();
@@ -252,7 +260,6 @@ class ListingService implements ListingServiceContract
 
 
     /**
-     * Delete User avatar
      * @param Model $image
      * @return bool
      * @throws Exception
@@ -265,6 +272,25 @@ class ListingService implements ListingServiceContract
 
         if ($image) {
             $image->delete();
+        }
+
+        return true;
+    }
+
+
+    /**
+     * @param Model $doc
+     * @return bool
+     * @throws Exception
+     */
+    protected function deleteDoc(Model $doc): bool
+    {
+        if (File::exists(get_doc_path($doc->listing_id, $doc->name))) {
+            File::delete(get_doc_path($doc->listing_id, $doc->name));
+        }
+
+        if ($doc) {
+            $doc->delete();
         }
 
         return true;

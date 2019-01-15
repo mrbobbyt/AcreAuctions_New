@@ -166,7 +166,7 @@ class ListingController extends Controller
     public function delete(int $id): JsonResponse
     {
         try {
-            $this->listingRepo->checkPermission($id);
+            $this->listingRepo->checkPermission(\JWTAuth::user(), $id);
             $this->listingService->delete($id);
 
         } catch (ModelNotFoundException $e) {
