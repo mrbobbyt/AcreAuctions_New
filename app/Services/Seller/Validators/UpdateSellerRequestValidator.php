@@ -72,7 +72,8 @@ class UpdateSellerRequestValidator implements AbstractValidator
     protected function validateEmail(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'email' => 'nullable|email',
+            'email' => 'array',
+            'email.*' => 'nullable|email',
         ]);
 
         return $validator->validate();
@@ -88,7 +89,8 @@ class UpdateSellerRequestValidator implements AbstractValidator
     protected function validateTelephone(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'tel' => 'nullable|numeric',
+            'tel' => 'array',
+            'tel.*' => 'nullable|numeric',
         ]);
 
         return $validator->validate();

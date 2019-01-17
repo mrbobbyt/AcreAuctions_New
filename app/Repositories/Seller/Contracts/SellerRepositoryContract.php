@@ -40,22 +40,6 @@ interface SellerRepositoryContract
 
 
     /**
-     * Get related seller telephones
-     * @param SellerResource $seller
-     * @return array
-     */
-    public function getTelephones(SellerResource $seller);
-
-
-    /**
-     * Get related seller telephones
-     * @param SellerResource $seller
-     * @return array
-     */
-    public function getEmails(SellerResource $seller);
-
-
-    /**
      * Check if seller is not verified OR user is authenticate AND not an admin OR company head
      * @param Model $seller
      * @return bool
@@ -77,4 +61,19 @@ interface SellerRepositoryContract
      */
     public function checkPermission(int $id);
 
+
+    /**
+     * @param int $key
+     * @param int $id
+     * @return Model
+     */
+    public function findEmail(int $key, int $id);
+
+
+    /**
+     * @param int $key
+     * @param int $id
+     * @return Model
+     */
+    public function findTelephone(int $key, int $id);
 }

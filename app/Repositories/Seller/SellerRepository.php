@@ -66,32 +66,6 @@ class SellerRepository implements SellerRepositoryContract
 
 
     /**
-     * Get related seller telephones
-     * @param SellerResource $seller
-     * @return array
-     */
-    public function getTelephones(SellerResource $seller): array
-    {
-        return $seller->telephones()
-            ->where('entity_type', Telephone::TYPE_SELLER)
-            ->get()->pluck('number')->toArray();
-    }
-
-
-    /**
-     * Get related seller telephones
-     * @param SellerResource $seller
-     * @return array
-     */
-    public function getEmails(SellerResource $seller): array
-    {
-        return $seller->emails()
-            ->where('entity_type', Email::TYPE_SELLER)
-            ->get()->pluck('email')->toArray();
-    }
-
-
-    /**
      * Check if seller is not verified OR user is authenticate AND not an admin OR company head
      * @param Model $seller
      * @return bool
@@ -123,6 +97,40 @@ class SellerRepository implements SellerRepositoryContract
     public function checkPermission(int $id): bool
     {
          return $this->userRepo->checkPermission( $this->findByPk($id)->user_id );
+    }
+
+
+    /**
+     * @param int $key
+     * @param int $id
+     * @return Model | bool
+     */
+    public function findEmail(int $key, int $id)
+    {
+        $email = Email::query()->where([
+            ['id', $key],
+            ['entity_id', $id],
+            ['entity_type', Email::TYPE_SELLER],
+        ])->first();
+
+        return ($email === null) ? false : $email;
+    }
+
+
+    /**
+     * @param int $key
+     * @param int $id
+     * @return Model | bool
+     */
+    public function findTelephone(int $key, int $id)
+    {
+        $tel = Telephone::query()->where([
+            ['id', $key],
+            ['entity_id', $id],
+            ['entity_type', Telephone::TYPE_SELLER],
+        ])->first();
+
+        return ($tel === null) ? false : $tel;
     }
 
 }

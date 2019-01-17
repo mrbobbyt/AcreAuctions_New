@@ -44,8 +44,8 @@ class ListingResource extends JsonResource
 
             'geo' => $this->geo,
             'price' =>$this->price,
-            'images' => app(ListingRepositoryContract::class)->getImageNames($this) ?? null,
-            'docs' => app(ListingRepositoryContract::class)->getDocNames($this) ?? null,
+            'images' => $this->images,
+            'docs' => $this->docs,
         ];
     }
 }

@@ -28,12 +28,12 @@ class SellerResource extends JsonResource
             'id' => $this->id,
             'head' => $this->getHead->getFullName(),
             'title' => $this->title,
-            'description' => $this->description ?? null,
+            'description' => $this->description,
             'logo' => $this->logo ? get_image_path('Seller', $this->logo->name) : null,
             'cover' => $this->cover ? get_image_path('Seller', $this->cover->name) : null,
-            'telephones' => app(SellerRepositoryContract::class)->getTelephones($this) ?? null,
-            'email' =>app(SellerRepositoryContract::class)->getEmails($this) ?? null,
-            'address' => $this->address ?? null,
+            'telephones' => $this->telephones,
+            'email' => $this->emails,
+            'address' => $this->address,
         ];
     }
 }

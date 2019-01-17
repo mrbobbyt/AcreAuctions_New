@@ -38,7 +38,6 @@ class CreateSellerRequestValidator implements AbstractValidator
         $validator = Validator::make($request->all(), [
             'title' => 'required|string|max:255|min:3',
             'description' => 'nullable|string',
-            'email' => 'nullable|string|email|max:255',
             'address' => 'nullable|string|max:255'
         ]);
 
@@ -72,7 +71,8 @@ class CreateSellerRequestValidator implements AbstractValidator
     protected function validateEmail(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'email' => 'nullable|email',
+            'email' => 'array',
+            'email.*' => 'nullable|email',
         ]);
 
         return $validator->validate();
@@ -88,7 +88,8 @@ class CreateSellerRequestValidator implements AbstractValidator
     protected function validateTelephone(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'tel' => 'nullable|numeric',
+            'tel' => 'array',
+            'tel.*' => 'nullable|numeric',
         ]);
 
         return $validator->validate();

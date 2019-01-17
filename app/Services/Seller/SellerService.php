@@ -61,11 +61,15 @@ class SellerService implements SellerServiceContract
         }
 
         if ($data['email']) {
-            $this->createEmail($data['email'], $seller->id);
+            foreach ($data['email']['email'] as $key => $item) {
+                $this->createEmail($item, $seller->id);
+            }
         }
 
         if ($data['tel']) {
-            $this->createTelephone($data['tel'], $seller->id);
+            foreach ($data['tel']['tel'] as $key => $item) {
+                $this->createTelephone((int)$item, $seller->id);
+            }
         }
 
         return $seller;
@@ -105,17 +109,16 @@ class SellerService implements SellerServiceContract
             }
         }
 
-        /**
-         * only create new emails and telephones, not update
-         * don`t understand how best realize without front
-         */
         if ($data['email']) {
-            $this->createEmail($data['email'], $id);
+            foreach ($data['email']['email'] as $key => $item) {
+                $this->updateEmail($key, $item, $id);
+            }
         }
         if ($data['tel']) {
-            $this->createTelephone($data['tel'], $id);
+            foreach ($data['tel']['tel'] as $key => $item) {
+                $this->updateTelephone($key, $item, $id);
+            }
         }
-        /** end **/
 
         if ($data['body']) {
             if (isset($data['body']['title']) && $data['body']['title']) {
@@ -226,43 +229,74 @@ class SellerService implements SellerServiceContract
 
     /**
      * Save emails
-     * @param array $data
+     * @param string $email
      * @param int $id
      * @return bool
      * @throws Throwable
      */
-    protected function createEmail(array $data, int $id)
+    protected function createEmail(string $email, int $id)
     {
-        foreach ($data as $email) {
-            $model = Email::query()->make()->fill([
-                'entity_id' => $id,
-                'entity_type' => Email::TYPE_SELLER,
-                'email' => $email,
-            ]);
+        $model = Email::query()->make()->fill([
+            'entity_id' => $id,
+            'entity_type' => Email::TYPE_SELLER,
+            'email' => $email,
+        ]);
 
-            return $model->saveOrFail();
-        }
+        return $model->saveOrFail();
     }
 
 
     /**
      * Save telephones
-     * @param array $data
+     * @param int $tel
      * @param int $id
      * @return bool
      * @throws Throwable
      */
-    protected function createTelephone(array $data, int $id)
+    protected function createTelephone(int $tel, int $id)
     {
-        foreach ($data as $tel) {
-            $model = Telephone::query()->make()->fill([
-                'entity_id' => $id,
-                'entity_type' => Telephone::TYPE_SELLER,
-                'number' => $tel,
-            ]);
+        $model = Telephone::query()->make()->fill([
+            'entity_id' => $id,
+            'entity_type' => Telephone::TYPE_SELLER,
+            'number' => $tel,
+        ]);
 
-            return $model->saveOrFail();
+        return $model->saveOrFail();
+    }
+
+
+    /**
+     * @param int $key
+     * @param string $item
+     * @param int $id
+     * @return bool
+     * @throws Throwable
+     */
+    protected function updateEmail(int $key, string $item, int $id): bool
+    {
+        if ($email = $this->sellerRepo->findEmail($key, $id)) {
+            $email->email = $item;
+            return $email->saveOrFail();
         }
+
+        return $this->createEmail($item, $id);
+    }
+
+
+    /**
+     * @param int $key
+     * @param string $item
+     * @param int $id
+     * @return bool
+     * @throws Throwable
+     */
+    protected function updateTelephone(int $key, string $item, int $id): bool
+    {
+        if ($tel = $this->sellerRepo->findTelephone($key, $id)) {
+            $tel->number = $item;
+            return $tel->saveOrFail();
+        }
+        return $this->createEmail($item, $id);
     }
 
 
