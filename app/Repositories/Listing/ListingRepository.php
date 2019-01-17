@@ -167,6 +167,7 @@ class ListingRepository implements ListingRepositoryContract
         return $array;
     }
 
+
     /**
      * @param int $key
      * @param int $id

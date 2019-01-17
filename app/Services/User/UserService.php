@@ -5,6 +5,7 @@ namespace App\Services\User;
 
 use App\Models\Image;
 use App\Repositories\User\Contracts\UserRepositoryContract;
+use App\Services\Auth\Contracts\UserAuthServiceContract;
 use App\Services\User\Contracts\UserServiceContract;
 use File;
 use Illuminate\Database\Eloquent\Model;
@@ -15,10 +16,12 @@ use Throwable;
 class UserService implements UserServiceContract
 {
     protected $userRepo;
+    protected $userAuthService;
 
-    public function __construct(UserRepositoryContract $userRepo)
+    public function __construct(UserRepositoryContract $userRepo, UserAuthServiceContract $userAuthService)
     {
         $this->userRepo = $userRepo;
+        $this->userAuthService = $userAuthService;
     }
 
 
@@ -38,8 +41,9 @@ class UserService implements UserServiceContract
             $user->$key = $property;
         }
         $user->saveOrFail();
+
         if ($data['image']) {
-            $this->updateAvatar($data['image'], $user->id);
+            $this->updateAvatar($data['image'], $id);
         }
 
         return $user;
@@ -69,6 +73,7 @@ class UserService implements UserServiceContract
      * @param int $id
      * @return bool
      * @throws Exception
+     * @throws Throwable
      */
     protected function updateAvatar(array $data, int $id): bool
     {
@@ -77,12 +82,19 @@ class UserService implements UserServiceContract
                 ['entity_id', $id],
                 ['entity_type', Image::TYPE_USER_AVATAR]
             ])
-            ->updateOrCreate([
-                'name' => upload_image($data['avatar'], 'User', 'avatar'),
-                'updated_at' => date('Y-m-d H:i:s'),
-            ]);
+            ->first();
 
-        return (bool)$image;
+        if ($image === null) {
+            return $this->userAuthService->createAvatar($data, $id);
+        }
+
+        if (File::exists(get_image_path('User', $image->name))) {
+            File::delete(get_image_path('User', $image->name));
+        }
+        $image->name = upload_image($data['avatar'], 'User', 'avatar');
+        $image->updated_at = date('Y-m-d H:i:s');
+
+        return $image->saveOrFail();
     }
 
 

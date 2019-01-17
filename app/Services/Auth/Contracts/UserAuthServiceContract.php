@@ -53,4 +53,13 @@ interface UserAuthServiceContract
      */
     public function createOrLogin(array $data);
 
+
+    /**
+     * Create User avatar
+     * @param array $data
+     * @param int $id
+     * @return bool
+     * @throws Throwable
+     */
+    public function createAvatar(array $data, int $id);
 }

@@ -195,6 +195,13 @@ class SellerService implements SellerServiceContract
                 ['entity_type', ($name === 'logo') ? Image::TYPE_SELLER_LOGO : Image::TYPE_SELLER_COVER]
             ])->first();
 
+        if ($image === null) {
+            return $this->createImages($name, $item, $id);
+        }
+
+        if (File::exists(get_image_path('Seller', $image->name))) {
+            File::delete(get_image_path('Seller', $image->name));
+        }
         $image->name = upload_image($item, class_basename($this->model), $name);
         $image->updated_at = date('Y-m-d H:i:s');
 

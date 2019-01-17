@@ -10,8 +10,6 @@ use Illuminate\Http\Resources\Json\JsonResource;
  * @property int id
  * @property string title
  * @property string description
- * @property string logo
- * @property string cover
  * @property string email
  * @property string address
  */
@@ -29,8 +27,8 @@ class SellerResource extends JsonResource
             'head' => $this->getHead->getFullName(),
             'title' => $this->title,
             'description' => $this->description,
-            'logo' => $this->logo ? get_image_path('Seller', $this->logo->name) : null,
-            'cover' => $this->cover ? get_image_path('Seller', $this->cover->name) : null,
+            'logo' => $this->logo,
+            'cover' => $this->cover,
             'telephones' => $this->telephones,
             'email' => $this->emails,
             'address' => $this->address,
