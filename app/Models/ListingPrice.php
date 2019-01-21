@@ -14,7 +14,6 @@ use Illuminate\Database\Eloquent\Model;
  * @property int processing_fee
  * @property int percentage_rate
  * @property int financial_term
- * @property int yearly_dues
  * @property int taxes
  */
 class ListingPrice extends Model
@@ -22,8 +21,7 @@ class ListingPrice extends Model
     use ModelBuilderScopes;
 
     protected $fillable = [
-        'listing_id', 'price', 'monthly_payment', 'processing_fee', 'percentage_rate', 'financial_term', 'yearly_dues',
-        'taxes',
+        'listing_id', 'price', 'monthly_payment', 'processing_fee', 'percentage_rate', 'financial_term', 'taxes',
     ];
 
     protected $guarded = ['id'];

@@ -3,7 +3,7 @@
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateDocsTable extends Migration
+class CreatePropertyTypesTable extends Migration
 {
     /**
      * Run the migrations.
@@ -12,13 +12,9 @@ class CreateDocsTable extends Migration
      */
     public function up()
     {
-        Schema::create('docs', function (Blueprint $table) {
+        Schema::create('property_types', function (Blueprint $table) {
             $table->increments('id');
-            $table->integer('entity_id');
-            $table->integer('entity_type');
-            $table->string('url');
-            $table->string('desc')->nullable();
-            $table->timestamps();
+            $table->string('name');
         });
     }
 
@@ -29,6 +25,6 @@ class CreateDocsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('docs');
+        Schema::dropIfExists('property_types');
     }
 }

@@ -28,6 +28,7 @@ class CreateListingsTable extends Migration
             $table->smallInteger('zoning')
                 ->comment('categories');
             $table->string('zoning_desc')->nullable();
+            $table->smallInteger('property_type');
             $table->timestamps();
         });
     }

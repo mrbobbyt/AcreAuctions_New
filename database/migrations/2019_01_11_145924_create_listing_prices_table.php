@@ -20,7 +20,6 @@ class CreateListingPricesTable extends Migration
             $table->integer('processing_fee')->nullable();
             $table->integer('financial_term');
             $table->integer('percentage_rate');
-            $table->integer('yearly_dues')->nullable();
             $table->integer('taxes')->nullable();
             $table->timestamps();
         });

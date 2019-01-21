@@ -20,7 +20,7 @@ class CreateListingGeosTable extends Migration
             $table->string('county')->nullable()->comment('district');
             $table->string('city');
             $table->string('address');
-            $table->string('road_access');
+            $table->smallInteger('road_access');
             $table->double('longitude');
             $table->double('latitude');
             $table->timestamps();

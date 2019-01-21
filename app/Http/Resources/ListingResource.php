@@ -41,11 +41,16 @@ class ListingResource extends JsonResource
             'utilities' => $this->getUtilities->name,
             'zoning' => $this->getZoning->name,
             'zoning_desc' => $this->zoning_desc,
+            'property type' => $this->getPropertyType->name,
 
             'geo' => $this->geo,
+            'road access' => $this->geo->getRoadAccess->name,
             'price' =>$this->price,
+            'subdivision' =>$this->subdivision ?? null,
             'images' => $this->images,
             'docs' => $this->docs,
+            'links' => $this->links,
+            'videos' => $this->videos,
         ];
     }
 }

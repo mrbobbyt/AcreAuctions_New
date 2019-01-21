@@ -5,6 +5,7 @@ namespace App\Models;
 
 use App\Traits\ModelBuilderScopes;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
  * @property int id
@@ -14,7 +15,7 @@ use Illuminate\Database\Eloquent\Model;
  * @property string county
  * @property string city
  * @property string address
- * @property string road_access
+ * @property int road_access
  * @property double longitude
  * @property double latitude
  */
@@ -30,4 +31,13 @@ class ListingGeo extends Model
 
     protected $hidden = ['created_at', 'updated_at', 'listing_id'];
 
+
+    /**
+     * Get listing road access
+     * @return BelongsTo
+     */
+    public function getRoadAccess()
+    {
+        return $this->belongsTo('App\Models\RoadAccess', 'road_access', 'id');
+    }
 }

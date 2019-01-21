@@ -12,9 +12,10 @@ use Illuminate\Database\Eloquent\Model;
  * @property string name
  * @property string desc
  */
-class Doc extends Model
+class Url extends Model
 {
-    const TYPE_LISTING = 1;
+    const TYPE_LISTING_LINK = 1;
+    const TYPE_LISTING_YOUTUBE = 2;
 
     protected $fillable = ['entity_id', 'entity_type', 'name', 'desc'];
 

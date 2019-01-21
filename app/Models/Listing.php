@@ -107,4 +107,46 @@ class Listing extends Model
     {
         return $this->belongsTo('App\Models\Zoning', 'zoning', 'id');
     }
+
+
+    /**
+     * Get listing subdivision
+     * @return HasOne
+     */
+    public function subdivision()
+    {
+        return $this->hasOne('App\Models\Subdivision');
+    }
+
+
+    /**
+     * Get related urls
+     * @return HasMany
+     */
+    public function links()
+    {
+        return $this->hasMany('App\Models\Url', 'entity_id', 'id')
+            ->where('entity_type', Url::TYPE_LISTING_LINK);
+    }
+
+
+    /**
+     * Get related videos
+     * @return HasMany
+     */
+    public function videos()
+    {
+        return $this->hasMany('App\Models\Url', 'entity_id', 'id')
+            ->where('entity_type', Url::TYPE_LISTING_YOUTUBE);
+    }
+
+
+    /**
+     * Get listing property types
+     * @return BelongsTo
+     */
+    public function getPropertyType()
+    {
+        return $this->belongsTo('App\Models\PropertyType', 'property_type', 'id');
+    }
 }
