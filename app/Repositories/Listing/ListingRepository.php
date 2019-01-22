@@ -4,12 +4,12 @@ declare(strict_types = 1);
 namespace App\Repositories\Listing;
 
 use App\Http\Resources\ListingResource;
-use App\Models\Image;
 use App\Models\Listing;
 use App\Models\ListingGeo;
 use App\Models\ListingPrice;
+use App\Models\Subdivision;
+use App\Models\Url;
 use App\Repositories\User\Contracts\UserRepositoryContract;
-use App\Repositories\User\Exceptions\NoPermissionException;
 use Tymon\JWTAuth\Exceptions\JWTException;
 use App\Repositories\Listing\Contracts\ListingRepositoryContract;
 use Illuminate\Database\Eloquent\Model;
@@ -124,23 +124,6 @@ class ListingRepository implements ListingRepositoryContract
 
 
     /**
-     * Check user`s permission to make action
-     * @param $user
-     * @param int $id
-     * @return bool
-     * @throws NoPermissionException
-     */
-    public function checkPermission($user, int $id): bool
-    {
-        if ($user->id === $this->findByPk($id)->seller->id || $this->userRepo->isAdmin()) {
-            return true;
-        }
-
-        throw new NoPermissionException();
-    }
-
-
-    /**
      * Get related documents
      * @param ListingResource $listing
      * @return array
@@ -178,5 +161,45 @@ class ListingRepository implements ListingRepositoryContract
         $image = $this->findByPk($id)->images->where('id', $key)->first();
 
         return ($image === null) ? false : $image;
+    }
+
+
+    /**
+     * @param int $id
+     * @return Model
+     */
+    public function findSubByPk(int $id): Model
+    {
+        return Subdivision::query()->where('listing_id', $id)->firstOrFail();
+    }
+
+
+    /**
+     * @param int $key
+     * @param int $id
+     * @return Model | bool
+     */
+    public function findDoc(int $key, int $id)
+    {
+        $doc = $this->findByPk($id)->docs->where('id', $key)->first();
+
+        return ($doc === null) ? false : $doc;
+    }
+
+    /**
+     * @param int $type
+     * @param int $key
+     * @param int $id
+     * @return Model | bool
+     */
+    public function findUrl(int $type, int $key, int $id)
+    {
+        if ($type === Url::TYPE_LISTING_LINK) {
+            $url = $this->findByPk($id)->links->where('id', $key)->first();
+        } else {
+            $url = $this->findByPk($id)->videos->where('id', $key)->first();
+        }
+
+        return ($url === null) ? false : $url;
     }
 }

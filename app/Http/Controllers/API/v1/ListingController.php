@@ -118,15 +118,9 @@ class ListingController extends Controller
     public function update(Request $request, int $id): JsonResponse
     {
         try {
-            $this->listingRepo->checkPermission(\JWTAuth::user(), $id);
             $data = (new UpdateListingRequestValidator)->attempt($request);
             $listing = $this->listingService->update($data, $id);
 
-        } catch (NoPermissionException $e) {
-            return response()->json([
-                'status' => 'Error',
-                'message' => $e->getMessage()
-            ], 403);
         } catch (ValidationException $e) {
             return response()->json([
                 'status' => 'Error',
@@ -166,7 +160,6 @@ class ListingController extends Controller
     public function delete(int $id): JsonResponse
     {
         try {
-            $this->listingRepo->checkPermission(\JWTAuth::user(), $id);
             $this->listingService->delete($id);
 
         } catch (ModelNotFoundException $e) {

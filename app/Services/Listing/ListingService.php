@@ -154,7 +154,6 @@ class ListingService implements ListingServiceContract
      */
     protected function createDoc(array $item, int $id): bool
     {
-        //dd($item);
         $doc = Doc::query()->make()->fill([
             'entity_id' => $id,
             'entity_type' => Doc::TYPE_LISTING,
@@ -220,9 +219,30 @@ class ListingService implements ListingServiceContract
             $this->updatePrice($data['price'], $id);
         }
 
+        if ($data['subdivision']) {
+            $this->updateSub($data['subdivision']['subdivision'], $id);
+        }
+
         if ($data['image']) {
             foreach ($data['image']['image'] as $key => $item) {
                 $this->updateImage($key, $item, $id);
+            }
+        }
+
+        if ($data['doc']) {
+            foreach ($data['doc'] as $arr) {
+                foreach ($arr as $key => $item) {
+                    $this->updateDoc($key, $item,  $listing->id);
+                }
+            }
+        }
+
+        if ($data['url']) {
+            foreach ($data['url'] as $key => $arr) {
+                foreach ($arr as $urlKey => $item) {
+                    $type = ($key === 'link' ? Url::TYPE_LISTING_LINK : Url::TYPE_LISTING_YOUTUBE);
+                    $this->updateUrl($type , $urlKey, $item, $listing->id);
+                }
             }
         }
 
@@ -265,6 +285,24 @@ class ListingService implements ListingServiceContract
         }
 
         return $price->saveOrFail();
+    }
+
+
+    /**
+     * @param array $data
+     * @param int $id
+     * @return bool
+     * @throws Throwable
+     */
+    protected function updateSub(array $data, int $id): bool
+    {
+        $sub = $this->listingRepo->findSubByPk($id);
+
+        foreach ($data as $key => $property) {
+            $sub->$key = $property;
+        }
+
+        return $sub->saveOrFail();
     }
 
 
@@ -336,6 +374,45 @@ class ListingService implements ListingServiceContract
         }
 
         return true;
+    }
+
+
+    /**
+     * @param int $key
+     * @param array $item
+     * @param int $id
+     * @return bool
+     * @throws Throwable
+     */
+    protected function updateDoc(int $key, array $item, int $id): bool
+    {
+        if ($doc = $this->listingRepo->findDoc($key, $id)) {
+            $this->deleteDoc($doc);
+        }
+        $this->createDoc($item, $id);
+
+        return true;
+    }
+
+
+    /**
+     * @param int $type
+     * @param int $key
+     * @param array $item
+     * @param int $id
+     * @return bool
+     * @throws Throwable
+     */
+    protected function updateUrl(int $type , int $key, array $item, int $id): bool
+    {
+        if ($url = $this->listingRepo->findUrl($type, $key, $id)) {
+            foreach ($item as $key => $property) {
+                $url->$key = $property;
+            }
+
+            return $url->saveOrFail();
+        }
+        return $this->createUrl($type, $item, $id);
     }
 
 }

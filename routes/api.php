@@ -71,10 +71,10 @@ Route::post('land-for-sale/create', 'API\v1\ListingController@create')
     ->middleware('jwt.verify');
 
 Route::post('land-for-sale/{id}/update', 'API\v1\ListingController@update')
-    ->middleware('jwt.verify');
+    ->middleware('jwt.verify', 'listing.permission');
 
 Route::get('land-for-sale/{id}/delete', 'API\v1\ListingController@delete')
-    ->middleware('jwt.verify');
+    ->middleware('jwt.verify', 'listing.permission');
 
 
 /********* Search *********/

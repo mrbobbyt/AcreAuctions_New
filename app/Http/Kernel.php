@@ -64,6 +64,7 @@ class Kernel extends HttpKernel
 
         'jwt.verify' => \App\Http\Middleware\JwtMiddleware::class,
         'admin' => \App\Http\Middleware\IsAdmin::class,
+        'listing.permission' => \App\Http\Middleware\ListingCheckPermission::class,
     ];
 
     /**

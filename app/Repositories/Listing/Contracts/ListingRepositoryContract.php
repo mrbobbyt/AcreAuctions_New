@@ -71,13 +71,18 @@ interface ListingRepositoryContract
 
 
     /**
-     * Check user`s permission to make action
-     * @param $user
+     * @param int $key
      * @param int $id
-     * @return bool
-     * @throws NoPermissionException
+     * @return Model | bool
      */
-    public function checkPermission($user, int $id);
+    public function findImage(int $key, int $id);
+
+
+    /**
+     * @param int $id
+     * @return Model
+     */
+    public function findSubByPk(int $id);
 
 
     /**
@@ -85,5 +90,14 @@ interface ListingRepositoryContract
      * @param int $id
      * @return Model | bool
      */
-    public function findImage(int $key, int $id);
+    public function findDoc(int $key, int $id);
+
+
+    /**
+     * @param int $type
+     * @param int $key
+     * @param int $id
+     * @return Model | bool
+     */
+    public function findUrl(int $type, int $key, int $id);
 }
