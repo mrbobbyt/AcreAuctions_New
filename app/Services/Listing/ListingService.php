@@ -323,6 +323,9 @@ class ListingService implements ListingServiceContract
         $price = $this->listingRepo->findPriceByPk($id);
         $price->delete();
 
+        $sub = $this->listingRepo->findSubByPk($id);
+        $sub->delete();
+
         $images = $listing->images;
         foreach ($images as $image) {
             $this->deleteImage($image);
@@ -331,6 +334,15 @@ class ListingService implements ListingServiceContract
         $docs = $listing->docs;
         foreach ($docs as $doc) {
             $this->deleteDoc($doc);
+        }
+
+        $links = $listing->links;
+        foreach ($links as $link) {
+            $link->delete();
+        }
+        $videos = $listing->videos;
+        foreach ($videos as $video) {
+            $video->delete();
         }
 
         $listing->delete();
