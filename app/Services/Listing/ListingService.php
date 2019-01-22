@@ -5,6 +5,8 @@ namespace App\Services\Listing;
 
 use App\Models\Doc;
 use App\Models\ListingPrice;
+use App\Models\Subdivision;
+use App\Models\Url;
 use File;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\Image;
@@ -29,17 +31,20 @@ class ListingService implements ListingServiceContract
     protected $modelGeo;
     protected $modelPrice;
     protected $listingRepo;
+    protected $sub;
 
     public function __construct(
         Listing $listing,
         ListingGeo $listingGeo,
         ListingPrice $listingPrice,
-        ListingRepositoryContract $listingRepo
+        ListingRepositoryContract $listingRepo,
+        Subdivision $sub
     ) {
         $this->model = $listing;
         $this->modelGeo = $listingGeo;
         $this->modelPrice = $listingPrice;
         $this->listingRepo = $listingRepo;
+        $this->sub = $sub;
     }
 
 
@@ -69,9 +74,13 @@ class ListingService implements ListingServiceContract
         $listingGeo->listing_id = $listing->id;
         $listingGeo->saveOrFail();
 
-        $listingGeo = $this->modelPrice->query()->make()->fill($data['price']);
-        $listingGeo->listing_id = $listing->id;
-        $listingGeo->saveOrFail();
+        $listingPrice = $this->modelPrice->query()->make()->fill($data['price']);
+        $listingPrice->listing_id = $listing->id;
+        $listingPrice->saveOrFail();
+
+        $sub = $this->sub->query()->make()->fill($data['subdivision']['subdivision']);
+        $sub->listing_id = $listing->id;
+        $sub->saveOrFail();
 
         if ($data['image']) {
             foreach ($data['image']['image'] as $key => $item) {
@@ -80,8 +89,19 @@ class ListingService implements ListingServiceContract
         }
 
         if ($data['doc']) {
-            foreach ($data['doc']['doc'] as $key => $item) {
-                $this->createDoc($item, $listing->id);
+            foreach ($data['doc'] as $arr) {
+                foreach ($arr as $item) {
+                    $this->createDoc($item,  $listing->id);
+                }
+            }
+        }
+
+        if ($data['url']) {
+            foreach ($data['url'] as $key => $arr) {
+                foreach ($arr as $item) {
+                    $type = ($key === 'link' ? Url::TYPE_LISTING_LINK : Url::TYPE_LISTING_YOUTUBE);
+                    $this->createUrl($type , $item, $listing->id);
+                }
             }
         }
 
@@ -127,20 +147,42 @@ class ListingService implements ListingServiceContract
 
 
     /**
-     * @param UploadedFile $item
+     * @param array $item
      * @param int $id
      * @return bool
      * @throws Throwable
      */
-    protected function createDoc(UploadedFile $item, int $id): bool
+    protected function createDoc(array $item, int $id): bool
     {
+        //dd($item);
         $doc = Doc::query()->make()->fill([
             'entity_id' => $id,
             'entity_type' => Doc::TYPE_LISTING,
-            'name' => upload_doc($item, $id, 'doc'),
+            'name' => upload_doc($item['name'], $id, 'doc'),
+            'desc' => $item['desc'] ?? null
         ]);
 
         return $doc->saveOrFail();
+    }
+
+
+    /**
+     * @param int $type
+     * @param array $item
+     * @param int $id
+     * @return bool
+     * @throws Throwable
+     */
+    protected function createUrl(int $type, array $item, int $id): bool
+    {
+        $url = Url::query()->make()->fill([
+            'entity_id' => $id,
+            'entity_type' => $type,
+            'name' => $item['name'],
+            'desc' => $item['desc'] ?? null
+        ]);
+
+        return $url->saveOrFail();
     }
 
 

@@ -15,6 +15,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property string county
  * @property string city
  * @property string address
+ * @property int zip
  * @property int road_access
  * @property double longitude
  * @property double latitude
@@ -24,7 +25,7 @@ class ListingGeo extends Model
     use ModelBuilderScopes;
 
     protected $fillable = [
-        'listing_id', 'state', 'county', 'city', 'address', 'longitude', 'latitude', 'acreage', 'road_access'
+        'listing_id', 'state', 'county', 'city', 'address', 'zip', 'longitude', 'latitude', 'acreage', 'road_access'
     ];
 
     protected $guarded = ['id'];

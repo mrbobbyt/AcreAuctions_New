@@ -17,9 +17,10 @@ class CreateListingGeosTable extends Migration
             $table->integer('listing_id');
             $table->double('acreage');
             $table->string('state');
-            $table->string('county')->nullable()->comment('district');
+            $table->string('county')->comment('district');
             $table->string('city');
             $table->string('address');
+            $table->integer('zip');
             $table->smallInteger('road_access');
             $table->double('longitude');
             $table->double('latitude');

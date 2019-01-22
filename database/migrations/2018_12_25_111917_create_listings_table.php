@@ -17,9 +17,9 @@ class CreateListingsTable extends Migration
             $table->string('inner_listing_id')->nullable();
             $table->string('apn');
             $table->string('title');
-            $table->string('subtitle')->nullable();
+            $table->string('subtitle');
             $table->string('slug');
-            $table->text('description')->nullable();
+            $table->text('description');
             $table->boolean('is_featured')->default(0);
             $table->boolean('is_verified')->default(0);
             $table->integer('seller_id')
@@ -27,7 +27,7 @@ class CreateListingsTable extends Migration
             $table->smallInteger('utilities');
             $table->smallInteger('zoning')
                 ->comment('categories');
-            $table->string('zoning_desc')->nullable();
+            $table->string('zoning_desc');
             $table->smallInteger('property_type');
             $table->timestamps();
         });

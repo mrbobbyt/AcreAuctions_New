@@ -3,8 +3,6 @@ declare(strict_types = 1);
 
 namespace App\Services\Listing\Validator;
 
-use App\Rules\CheckUtilities;
-use App\Rules\CheckZoning;
 use App\Services\Auth\Validators\AbstractValidator;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
@@ -26,6 +24,8 @@ class CreateListingRequestValidator implements AbstractValidator
             'price' => $this->validatePrice($request),
             'image' => $this->validateImage($request),
             'doc' => $this->validateDoc($request),
+            'url' => $this->validateUrl($request),
+            'subdivision' => $this->validateSub($request),
         ];
     }
 
@@ -38,13 +38,14 @@ class CreateListingRequestValidator implements AbstractValidator
     public function validateBody(Request $request): array
     {
         $validator = Validator::make($request->all(), [
-            'title' => 'required|string|max:255|min:3',
             'apn' => 'required|numeric',
-            'subtitle' => 'nullable|string|max:255|min:3',
-            'description' => 'nullable|string',
-            'utilities' => ['required', 'numeric', new CheckUtilities()],
-            'zoning' => ['required', 'numeric', new CheckZoning()],
-            'zoning_desc' => 'nullable|string',
+            'title' => 'required|string|max:255|min:3',
+            'subtitle' => 'required|string|max:255|min:3',
+            'description' => 'required|string',
+            'utilities' => 'required|numeric|exists:utilities,id',
+            'zoning' => 'required|numeric|exists:zonings,id',
+            'zoning_desc' => 'required|string',
+            'property_type' => 'required|numeric|exists:property_types,id',
         ]);
 
         return $validator->validate();
@@ -62,10 +63,11 @@ class CreateListingRequestValidator implements AbstractValidator
         $validator = Validator::make($request->all(), [
             'acreage' => 'required|numeric',
             'state' => 'required|string',
-            'county' => 'nullable|string',
+            'county' => 'required|string',
             'city' => 'required|string',
             'address' => 'required|string',
-            'road_access' => 'nullable|string',
+            'zip' => 'required|numeric',
+            'road_access' => 'required|numeric',
             'longitude' => 'required|numeric',
             'latitude' => 'required|numeric',
         ]);
@@ -105,7 +107,6 @@ class CreateListingRequestValidator implements AbstractValidator
             'processing_fee' => 'nullable|numeric',
             'financial_term' => 'required|numeric',
             'percentage_rate' => 'required|numeric',
-            'yearly_dues' => 'nullable|numeric',
             'taxes' => 'nullable|numeric',
         ]);
 
@@ -123,7 +124,49 @@ class CreateListingRequestValidator implements AbstractValidator
     {
         $validator = Validator::make($request->only('doc'), [
             'doc' => 'array',
-            'doc.*' => 'nullable|file|mimes:jpeg,png,jpg,gif|max:2048',
+            'doc.*.name' => 'nullable|file|mimes:jpeg,png,jpg,gif|max:2048',
+            'doc.*.desc' => 'nullable|string',
+        ]);
+
+        return $validator->validate();
+    }
+
+
+    /**
+     * Validate given data
+     * @param Request $request
+     * @return array
+     * @throws ValidationException
+     */
+    public function validateUrl(Request $request): array
+    {
+        $urlRegex = '/^(http:\/\/www\.|https:\/\/www\.|http:\/\/|https:\/\/)?[a-z0-9]+([\-\.]{1}[a-z0-9]+)*\.[a-z]{2,5}(:[0-9]{1,5})?(\/.*)?$/';
+
+        $validator = Validator::make($request->only('link', 'video'), [
+            'link' => 'array',
+            'link.*.name' => ['nullable', 'string', 'regex:'. $urlRegex],
+            'link.*.desc' => 'nullable|string',
+            'video' => 'array',
+            'video.*.name' => ['nullable', 'string', 'regex:'. $urlRegex],
+            'video.*.desc' => 'nullable|string',
+        ]);
+
+        return $validator->validate();
+    }
+
+
+    /**
+     * Validate given data
+     * @param Request $request
+     * @return array
+     * @throws ValidationException
+     */
+    public function validateSub(Request $request): array
+    {
+        $validator = Validator::make($request->only('subdivision'), [
+            'subdivision' => 'array',
+            'subdivision.name' => 'nullable|string',
+            'subdivision.yearly_dues' => 'nullable|numeric',
         ]);
 
         return $validator->validate();

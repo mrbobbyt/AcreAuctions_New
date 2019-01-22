@@ -27,7 +27,7 @@ class Listing extends Model
 {
     protected $fillable = [
         'inner_listing_id', 'apn', 'title', 'subtitle', 'slug', 'description', 'is_featured', 'is_verified',
-        'seller_id', 'utilities', 'zoning', 'zoning_desc',
+        'seller_id', 'utilities', 'zoning', 'zoning_desc', 'property_type'
     ];
 
     protected $guarded = ['id'];
