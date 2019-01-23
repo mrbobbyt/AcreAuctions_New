@@ -3,12 +3,15 @@ declare(strict_types = 1);
 
 namespace App\Repositories\Listing;
 
-use App\Http\Resources\ListingResource;
 use App\Models\Listing;
 use App\Models\ListingGeo;
 use App\Models\ListingPrice;
+use App\Models\PropertyType;
+use App\Models\RoadAccess;
 use App\Models\Subdivision;
 use App\Models\Url;
+use App\Models\Utility;
+use App\Models\Zoning;
 use App\Repositories\User\Contracts\UserRepositoryContract;
 use Tymon\JWTAuth\Exceptions\JWTException;
 use App\Repositories\Listing\Contracts\ListingRepositoryContract;
@@ -18,14 +21,6 @@ use Tymon\JWTAuth\Exceptions\TokenInvalidException;
 
 class ListingRepository implements ListingRepositoryContract
 {
-    protected $userRepo;
-
-    public function __construct(UserRepositoryContract $userRepo)
-    {
-        $this->userRepo = $userRepo;
-    }
-
-
     /**
      * Find listing by url
      * @param string $slug
@@ -56,34 +51,6 @@ class ListingRepository implements ListingRepositoryContract
     public function findByTitle(string $title): bool
     {
         return Listing::query()->where('title', $title)->exists();
-    }
-
-
-    /**
-     * Get related images
-     * @param ListingResource $listing
-     * @return array
-     */
-    protected function getImages(ListingResource $listing): array
-    {
-        return $listing->images()
-            ->get()->pluck('name')->toArray();
-    }
-
-
-    /**
-     * Get related images
-     * @param ListingResource $listing
-     * @return array
-     */
-    public function getImageNames(ListingResource $listing): array
-    {
-        $array = [];
-        foreach ($this->getImages($listing) as $i) {
-            array_push($array, get_image_path('Listing', $i));
-        }
-
-        return $array;
     }
 
 
@@ -120,34 +87,6 @@ class ListingRepository implements ListingRepositoryContract
     public function findPriceByPk(int $id): Model
     {
         return ListingPrice::query()->where('listing_id', $id)->firstOrFail();
-    }
-
-
-    /**
-     * Get related documents
-     * @param ListingResource $listing
-     * @return array
-     */
-    protected function getDocs(ListingResource $listing): array
-    {
-        return $listing->docs()
-            ->get()->pluck('name', 'id')->toArray();
-    }
-
-
-    /**
-     * Get related documents
-     * @param ListingResource $listing
-     * @return array
-     */
-    public function getDocNames(ListingResource $listing): array
-    {
-        $array = [];
-        foreach ($this->getDocs($listing) as $i) {
-            array_push($array, get_doc_path($listing->id, $i));
-        }
-
-        return $array;
     }
 
 
@@ -202,4 +141,41 @@ class ListingRepository implements ListingRepositoryContract
 
         return ($url === null) ? false : $url;
     }
+
+
+    /**
+     * @return array
+     */
+    public function getPropertyTypes(): array
+    {
+        return PropertyType::getAllFields();
+    }
+
+
+    /**
+     * @return array
+     */
+    public function getRoadAccess(): array
+    {
+        return RoadAccess::getAllFields();
+    }
+
+
+    /**
+     * @return array
+     */
+    public function getUtilities(): array
+    {
+        return Utility::getAllFields();
+    }
+
+
+    /**
+     * @return array
+     */
+    public function getZoning(): array
+    {
+        return Zoning::getAllFields();
+    }
+
 }

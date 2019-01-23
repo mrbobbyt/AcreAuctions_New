@@ -4,9 +4,6 @@ declare(strict_types = 1);
 namespace App\Http\Controllers\API\v1;
 
 use App\Http\Resources\ListingResource;
-use App\Repositories\User\Exceptions\NoPermissionException;
-use App\Services\Listing\Exceptions\ListingAlreadyExistsException;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
@@ -22,6 +19,8 @@ use Throwable;
 use Tymon\JWTAuth\Exceptions\JWTException;
 use Tymon\JWTAuth\Exceptions\TokenExpiredException;
 use Tymon\JWTAuth\Exceptions\TokenInvalidException;
+use App\Services\Listing\Exceptions\ListingAlreadyExistsException;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class ListingController extends Controller
 {
@@ -177,6 +176,24 @@ class ListingController extends Controller
         return response()->json([
             'status' => 'Success',
             'message' => 'Listing successfully deleted.'
+        ]);
+    }
+
+
+    /**
+     * Return properties for create listing
+     * METHOD: get
+     * URL: /land-for-sale/create
+     * @return JsonResponse
+     */
+    public function createWithProperties(): JsonResponse
+    {
+        return response()->json([
+            'status' => 'Success',
+            'property_type' => $this->listingRepo->getPropertyTypes(),
+            'road_access' => $this->listingRepo->getRoadAccess(),
+            'utilities' => $this->listingRepo->getUtilities(),
+            'zoning' => $this->listingRepo->getZoning()
         ]);
     }
 

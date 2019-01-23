@@ -3,8 +3,6 @@ declare(strict_types = 1);
 
 namespace App\Repositories\Listing\Contracts;
 
-use App\Http\Resources\ListingResource;
-use App\Repositories\User\Exceptions\NoPermissionException;
 use Illuminate\Database\Eloquent\Model;
 use Tymon\JWTAuth\Exceptions\JWTException;
 use Tymon\JWTAuth\Exceptions\TokenExpiredException;
@@ -34,14 +32,6 @@ interface ListingRepositoryContract
      * @return bool
      */
     public function findByTitle(string $title);
-
-
-    /**
-     * Get related images
-     * @param ListingResource $listing
-     * @return mixed
-     */
-    public function getImageNames(ListingResource $listing);
 
 
     /**
@@ -100,4 +90,29 @@ interface ListingRepositoryContract
      * @return Model | bool
      */
     public function findUrl(int $type, int $key, int $id);
+
+
+    /**
+     * @return array
+     */
+    public function getPropertyTypes();
+
+
+    /**
+     * @return array
+     */
+    public function getRoadAccess();
+
+
+    /**
+     * @return array
+     */
+    public function getUtilities();
+
+
+    /**
+     * @return array
+     */
+    public function getZoning();
+
 }

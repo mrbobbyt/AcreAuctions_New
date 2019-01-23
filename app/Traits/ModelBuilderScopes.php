@@ -22,4 +22,14 @@ trait ModelBuilderScopes
         return $query->where($params);
     }
 
+
+    /**
+     * Scope a query to include all fields like name->id from db
+     * @param $query
+     * @return Builder
+     */
+    public function scopeGetAllFields($query)
+    {
+        return $query->get()->pluck('id', 'name')->toArray();
+    }
 }
