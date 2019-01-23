@@ -15,7 +15,7 @@ class SearchListingRepository implements SearchListingRepositoryContract
      */
     public function findAll(): Collection
     {
-        $listings = Listing::with(['geo', 'images'])->get();
+        $listings = Listing::with(['images', 'geo', 'price'])->get();
 
         return $listings;
     }
@@ -23,19 +23,22 @@ class SearchListingRepository implements SearchListingRepositoryContract
 
     /**
      * Find all listings with requested fields
-     * @param array $geoParams
-     * @param array $price
+     * @param array $data
      * @return Collection
      */
-    public function findByParams(array $geoParams, array $price): Collection
+    public function findByParams(array $data): Collection
     {
-        // if ($geo xor $price)
-        $listing = Listing::whereHas('geo', function ($q) use ($geoParams) {
-                $q->whereFields($geoParams);
-            }
-        )->with(['images', 'geo'])->get();
-        // if ($geo && $price) { use two whereHas }
+        $geoParams = array_only($data['body'], ['acreage', 'state', 'city', 'county', 'zip', 'longitude', 'latitude']);
+        $priceParams = array_only($data['body'], ['price']);
 
-        return $listing;
+        $listings = Listing::whereHas('geo', function ($q) use ($geoParams) {
+            $q->whereFields($geoParams);
+        })
+        ->whereHas('price', function ($q) use ($priceParams) {
+            $q->whereFields($priceParams);
+        }
+        )->with(['images', 'geo', 'price'])->get();
+
+        return $listings;
     }
 }

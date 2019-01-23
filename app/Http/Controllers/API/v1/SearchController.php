@@ -4,8 +4,11 @@ declare(strict_types = 1);
 namespace App\Http\Controllers\API\v1;
 
 use App\Repositories\SearchListing\Contracts\SearchListingRepositoryContract;
+use App\Services\Search\Validator\SearchListingRequestValidator;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use Throwable;
+use Illuminate\Http\JsonResponse;
 
 class SearchController extends Controller
 {
@@ -16,15 +19,29 @@ class SearchController extends Controller
         $this->searchRepo = $searchRepo;
     }
 
-    public function search(Request $request)
-    {
-        $geoParams = $request->only('state', 'acreage');
-        $priceParams = $request->only('price');
 
-        if ($geoParams || $priceParams) {
-            $result = $this->searchRepo->findByParams($geoParams, $priceParams);
-        } else {
-            $result = $this->searchRepo->findAll();
+    /**
+     * METHOD: get
+     * URL: /search
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function search(Request $request): JsonResponse
+    {
+        try {
+            $data = (new SearchListingRequestValidator())->attempt($request);
+
+            if ($data) {
+                $result = $this->searchRepo->findByParams($data);
+            } else {
+                $result = $this->searchRepo->findAll();
+            }
+
+        } catch (Throwable $e) {
+            return response()->json([
+                'status' => 'Error',
+                'message' => $e->getMessage()
+            ], 500);
         }
 
         return response()->json([

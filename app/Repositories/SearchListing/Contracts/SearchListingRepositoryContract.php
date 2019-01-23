@@ -17,10 +17,9 @@ interface SearchListingRepositoryContract
 
     /**
      * Find all listings with requested fields
-     * @param array $geoParams
-     * @param array $price
+     * @param array $data
      * @return Collection
      */
-    public function findByParams(array $geoParams, array $price);
+    public function findByParams(array $data);
 
 }
