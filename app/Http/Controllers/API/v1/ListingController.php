@@ -135,7 +135,7 @@ class ListingController extends Controller
                 'status' => 'Error',
                 'message' => 'Listing not exist.'
             ], 404);
-        } catch (JWTException | Throwable $e) {
+        } catch (Throwable $e) {
             return response()->json([
                 'status' => 'Error',
                 'message' => 'Listing update error.'
@@ -166,7 +166,7 @@ class ListingController extends Controller
                 'status' => 'Error',
                 'message' => 'Listing not exist.'
             ], 404);
-        } catch (JWTException | Throwable $e) {
+        } catch (Throwable $e) {
             return response()->json([
                 'status' => 'Error',
                 'message' => 'Listing delete error.'

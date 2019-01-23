@@ -55,29 +55,6 @@ interface UserRepositoryContract
 
 
     /**
-     * Check user`s permission to make action
-     * @param int $id
-     * @return bool
-     * @throws NoPermissionException
-     * @throws JWTException
-     */
-    public function checkPermission(int $id);
-
-
-    /**
-     * @return bool
-     */
-    public function isAdmin();
-
-
-    /**
-     * Check existing token
-     * @return bool
-     */
-    public function checkToken();
-
-
-    /**
      * Logout user and break token
      * @throws JWTException
      */

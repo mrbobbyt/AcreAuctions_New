@@ -5,7 +5,6 @@ namespace App\Http\Controllers\API\v1;
 
 use App\Http\Controllers\Controller;
 use App\Repositories\User\Contracts\UserRepositoryContract;
-use App\Repositories\User\Exceptions\NoPermissionException;
 use App\Services\User\Contracts\UserServiceContract;
 use App\Services\User\Validators\UpdateRequestUserServiceValidator;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
@@ -103,15 +102,9 @@ class UserController extends Controller
     public function update(Request $request, int $id): JsonResponse
     {
         try {
-            $this->userRepo->checkPermission($id);
             $data = (new UpdateRequestUserServiceValidator)->attempt($request);
             $user = $this->userService->update($data, $id);
 
-        } catch (NoPermissionException $e) {
-            return response()->json([
-                'status' => 'Error',
-                'message' => $e->getMessage()
-            ], 403);
         } catch (ValidationException $e) {
             return response()->json([
                 'status' => 'Error',
@@ -146,20 +139,14 @@ class UserController extends Controller
     public function delete(int $id): JsonResponse
     {
         try {
-            $this->userRepo->checkPermission($id);
             $this->userService->delete($id);
 
-        } catch (NoPermissionException $e) {
-            return response()->json([
-                'status' => 'Error',
-                'message' => $e->getMessage()
-            ], 403);
         } catch (ModelNotFoundException $e) {
             return response()->json([
                 'status' => 'Error',
                 'message' => 'User not exist.'
             ], 404);
-        } catch (JWTException | Throwable $e) {
+        } catch (Throwable $e) {
             return response()->json([
                 'status' => 'Error',
                 'message' => 'User delete error.'

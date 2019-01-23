@@ -75,44 +75,6 @@ class UserRepository implements UserRepositoryContract
         return $this->authenticate()->getJWTIdentifier();
     }
 
-
-    /**
-     * Check user`s permission to make action
-     * @param int $id
-     * @return bool
-     * @throws JWTException
-     * @throws NoPermissionException
-     */
-    public function checkPermission(int $id): bool
-    {
-        if ($id === $this->getId() || $this->isAdmin()) {
-            return true;
-        }
-
-        throw new NoPermissionException();
-    }
-
-
-    /**
-     * @return bool
-     * @throws JWTException
-     */
-    public function isAdmin(): bool
-    {
-        return $this->authenticate()->role === User::ROLE_ADMIN;
-    }
-
-
-    /**
-     * Check existing token
-     * @return bool
-     */
-    public function checkToken(): bool
-    {
-        return (bool)JWTAuth::check(JWTAuth::getToken());
-    }
-
-
     /**
      * Logout user and break token
      * @throws JWTException

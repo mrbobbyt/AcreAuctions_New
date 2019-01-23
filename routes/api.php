@@ -37,24 +37,25 @@ Route::get('user/profile', 'API\v1\UserController@profile')
 Route::get('user/{id}', 'API\v1\UserController@view');
 
 Route::post('user/{id}/update', 'API\v1\UserController@update')
-    ->middleware('jwt.verify');
+    ->middleware('jwt.verify', 'user.permission');
 
 Route::get('user/{id}/delete', 'API\v1\UserController@delete')
-    ->middleware('jwt.verify');
+    ->middleware('jwt.verify', 'user.permission');
 
 
 /********* Seller *********/
 
-Route::get('seller/{slug}', 'API\v1\SellerController@view');
+Route::get('seller/{slug}', 'API\v1\SellerController@view')
+    ->middleware('seller.verification');
 
 Route::post('seller/create', 'API\v1\SellerController@create')
-    ->middleware('jwt.verify');
+    ->middleware('jwt.verify', 'user.seller');
 
 Route::post('seller/{id}/update', 'API\v1\SellerController@update')
-    ->middleware('jwt.verify');
+    ->middleware('jwt.verify', 'seller.permission');
 
 Route::get('seller/{id}/delete', 'API\v1\SellerController@delete')
-    ->middleware('jwt.verify');
+    ->middleware('jwt.verify', 'seller.permission');
 
 
 /********* Admin *********/
@@ -65,7 +66,8 @@ Route::post('admin/verify-seller', 'API\v1\AdminController@verifySeller')
 
 /******** Listing ********/
 
-Route::get('land-for-sale/{slug}', 'API\v1\ListingController@view');
+Route::get('land-for-sale/{slug}', 'API\v1\ListingController@view')
+    ->middleware('listing.verification');
 
 Route::post('land-for-sale/create', 'API\v1\ListingController@create')
     ->middleware('jwt.verify');
