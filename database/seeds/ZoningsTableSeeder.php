@@ -15,11 +15,9 @@ class ZoningsTableSeeder extends Seeder
         $zoning = [
             ['name' => 'Residential'],
             ['name' => 'Rural Residential'],
-            ['name' => 'Agrocultural'],
+            ['name' => 'Agricultural'],
             ['name' => 'Commercial'],
             ['name' => 'Mixed Use'],
-            ['name' => 'Recreational'],
-            ['name' => 'Other (See Zoning Description)'],
         ];
 
         foreach ($zoning as $zone) {

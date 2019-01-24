@@ -14,21 +14,19 @@ class CreateListingsTable extends Migration
     {
         Schema::create('listings', function (Blueprint $table) {
             $table->increments('id');
-            $table->string('inner_listing_id')->nullable();
-            $table->string('apn');
+            $table->string('inner_listing_id');
+            $table->string('apn')->nullable();
             $table->string('title');
-            $table->string('subtitle');
             $table->string('slug');
-            $table->text('description');
+            $table->text('description')->nullable();
             $table->boolean('is_featured')->default(0);
             $table->boolean('is_verified')->default(0);
             $table->integer('seller_id')
                 ->comment('connected seller table');
-            $table->smallInteger('utilities');
-            $table->smallInteger('zoning')
-                ->comment('categories');
-            $table->string('zoning_desc');
-            $table->smallInteger('property_type');
+            $table->smallInteger('utilities')->nullable();
+            $table->smallInteger('zoning')->nullable();
+            $table->string('zoning_desc')->nullable();
+            $table->smallInteger('property_type')->nullable();
             $table->timestamps();
         });
     }

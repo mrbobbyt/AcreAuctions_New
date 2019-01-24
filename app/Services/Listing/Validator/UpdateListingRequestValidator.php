@@ -40,7 +40,6 @@ class UpdateListingRequestValidator implements AbstractValidator
         $validator = Validator::make($request->all(), [
             'apn' => 'nullable|numeric',
             'title' => 'nullable|string|max:255|min:3',
-            'subtitle' => 'nullable|string|max:255|min:3',
             'description' => 'nullable|string',
             'utilities' => 'nullable|numeric|exists:utilities,id',
             'zoning' => 'nullable|numeric|exists:zonings,id',

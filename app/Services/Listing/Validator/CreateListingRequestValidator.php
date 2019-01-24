@@ -38,14 +38,13 @@ class CreateListingRequestValidator implements AbstractValidator
     public function validateBody(Request $request): array
     {
         $validator = Validator::make($request->all(), [
-            'apn' => 'required|numeric',
+            'apn' => 'nullable|numeric',
             'title' => 'required|string|max:255|min:3',
-            'subtitle' => 'required|string|max:255|min:3',
-            'description' => 'required|string',
-            'utilities' => 'required|numeric|exists:utilities,id',
-            'zoning' => 'required|numeric|exists:zonings,id',
-            'zoning_desc' => 'required|string',
-            'property_type' => 'required|numeric|exists:property_types,id',
+            'description' => 'nullable|string',
+            'utilities' => 'nullable|numeric|exists:utilities,id',
+            'zoning' => 'nullable|numeric|exists:zonings,id',
+            'zoning_desc' => 'nullable|string',
+            'property_type' => 'nullable|numeric|exists:property_types,id',
         ]);
 
         return $validator->validate();
@@ -67,7 +66,7 @@ class CreateListingRequestValidator implements AbstractValidator
             'city' => 'required|string',
             'address' => 'required|string',
             'zip' => 'required|numeric',
-            'road_access' => 'required|numeric',
+            'road_access' => 'nullable|numeric',
             'longitude' => 'required|numeric',
             'latitude' => 'required|numeric',
         ]);
@@ -105,8 +104,8 @@ class CreateListingRequestValidator implements AbstractValidator
             'price' => 'required|numeric',
             'monthly_payment' => 'nullable|numeric',
             'processing_fee' => 'nullable|numeric',
-            'financial_term' => 'required|numeric',
-            'percentage_rate' => 'required|numeric',
+            'financial_term' => 'nullable|numeric',
+            'percentage_rate' => 'nullable|numeric',
             'taxes' => 'nullable|numeric',
         ]);
 
