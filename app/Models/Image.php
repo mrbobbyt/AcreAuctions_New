@@ -22,6 +22,13 @@ class Image extends Model
 
     protected $guarded = ['id'];
 
-    protected $hidden = ['created_at', 'updated_at', 'entity_id', 'entity_type'];
+    protected $hidden = ['created_at', 'updated_at', 'entity_id', 'entity_type', 'name'];
 
+    protected $appends = ['full_path'];
+
+
+    public function getFullPathAttribute()
+    {
+        return get_image_path($this->name);
+    }
 }

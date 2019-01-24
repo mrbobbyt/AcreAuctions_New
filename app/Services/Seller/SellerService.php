@@ -171,7 +171,7 @@ class SellerService implements SellerServiceContract
         $image = Image::query()->make()->fill([
             'entity_id' => $id,
             'entity_type' => ($name === 'logo') ? Image::TYPE_SELLER_LOGO : Image::TYPE_SELLER_COVER,
-            'name' => upload_image($item, class_basename($this->model), $name),
+            'name' => upload_image($item, $name),
         ]);
 
         return $image->saveOrFail();
@@ -199,10 +199,10 @@ class SellerService implements SellerServiceContract
             return $this->createImages($name, $item, $id);
         }
 
-        if (File::exists(get_image_path('Seller', $image->name))) {
-            File::delete(get_image_path('Seller', $image->name));
+        if (File::exists(get_image_path($image->name))) {
+            File::delete(get_image_path($image->name));
         }
-        $image->name = upload_image($item, class_basename($this->model), $name);
+        $image->name = upload_image($item, $name);
         $image->updated_at = date('Y-m-d H:i:s');
 
         return $image->saveOrFail();
@@ -217,15 +217,15 @@ class SellerService implements SellerServiceContract
     protected function deleteImages(Model $seller): bool
     {
         if ($seller->logo) {
-            if (File::exists(get_image_path('Seller', $seller->logo->name))) {
-                File::delete(get_image_path('Seller', $seller->logo->name));
+            if (File::exists(get_image_path($seller->logo->name))) {
+                File::delete(get_image_path($seller->logo->name));
             }
             $seller->logo->delete();
         }
 
         if ($seller->cover) {
-            if (File::exists(get_image_path('Seller', $seller->cover->name))) {
-                File::delete(get_image_path('Seller', $seller->cover->name));
+            if (File::exists(get_image_path($seller->cover->name))) {
+                File::delete(get_image_path($seller->cover->name));
             }
             $seller->cover->delete();
         }

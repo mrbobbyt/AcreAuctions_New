@@ -121,7 +121,7 @@ class ListingService implements ListingServiceContract
         $image = Image::query()->make()->fill([
             'entity_id' => $id,
             'entity_type' => Image::TYPE_LISTING,
-            'name' => upload_image($item, class_basename($this->model), 'listing'),
+            'name' => upload_image($item, 'listing'),
         ]);
 
         return $image->saveOrFail();
@@ -358,8 +358,8 @@ class ListingService implements ListingServiceContract
      */
     protected function deleteImage(Model $image): bool
     {
-        if (File::exists(get_image_path('Listing', $image->name))) {
-            File::delete(get_image_path('Listing', $image->name));
+        if (File::exists(get_image_path($image->name))) {
+            File::delete(get_image_path($image->name));
         }
 
         if ($image) {

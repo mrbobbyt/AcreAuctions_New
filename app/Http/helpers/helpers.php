@@ -7,13 +7,12 @@ use Illuminate\Http\UploadedFile;
 if (! function_exists('get_image_path')) {
     /**
      * Create path to the image
-     * @param string $model
      * @param string $name
      * @return string
      */
-    function get_image_path($model, $name): string
+    function get_image_path($name): string
     {
-        return public_path().'/images/'. $model .'/' . $name;
+        return public_path().'/images/'. $name;
     }
 }
 
@@ -35,14 +34,13 @@ if (! function_exists('upload_image')) {
      * Upload image into server
      * @param UploadedFile $img
      * @param string $type
-     * @param string $folder
      * @return string
      * @throws Exception
      */
-    function upload_image($img, $folder, $type): string
+    function upload_image($img, $type): string
     {
         $name = time() .'_'. $type .'_'. $img->getClientOriginalName();
-        if (!$img->move('images/'. $folder, $name)) {
+        if (!$img->move('images/', $name)) {
             throw new Exception('Can not upload '. $type .'.', 500);
         }
 

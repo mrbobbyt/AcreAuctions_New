@@ -88,10 +88,10 @@ class UserService implements UserServiceContract
             return $this->userAuthService->createAvatar($data, $id);
         }
 
-        if (File::exists(get_image_path('User', $image->name))) {
-            File::delete(get_image_path('User', $image->name));
+        if (File::exists(get_image_path($image->name))) {
+            File::delete(get_image_path($image->name));
         }
-        $image->name = upload_image($data['avatar'], 'User', 'avatar');
+        $image->name = upload_image($data['avatar'], 'avatar');
         $image->updated_at = date('Y-m-d H:i:s');
 
         return $image->saveOrFail();
@@ -105,8 +105,8 @@ class UserService implements UserServiceContract
      */
     protected function deleteAvatar(Model $user): bool
     {
-        if (File::exists(get_image_path('User', $user->avatar->name))) {
-            File::delete(get_image_path('User', $user->avatar->name));
+        if (File::exists(get_image_path($user->avatar->name))) {
+            File::delete(get_image_path($user->avatar->name));
         }
 
         if ($user->avatar) {

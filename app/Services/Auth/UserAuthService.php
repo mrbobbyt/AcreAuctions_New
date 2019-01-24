@@ -151,7 +151,7 @@ class UserAuthService implements UserAuthServiceContract
         $image = Image::query()->make()->fill([
             'entity_id' => $id,
             'entity_type' => Image::TYPE_USER_AVATAR,
-            'name' => upload_image($data['avatar'], class_basename($this->model), 'avatar'),
+            'name' => upload_image($data['avatar'], 'avatar'),
         ]);
 
         return $image->saveOrFail();
