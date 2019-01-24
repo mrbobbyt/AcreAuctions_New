@@ -78,9 +78,11 @@ class ListingService implements ListingServiceContract
         $listingPrice->listing_id = $listing->id;
         $listingPrice->saveOrFail();
 
-        $sub = $this->sub->query()->make()->fill($data['subdivision']['subdivision']);
-        $sub->listing_id = $listing->id;
-        $sub->saveOrFail();
+        if ($data['subdivision']) {
+            $sub = $this->sub->query()->make()->fill($data['subdivision']['subdivision']);
+            $sub->listing_id = $listing->id;
+            $sub->saveOrFail();
+        }
 
         if ($data['image']) {
             foreach ($data['image']['image'] as $key => $item) {

@@ -178,4 +178,13 @@ class ListingRepository implements ListingRepositoryContract
         return Zoning::getAllFields();
     }
 
+
+    /**
+     * @return array
+     */
+    public function getSaleTypes(): array
+    {
+        return PropertyType::getAllFields();
+    }
+
 }

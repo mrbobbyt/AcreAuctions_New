@@ -16,6 +16,7 @@ class CreateListingPricesTable extends Migration
             $table->increments('id');
             $table->integer('listing_id');
             $table->integer('price');
+            $table->smallInteger('sale_type')->nullable();
             $table->integer('monthly_payment')->nullable();
             $table->integer('processing_fee')->nullable();
             $table->integer('financial_term')->nullable();

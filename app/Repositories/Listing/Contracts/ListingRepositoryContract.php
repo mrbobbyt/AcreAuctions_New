@@ -115,4 +115,9 @@ interface ListingRepositoryContract
      */
     public function getZoning();
 
+
+    /**
+     * @return array
+     */
+    public function getSaleTypes();
 }

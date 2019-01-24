@@ -19,7 +19,7 @@ class UserCheckRole
      */
     public function handle($request, Closure $next)
     {
-        if (JWTAuth::parseToken()->authenticate()->role ===
+        if (JWTAuth::parseToken()->authenticate()->role ==
             (\App\Models\User::ROLE_ADMIN || \App\Models\User::ROLE_SELLER)
         ) {
             return $next($request);

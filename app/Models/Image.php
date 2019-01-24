@@ -27,6 +27,9 @@ class Image extends Model
     protected $appends = ['full_path'];
 
 
+    /**
+     * @return string
+     */
     public function getFullPathAttribute()
     {
         return get_image_path($this->name);

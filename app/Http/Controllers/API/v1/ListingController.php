@@ -191,6 +191,7 @@ class ListingController extends Controller
         return response()->json([
             'status' => 'Success',
             'property_type' => $this->listingRepo->getPropertyTypes(),
+            'sale_types' => $this->listingRepo->getSaleTypes(),
             'road_access' => $this->listingRepo->getRoadAccess(),
             'utilities' => $this->listingRepo->getUtilities(),
             'zoning' => $this->listingRepo->getZoning()

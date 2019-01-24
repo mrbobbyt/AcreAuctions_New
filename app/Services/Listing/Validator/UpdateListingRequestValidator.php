@@ -102,6 +102,7 @@ class UpdateListingRequestValidator implements AbstractValidator
     {
         $validator = Validator::make($request->all(), [
             'price' => 'nullable|numeric',
+            'sale_type' => 'nullable|numeric|exists:sale_types,id',
             'monthly_payment' => 'nullable|numeric',
             'processing_fee' => 'nullable|numeric',
             'financial_term' => 'nullable|numeric',

@@ -5,6 +5,7 @@ namespace App\Models;
 
 use App\Traits\ModelBuilderScopes;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
  * @property int id
@@ -28,4 +29,13 @@ class ListingPrice extends Model
 
     protected $hidden = ['created_at', 'updated_at', 'listing_id'];
 
+
+    /**
+     * Get listing sale type
+     * @return BelongsTo
+     */
+    public function getSaleType()
+    {
+        return $this->belongsTo('App\Models\SaleType', 'sale_type', 'id');
+    }
 }
