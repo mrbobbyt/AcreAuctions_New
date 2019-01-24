@@ -12,7 +12,7 @@ if (! function_exists('get_image_path')) {
      */
     function get_image_path($name): string
     {
-        return public_path().'/images/'. $name;
+        return /*public_path().*/'/images/'. $name;
     }
 }
 
@@ -25,7 +25,7 @@ if (! function_exists('get_doc_path')) {
      */
     function get_doc_path($id, $name): string
     {
-        return public_path().'/doc/'. $id .'/' . $name;
+        return /*public_path().*/'/doc/'. $id .'/' . $name;
     }
 }
 
