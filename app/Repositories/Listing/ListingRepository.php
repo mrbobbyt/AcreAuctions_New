@@ -8,6 +8,7 @@ use App\Models\ListingGeo;
 use App\Models\ListingPrice;
 use App\Models\PropertyType;
 use App\Models\RoadAccess;
+use App\Models\SaleType;
 use App\Models\Subdivision;
 use App\Models\Url;
 use App\Models\Utility;
@@ -184,7 +185,7 @@ class ListingRepository implements ListingRepositoryContract
      */
     public function getSaleTypes(): array
     {
-        return PropertyType::getAllFields();
+        return SaleType::getAllFields();
     }
 
 }
