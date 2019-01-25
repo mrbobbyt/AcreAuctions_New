@@ -25,8 +25,7 @@ Route::post('reset', 'API\v1\AuthController@resetPassword')
 
 Route::post('forgot', 'API\v1\AuthController@forgotPassword');
 
-Route::get('', 'API\v1\AuthController@index')
-    ->name('home');
+Route::get('', 'API\v1\AuthController@index');
 
 
 /********** User **********/

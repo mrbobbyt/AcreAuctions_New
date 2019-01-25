@@ -37,7 +37,7 @@ class FacebookService implements FacebookServiceContract
 
         $helper = $fb->getRedirectLoginHelper();
         $permissions = ['email']; // Optional permissions
-        $loginUrl = $helper->getLoginUrl(route('home'), $permissions);
+        $loginUrl = $helper->getLoginUrl('http://localhost:3000/auth-callback', $permissions);
 
         return $loginUrl;
     }

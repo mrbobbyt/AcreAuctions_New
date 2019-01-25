@@ -56,9 +56,9 @@ class AuthController extends Controller
     {
         // Handle request from socials
         if (request('code') && request('scope')) {
-            $this->handleGoogle();
+            return $this->handleGoogle();
         } elseif (request('code') && request('state')) {
-            $this->handleFacebook();
+            return $this->handleFacebook();
         }
 
         // Get url to socials login

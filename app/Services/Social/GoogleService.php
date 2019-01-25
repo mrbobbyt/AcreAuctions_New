@@ -20,7 +20,7 @@ class GoogleService implements GoogleServiceContract
         $google->setApplicationName(env('GOOGLE_APP_NAME'));
         $google->setClientId(env('GOOGLE_CLIENT_ID'));
         $google->setClientSecret(env('GOOGLE_CLIENT_SECRET'));
-        $google->setRedirectUri(route('home'));
+        $google->setRedirectUri('http://localhost:3000/auth-callback');
         $google->setScopes(['https://www.googleapis.com/auth/userinfo.email', 'https://www.googleapis.com/auth/plus.me']);// Important!
 
         return $google;
