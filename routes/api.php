@@ -27,6 +27,7 @@ Route::post('forgot', 'API\v1\AuthController@forgotPassword');
 
 Route::get('', 'API\v1\AuthController@index');
 
+Route::get('auth-callback', 'API\v1\AuthController@handleSocials');
 
 /********** User **********/
 

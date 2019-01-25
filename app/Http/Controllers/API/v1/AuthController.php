@@ -54,13 +54,6 @@ class AuthController extends Controller
      */
     public function index(): JsonResponse
     {
-        // Handle request from socials
-        if (request('code') && request('scope')) {
-            return $this->handleGoogle();
-        } elseif (request('code') && request('state')) {
-            return $this->handleFacebook();
-        }
-
         // Get url to socials login
         try {
             $loginUrlFb = $this->fbService->getLogin();
@@ -82,6 +75,20 @@ class AuthController extends Controller
             'loginUrlFb' => $loginUrlFb,
             'loginUrlGoogle' => $loginUrlGoogle
         ]);
+    }
+
+    
+    /**
+     * @return JsonResponse
+     */
+    public function handleSocials()
+    {
+        // Handle request from socials
+        if (request('code') && request('scope')) {
+            return $this->handleGoogle();
+        } elseif (request('code') && request('state')) {
+            return $this->handleFacebook();
+        }
     }
 
 
