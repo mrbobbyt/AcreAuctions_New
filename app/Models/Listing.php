@@ -149,4 +149,10 @@ class Listing extends Model
     {
         return $this->belongsTo('App\Models\PropertyType', 'property_type', 'id');
     }
+
+
+    public function sellerWithLogo()
+    {
+        return $this->seller()->select('id', 'title', 'slug')->with('logo');
+    }
 }

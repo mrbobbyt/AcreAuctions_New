@@ -50,9 +50,9 @@ class AuthController extends Controller
      * Login page for social networks
      * METHOD: get
      * URL: /
-     * @return \Illuminate\View\View
+     * @return JsonResponse
      */
-    public function index()
+    public function index(): JsonResponse
     {
         // Handle request from socials
         if (request('code') && request('scope')) {
@@ -77,7 +77,8 @@ class AuthController extends Controller
             ], 500);
         }
 
-        return view('test-login', [
+        return response()->json([
+            'status' => 'Success',
             'loginUrlFb' => $loginUrlFb,
             'loginUrlGoogle' => $loginUrlGoogle
         ]);

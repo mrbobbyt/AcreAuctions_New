@@ -37,7 +37,7 @@ class SearchListingRepository implements SearchListingRepositoryContract
         ->whereHas('price', function ($q) use ($priceParams) {
             $q->whereFields($priceParams);
         }
-        )->with(['images', 'geo', 'price'])->get();
+        )->with(['images', 'geo', 'price', 'sellerWithLogo'])->get();
 
         return $listings;
     }
