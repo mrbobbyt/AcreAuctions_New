@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 /**
  * @property int id
@@ -151,8 +152,33 @@ class Listing extends Model
     }
 
 
+    /**
+     * Get seller info with logo for search listing
+     * @return BelongsTo
+     */
     public function sellerWithLogo()
     {
         return $this->seller()->select('id', 'title', 'slug')->with('logo');
+    }
+
+
+    /**
+     * Get all users that make this listing favorite
+     * @return BelongsToMany
+     */
+    public function favorite()
+    {
+        return $this->belongsToMany('App\Models\User', 'favorites', 'listing_id', 'user_id');
+    }
+
+
+    /**
+     * Check is user make this listing favorite
+     * @param int $id
+     * @return bool
+     */
+    public function isFavorite(int $id)
+    {
+        return $this->favorite()->where('user_id', $id)->exists();
     }
 }

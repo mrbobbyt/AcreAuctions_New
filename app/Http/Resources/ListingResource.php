@@ -52,6 +52,7 @@ class ListingResource extends JsonResource
             'docs' => $this->docs,
             'links' => $this->links,
             'videos' => $this->videos,
+            'is_favorite' => \JWTAuth::user() ? $this->isFavorite(\JWTAuth::user()->id) : false ,
         ];
     }
 }

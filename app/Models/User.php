@@ -105,4 +105,10 @@ class User extends Authenticatable implements JWTSubject
     {
         return $this->hasOne('App\Models\Seller', 'user_id');
     }
+
+
+    public function getAllFavorites()
+    {
+        return $this->belongsToMany('App\Models\Listing', 'favorites', 'user_id', 'listing_id');
+    }
 }

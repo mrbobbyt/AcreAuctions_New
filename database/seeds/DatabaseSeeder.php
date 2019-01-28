@@ -18,5 +18,6 @@ class DatabaseSeeder extends Seeder
          $this->call(RoadAccessesTableSeeder::class);
          $this->call(PropertyTypesTableSeeder::class);
          $this->call(SaleTypesTableSeeder::class);
+         $this->call(NetworksTableSeeder::class);
     }
 }
