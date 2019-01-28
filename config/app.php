@@ -177,6 +177,7 @@ return [
 
         //JWTAuth
         Tymon\JWTAuth\Providers\LaravelServiceProvider::class,
+        Chencha\Share\ShareServiceProvider::class,
     ],
 
     /*
@@ -228,6 +229,7 @@ return [
 
         'JWTAuth' => Tymon\JWTAuth\Facades\JWTAuth::class,
         'JWTFactory' => Tymon\JWTAuth\Facades\JWTFactory::class,
+        'Share' => Chencha\Share\ShareFacade::class,
     ],
 
 ];

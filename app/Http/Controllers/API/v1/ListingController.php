@@ -4,6 +4,7 @@ declare(strict_types = 1);
 namespace App\Http\Controllers\API\v1;
 
 use App\Http\Resources\ListingResource;
+use App\Services\Social\Contracts\ShareServiceContract;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
@@ -26,11 +27,13 @@ class ListingController extends Controller
 {
     protected $listingService;
     protected $listingRepo;
+    protected $shareService;
 
-    public function __construct(ListingServiceContract $listingService, ListingRepositoryContract $listingRepo)
+    public function __construct(ListingServiceContract $listingService, ListingRepositoryContract $listingRepo, ShareServiceContract $shareService)
     {
         $this->listingService = $listingService;
         $this->listingRepo = $listingRepo;
+        $this->shareService = $shareService;
     }
 
 
@@ -44,6 +47,7 @@ class ListingController extends Controller
     {
         try {
             $listing = $this->listingRepo->findBySlug($slug);
+            $shareLinks = $this->shareService->shareSocials(request()->url(), $listing->title);
 
         } catch (ModelNotFoundException $e) {
             return response()->json([
@@ -59,7 +63,8 @@ class ListingController extends Controller
 
         return response()->json([
             'status' => 'Success',
-            'listing' => ListingResource::make($listing)
+            'listing' => ListingResource::make($listing),
+            'shareLinks' => $shareLinks,
         ]);
     }
 

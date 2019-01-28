@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "8c6b8b737ec008c440478c4669897c2e",
+    "content-hash": "95af83207e98cb537a24b6b644a669a2",
     "packages": [
         {
             "name": "asm89/stack-cors",
@@ -119,6 +119,64 @@
                 "laravel"
             ],
             "time": "2018-09-06T13:20:53+00:00"
+        },
+        {
+            "name": "chencha/share",
+            "version": "5.2.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/prodeveloper/social-share.git",
+                "reference": "c25fff7eaac8352df0195ead424de28335464303"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/prodeveloper/social-share/zipball/c25fff7eaac8352df0195ead424de28335464303",
+                "reference": "c25fff7eaac8352df0195ead424de28335464303",
+                "shasum": ""
+            },
+            "require": {
+                "illuminate/support": "^5.0",
+                "php": ">=5.4.0"
+            },
+            "require-dev": {
+                "guzzlehttp/guzzle": ">=5.3",
+                "mockery/mockery": "^0.9.4",
+                "orchestra/testbench": "~3.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-0": {
+                    "Chencha\\Share": "src/"
+                },
+                "classmap": [
+                    "tests/TestCase.php"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "thujohn",
+                    "email": "jonathan.thuau@gmail.com"
+                },
+                {
+                    "name": "chencha",
+                    "email": "jacob@chenchatech.com"
+                },
+                {
+                    "name": "datashaman",
+                    "email": "marlinf@datashaman.com"
+                }
+            ],
+            "description": "Share links with Laravel 5",
+            "keywords": [
+                "laravel",
+                "laravel5",
+                "share"
+            ],
+            "time": "2016-03-24T08:05:57+00:00"
         },
         {
             "name": "dnoegel/php-xdg-base-dir",
