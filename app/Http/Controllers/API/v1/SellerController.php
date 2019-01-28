@@ -104,7 +104,7 @@ class SellerController extends Controller
 
     /**
      * Update Seller
-     * METHOD: post
+     * METHOD: put
      * URL: /seller/{id}/update
      * @param Request $request
      * @param int $id
@@ -147,7 +147,7 @@ class SellerController extends Controller
 
     /**
      * Delete Seller
-     * METHOD: get
+     * METHOD: delete
      * URL: /seller/{id}/delete
      * @param int $id
      * @return JsonResponse

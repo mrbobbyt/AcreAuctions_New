@@ -36,10 +36,10 @@ Route::get('user/profile', 'API\v1\UserController@profile')
 
 Route::get('user/{id}', 'API\v1\UserController@view');
 
-Route::post('user/{id}/update', 'API\v1\UserController@update')
+Route::put('user/{id}/update', 'API\v1\UserController@update')
     ->middleware('jwt.verify', 'user.permission');
 
-Route::get('user/{id}/delete', 'API\v1\UserController@delete')
+Route::delete('user/{id}/delete', 'API\v1\UserController@delete')
     ->middleware('jwt.verify', 'user.permission');
 
 
@@ -51,16 +51,16 @@ Route::get('seller/{slug}', 'API\v1\SellerController@view')
 Route::post('seller/create', 'API\v1\SellerController@create')
     ->middleware('jwt.verify', 'user.seller');
 
-Route::post('seller/{id}/update', 'API\v1\SellerController@update')
+Route::put('seller/{id}/update', 'API\v1\SellerController@update')
     ->middleware('jwt.verify', 'seller.permission');
 
-Route::get('seller/{id}/delete', 'API\v1\SellerController@delete')
+Route::delete('seller/{id}/delete', 'API\v1\SellerController@delete')
     ->middleware('jwt.verify', 'seller.permission');
 
 
 /********* Admin *********/
 
-Route::post('admin/verify-seller', 'API\v1\AdminController@verifySeller')
+Route::put('admin/verify-seller', 'API\v1\AdminController@verifySeller')
     ->middleware('jwt.verify', 'admin');
 
 
@@ -75,10 +75,10 @@ Route::post('land-for-sale/create', 'API\v1\ListingController@create')
 Route::get('land-foe-sale/create', 'API\v1\ListingController@createWithProperties')
     ->middleware('jwt.verify');
 
-Route::post('land-for-sale/{id}/update', 'API\v1\ListingController@update')
+Route::put('land-for-sale/{id}/update', 'API\v1\ListingController@update')
     ->middleware('jwt.verify', 'listing.permission');
 
-Route::get('land-for-sale/{id}/delete', 'API\v1\ListingController@delete')
+Route::delete('land-for-sale/{id}/delete', 'API\v1\ListingController@delete')
     ->middleware('jwt.verify', 'listing.permission');
 
 

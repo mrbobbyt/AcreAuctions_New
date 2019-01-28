@@ -93,7 +93,7 @@ class UserController extends Controller
 
     /**
      * Update auth user info
-     * METHOD: post
+     * METHOD: put
      * URL: /{id}/update
      * @param Request $request
      * @param int $id
@@ -131,7 +131,7 @@ class UserController extends Controller
 
     /**
      * Delete auth user
-     * METHOD: get
+     * METHOD: delete
      * URL: /{id}/delete
      * @param int $id
      * @return JsonResponse

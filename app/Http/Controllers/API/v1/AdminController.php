@@ -26,7 +26,7 @@ class AdminController extends Controller
 
     /**
      * Make seller verified
-     * METHOD: post
+     * METHOD: put
      * URL: /admin/verify-seller
      * @param Request $request
      * @return JsonResponse
