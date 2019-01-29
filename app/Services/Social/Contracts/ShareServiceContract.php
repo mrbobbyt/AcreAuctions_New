@@ -3,6 +3,8 @@ declare(strict_types = 1);
 
 namespace App\Services\Social\Contracts;
 
+use Throwable;
+
 interface ShareServiceContract
 {
     /**
@@ -12,4 +14,12 @@ interface ShareServiceContract
      * @return array
      */
     public function shareSocials(string $url, string $title);
+
+
+    /**
+     * @param array $data
+     * @return string
+     * @throws Throwable
+     */
+    public function create(array $data);
 }

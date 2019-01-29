@@ -43,6 +43,9 @@ use App\Services\Favorite\FavoriteService;
 use App\Repositories\Favorite\Contracts\FavoriteRepositoryContract;
 use App\Repositories\Favorite\FavoriteRepository;
 
+use App\Repositories\Social\Contracts\ShareRepositoryContract;
+use App\Repositories\Social\ShareRepository;
+
 class AppServiceProvider extends ServiceProvider
 {
     /**
@@ -91,5 +94,7 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind( FavoriteServiceContract::class, FavoriteService::class );
 
         $this->app->bind( FavoriteRepositoryContract::class, FavoriteRepository::class );
+
+        $this->app->bind( ShareRepositoryContract::class, ShareRepository::class );
     }
 }

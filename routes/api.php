@@ -94,3 +94,11 @@ Route::get('user/{id}/favorite', 'API\v1\FavoriteController@view')
 
 Route::post('/user/favorite/action', 'API\v1\FavoriteController@action')
     ->middleware('jwt.verify');
+
+
+/********* Share *********/
+
+Route::get('share/list', 'API\v1\ShareController@getNetworks');
+
+Route::post('share/create', 'API\v1\ShareController@create');
+

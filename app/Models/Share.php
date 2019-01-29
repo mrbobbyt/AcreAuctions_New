@@ -8,6 +8,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Share extends Model
 {
+    const TYPE_LISTING = 1;
+
     protected $fillable = ['entity_id', 'entity_type', 'network_id'];
 
     protected $guarded = ['id'];

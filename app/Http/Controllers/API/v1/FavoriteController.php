@@ -46,7 +46,7 @@ class FavoriteController extends Controller
         } catch (Throwable $e) {
             return response()->json([
                 'status' => 'Error',
-                'message' => 'User show error.'
+                'message' => ''
             ], 500);
         }
 
@@ -73,7 +73,7 @@ class FavoriteController extends Controller
         } catch (JWTException | Exception | Throwable $e) {
             return response()->json([
                 'status' => 'Error',
-                'message' => $e->getMessage()
+                'message' => 'Favorite listing action error.'
             ], 500);
         }
 
