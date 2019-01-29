@@ -4,20 +4,25 @@ declare(strict_types = 1);
 namespace App\Http\Controllers\API\v1;
 
 use App\Repositories\User\Contracts\UserRepositoryContract;
+use App\Services\Favorite\Contracts\FavoriteServiceContract;
 use App\Services\Favorite\Validator\AddFavoriteValidateRequest;
+use Exception;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Throwable;
+use Tymon\JWTAuth\Exceptions\JWTException;
 
 class FavoriteController extends Controller
 {
     protected $userRepo;
+    protected $favorService;
 
-    public function __construct(UserRepositoryContract $userRepo)
+    public function __construct(UserRepositoryContract $userRepo, FavoriteServiceContract $favorService)
     {
         $this->userRepo = $userRepo;
+        $this->favorService = $favorService;
     }
 
 
@@ -59,13 +64,13 @@ class FavoriteController extends Controller
      * @param Request $request
      * @return JsonResponse
      */
-    public function create(Request $request): JsonResponse
+    public function action(Request $request): JsonResponse
     {
         try {
             $data = (new AddFavoriteValidateRequest)->attempt($request);
-            dd($data);
+            $result = $this->favorService->action($data);
 
-        } catch (Throwable $e) {
+        } catch (JWTException | Exception | Throwable $e) {
             return response()->json([
                 'status' => 'Error',
                 'message' => $e->getMessage()
@@ -74,13 +79,8 @@ class FavoriteController extends Controller
 
         return response()->json([
             'status' => 'Success',
-            'favorite_listing' => '',
+            'result' => $result
         ]);
     }
 
-
-    public function delete()
-    {
-
-    }
 }

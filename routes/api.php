@@ -92,5 +92,5 @@ Route::get('search', 'API\v1\SearchController@search');
 Route::get('user/{id}/favorite', 'API\v1\FavoriteController@view')
     ->middleware('jwt.verify', 'user.permission');
 
-Route::post('/user/favorite/create', 'API\v1\FavoriteController@create')
+Route::post('/user/favorite/action', 'API\v1\FavoriteController@action')
     ->middleware('jwt.verify');

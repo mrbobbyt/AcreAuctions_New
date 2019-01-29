@@ -37,6 +37,12 @@ use App\Repositories\SearchListing\SearchListingRepository;
 use App\Services\Social\Contracts\ShareServiceContract;
 use App\Services\Social\ShareService;
 
+use App\Services\Favorite\Contracts\FavoriteServiceContract;
+use App\Services\Favorite\FavoriteService;
+
+use App\Repositories\Favorite\Contracts\FavoriteRepositoryContract;
+use App\Repositories\Favorite\FavoriteRepository;
+
 class AppServiceProvider extends ServiceProvider
 {
     /**
@@ -60,59 +66,30 @@ class AppServiceProvider extends ServiceProvider
             $this->app->register(\Barryvdh\LaravelIdeHelper\IdeHelperServiceProvider::class);
         }
 
-        $this->app->bind(
-            UserAuthServiceContract::class,
-            UserAuthService::class
-        );
+        $this->app->bind( UserAuthServiceContract::class, UserAuthService::class );
 
-        $this->app->bind(
-            UserRepositoryContract::class,
-            UserRepository::class
-        );
+        $this->app->bind( UserRepositoryContract::class, UserRepository::class );
 
-        $this->app->bind(
-            UserServiceContract::class,
-            UserService::class
-        );
+        $this->app->bind( UserServiceContract::class, UserService::class );
 
-        $this->app->bind(
-            FacebookServiceContract::class,
-            FacebookService::class
-        );
+        $this->app->bind( FacebookServiceContract::class, FacebookService::class );
 
-        $this->app->bind(
-            GoogleServiceContract::class,
-            GoogleService::class
-        );
+        $this->app->bind( GoogleServiceContract::class, GoogleService::class );
 
-        $this->app->bind(
-            SellerRepositoryContract::class,
-            SellerRepository::class
-        );
+        $this->app->bind( SellerRepositoryContract::class, SellerRepository::class );
 
-        $this->app->bind(
-            SellerServiceContract::class,
-            SellerService::class
-        );
+        $this->app->bind( SellerServiceContract::class, SellerService::class );
 
-        $this->app->bind(
-            ListingRepositoryContract::class,
-            ListingRepository::class
-        );
+        $this->app->bind( ListingRepositoryContract::class, ListingRepository::class );
 
-        $this->app->bind(
-            ListingServiceContract::class,
-            ListingService::class
-        );
+        $this->app->bind( ListingServiceContract::class, ListingService::class );
 
-        $this->app->bind(
-            SearchListingRepositoryContract::class,
-            SearchListingRepository::class
-        );
+        $this->app->bind( SearchListingRepositoryContract::class, SearchListingRepository::class );
 
-        $this->app->bind(
-            ShareServiceContract::class,
-            ShareService::class
-        );
+        $this->app->bind( ShareServiceContract::class, ShareService::class );
+
+        $this->app->bind( FavoriteServiceContract::class, FavoriteService::class );
+
+        $this->app->bind( FavoriteRepositoryContract::class, FavoriteRepository::class );
     }
 }
