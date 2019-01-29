@@ -72,7 +72,7 @@ Route::get('land-for-sale/{slug}', 'API\v1\ListingController@view')
 Route::post('land-for-sale/create', 'API\v1\ListingController@create')
     ->middleware('jwt.verify');
 
-Route::get('land-foe-sale/create', 'API\v1\ListingController@createWithProperties')
+Route::get('land-for-sale/create', 'API\v1\ListingController@createWithProperties')
     ->middleware('jwt.verify');
 
 Route::put('land-for-sale/{id}/update', 'API\v1\ListingController@update')
@@ -85,3 +85,12 @@ Route::delete('land-for-sale/{id}/delete', 'API\v1\ListingController@delete')
 /********* Search *********/
 
 Route::get('search', 'API\v1\SearchController@search');
+
+
+/******** Favorite ********/
+
+Route::get('user/{id}/favorite', 'API\v1\FavoriteController@view')
+    ->middleware('jwt.verify', 'user.permission');
+
+Route::post('/user/favorite/create', 'API\v1\FavoriteController@create')
+    ->middleware('jwt.verify');
