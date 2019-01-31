@@ -32,6 +32,12 @@ class Image extends Model
      */
     public function getFullPathAttribute()
     {
-        return get_image_path($this->name);
+        $type = '';
+        if ($this->entity_type === self::TYPE_LISTING) {
+            $type = FullsizePreview::query()->where('fullsize_id', $this->id)->exists()
+                ? '/fullsize' : '/preview';
+        }
+
+        return 'images'.$type.'/'.$this->name;
     }
 }

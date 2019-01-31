@@ -9,16 +9,15 @@ use App\Models\Subdivision;
 use App\Models\Url;
 use File;
 use Illuminate\Database\Eloquent\Model;
-use App\Models\Image;
 use App\Models\Listing;
 use App\Models\ListingGeo;
 
 use App\Repositories\Listing\Contracts\ListingRepositoryContract;
 use App\Services\Listing\Contracts\ListingServiceContract;
+use App\Services\Image\ImageService;
 
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Exception;
-use Illuminate\Http\UploadedFile;
 use Throwable;
 use Tymon\JWTAuth\Exceptions\JWTException;
 use Tymon\JWTAuth\Exceptions\TokenExpiredException;
@@ -32,19 +31,22 @@ class ListingService implements ListingServiceContract
     protected $modelPrice;
     protected $listingRepo;
     protected $sub;
+    protected $imageService;
 
     public function __construct(
         Listing $listing,
         ListingGeo $listingGeo,
         ListingPrice $listingPrice,
         ListingRepositoryContract $listingRepo,
-        Subdivision $sub
+        Subdivision $sub,
+        ImageService $imageService
     ) {
         $this->model = $listing;
         $this->modelGeo = $listingGeo;
         $this->modelPrice = $listingPrice;
         $this->listingRepo = $listingRepo;
         $this->sub = $sub;
+        $this->imageService = $imageService;
     }
 
 
@@ -86,7 +88,7 @@ class ListingService implements ListingServiceContract
 
         if ($data['image']) {
             foreach ($data['image']['image'] as $key => $item) {
-                $this->createImage($item, $listing->id);
+                $this->imageService->create($item, $listing->id);
             }
         }
 
@@ -109,42 +111,6 @@ class ListingService implements ListingServiceContract
 
         return $listing;
 
-    }
-
-
-    /**
-     * @param UploadedFile $item
-     * @param int $id
-     * @return bool
-     * @throws Throwable
-     */
-    protected function createImage(UploadedFile $item, int $id): bool
-    {
-        $image = Image::query()->make()->fill([
-            'entity_id' => $id,
-            'entity_type' => Image::TYPE_LISTING,
-            'name' => upload_image($item, 'listing'),
-        ]);
-
-        return $image->saveOrFail();
-    }
-
-
-    /**
-     * @param UploadedFile $item
-     * @param int $key
-     * @param int $id
-     * @return bool
-     * @throws Throwable
-     */
-    protected function updateImage(int $key, UploadedFile $item, int $id): bool
-    {
-        if ($image = $this->listingRepo->findImage($key, $id)) {
-            $this->deleteImage($image);
-        }
-        $this->createImage($item, $id);
-
-        return true;
     }
 
 
@@ -227,7 +193,7 @@ class ListingService implements ListingServiceContract
 
         if ($data['image']) {
             foreach ($data['image']['image'] as $key => $item) {
-                $this->updateImage($key, $item, $id);
+                $this->imageService->update($key, $item, $id);
             }
         }
 
@@ -325,48 +291,38 @@ class ListingService implements ListingServiceContract
         $price = $this->listingRepo->findPriceByPk($id);
         $price->delete();
 
-        $sub = $this->listingRepo->findSubByPk($id);
-        $sub->delete();
+        if ($sub = $this->listingRepo->findSubByPk($id)) {
+            $sub->delete();
+        }
 
         $images = $listing->images;
-        foreach ($images as $image) {
-            $this->deleteImage($image);
+        if ($images !== null) {
+            foreach ($images as $image) {
+                $this->imageService->delete($image);
+            }
         }
 
         $docs = $listing->docs;
-        foreach ($docs as $doc) {
-            $this->deleteDoc($doc);
+        if ($docs!== null) {
+            foreach ($docs as $doc) {
+                $this->deleteDoc($doc);
+            }
         }
 
         $links = $listing->links;
-        foreach ($links as $link) {
-            $link->delete();
+        if ($links !== null) {
+            foreach ($links as $link) {
+                $link->delete();
+            }
         }
         $videos = $listing->videos;
-        foreach ($videos as $video) {
-            $video->delete();
+        if ($videos !== null) {
+            foreach ($videos as $video) {
+                $video->delete();
+            }
         }
 
         $listing->delete();
-
-        return true;
-    }
-
-
-    /**
-     * @param Model $image
-     * @return bool
-     * @throws Exception
-     */
-    protected function deleteImage(Model $image): bool
-    {
-        if (File::exists(get_image_path($image->name))) {
-            File::delete(get_image_path($image->name));
-        }
-
-        if ($image) {
-            $image->delete();
-        }
 
         return true;
     }

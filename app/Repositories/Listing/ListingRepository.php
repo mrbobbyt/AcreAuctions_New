@@ -106,11 +106,13 @@ class ListingRepository implements ListingRepositoryContract
 
     /**
      * @param int $id
-     * @return Model
+     * @return Model | bool
      */
-    public function findSubByPk(int $id): Model
+    public function findSubByPk(int $id)
     {
-        return Subdivision::query()->where('listing_id', $id)->firstOrFail();
+        $sub = Subdivision::query()->where('listing_id', $id)->first();
+
+        return ($sub === null) ? false : $sub;
     }
 
 

@@ -75,7 +75,7 @@ Route::post('land-for-sale/create', 'API\v1\ListingController@create')
 Route::get('land-for-sale/create', 'API\v1\ListingController@createWithProperties')
     ->middleware('jwt.verify');
 
-Route::put('land-for-sale/{id}/update', 'API\v1\ListingController@update')
+Route::post('land-for-sale/{id}/update', 'API\v1\ListingController@update')
     ->middleware('jwt.verify', 'listing.permission');
 
 Route::delete('land-for-sale/{id}/delete', 'API\v1\ListingController@delete')

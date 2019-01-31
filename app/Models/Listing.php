@@ -60,6 +60,15 @@ class Listing extends Model
 
 
     /**
+     * Get related images - fullsize and preview
+     * @return HasMany
+     */
+    public function gallery()
+    {
+        return $this->hasMany('App\Models\FullsizePreview', 'listing_id', 'id');
+    }
+
+    /**
      * Get related seller
      * @return BelongsTo
      */
