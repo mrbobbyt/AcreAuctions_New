@@ -15,7 +15,8 @@ class SearchListingRepository implements SearchListingRepositoryContract
      */
     public function findAll(): LengthAwarePaginator
     {
-        $listings = Listing::with(['images', 'geo', 'price', 'sellerWithLogo'])->paginate(5);
+        $listings = Listing::with(['images', 'geo', 'price', 'sellerWithLogo', 'docs',
+            'subdivision', 'links', 'videos'])->paginate(5);
 
         return $listings;
     }
