@@ -5,18 +5,18 @@ namespace App\Repositories\SearchListing;
 
 use App\Models\Listing;
 use App\Repositories\SearchListing\Contracts\SearchListingRepositoryContract;
-use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Database\Eloquent\Collection;
 
 class SearchListingRepository implements SearchListingRepositoryContract
 {
     /**
      * Find all listings
-     * @return LengthAwarePaginator
+     * @return Collection
      */
-    public function findAll(): LengthAwarePaginator
+    public function findAll(): Collection
     {
         $listings = Listing::with(['images', 'geo', 'price', 'sellerWithLogo', 'docs',
-            'subdivision', 'links', 'videos'])->paginate(5);
+            'subdivision', 'links', 'videos'])->get();
 
         return $listings;
     }
@@ -25,9 +25,9 @@ class SearchListingRepository implements SearchListingRepositoryContract
     /**
      * Find all listings with requested fields
      * @param array $data
-     * @return LengthAwarePaginator
+     * @return Collection
      */
-    public function findByParams(array $data): LengthAwarePaginator
+    public function findByParams(array $data): Collection
     {
         $listingParams = array_only($data['body'], ['property_type']);
         $geoParams = array_only($data['body'], ['acreage', 'state', 'city',
@@ -41,7 +41,7 @@ class SearchListingRepository implements SearchListingRepositoryContract
                 $q->whereFields($priceParams);
             })
             ->whereFields($listingParams)
-            ->paginate(5);
+            ->get();
 
         return $listings;
     }
