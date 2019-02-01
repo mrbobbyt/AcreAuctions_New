@@ -15,7 +15,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
  * @property int inner_listing_id
  * @property int apn
  * @property string title
- * @property string subtitle
  * @property string slug
  * @property string description
  * @property bool is_featured
@@ -31,7 +30,7 @@ class Listing extends Model
     use ModelBuilderScopes;
 
     protected $fillable = [
-        'inner_listing_id', 'apn', 'title', 'subtitle', 'slug', 'description', 'is_featured', 'is_verified',
+        'inner_listing_id', 'apn', 'title', 'slug', 'description', 'is_featured', 'is_verified',
         'seller_id', 'utilities', 'zoning', 'zoning_desc', 'property_type'
     ];
 

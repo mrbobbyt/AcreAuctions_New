@@ -11,14 +11,15 @@ use Illuminate\Http\Resources\Json\JsonResource;
  * @property int inner_listing_id
  * @property int apn
  * @property string title
- * @property string subtitle
  * @property string slug
  * @property string description
  * @property bool is_featured
+ * @property bool is_verified
  * @property int seller_id
- * @property string utilities
- * @property string zoning
+ * @property int utilities
+ * @property int zoning
  * @property string zoning_desc
+ * @property int property_type
  */
 class ListingResource extends JsonResource
 {
@@ -35,9 +36,10 @@ class ListingResource extends JsonResource
             'listing_id' => $this->inner_listing_id,
             'apn' => $this->apn,
             'title' => $this->title,
-            'subtitle' => $this->subtitle,
+            'slug' => $this->slug,
             'description' => $this->description,
-            'seller' => $this->seller->title,
+            'is_featured' => $this->is_featured,
+            'seller' => $this->sellerWithLogo,
             'utilities' => $this->getUtilities ? $this->getUtilities->name : null,
             'zoning' => $this->getZoning ? $this->getZoning->name : null,
             'zoning_desc' => $this->zoning_desc,
