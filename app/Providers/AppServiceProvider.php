@@ -3,51 +3,16 @@
 namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
-
-use App\Services\Auth\UserAuthService;
-use App\Services\Auth\Contracts\UserAuthServiceContract;
-
-use App\Repositories\User\Contracts\UserRepositoryContract;
-use App\Repositories\User\UserRepository;
-
-use App\Services\User\Contracts\UserServiceContract;
-use App\Services\User\UserService;
-
-use App\Services\Social\Contracts\FacebookServiceContract;
-use App\Services\Social\FacebookService;
-
-use App\Services\Social\Contracts\GoogleServiceContract;
-use App\Services\Social\GoogleService;
-
-use App\Repositories\Seller\Contracts\SellerRepositoryContract;
-use App\Repositories\Seller\SellerRepository;
-
-use App\Services\Seller\Contracts\SellerServiceContract;
-use App\Services\Seller\SellerService;
-
-use App\Repositories\Listing\Contracts\ListingRepositoryContract;
-use App\Repositories\Listing\ListingRepository;
-
-use App\Services\Listing\Contracts\ListingServiceContract;
-use App\Services\Listing\ListingService;
-
-use App\Repositories\SearchListing\Contracts\SearchListingRepositoryContract;
-use App\Repositories\SearchListing\SearchListingRepository;
-
-use App\Services\Social\Contracts\ShareServiceContract;
-use App\Services\Social\ShareService;
-
-use App\Services\Favorite\Contracts\FavoriteServiceContract;
-use App\Services\Favorite\FavoriteService;
-
-use App\Repositories\Favorite\Contracts\FavoriteRepositoryContract;
-use App\Repositories\Favorite\FavoriteRepository;
-
-use App\Repositories\Social\Contracts\ShareRepositoryContract;
-use App\Repositories\Social\ShareRepository;
+use Config;
 
 class AppServiceProvider extends ServiceProvider
 {
+    /**
+     * Configuration String
+     */
+    const CONFIG_STRING = 'bindings';
+
+
     /**
      * Bootstrap any application services.
      *
@@ -69,32 +34,28 @@ class AppServiceProvider extends ServiceProvider
             $this->app->register(\Barryvdh\LaravelIdeHelper\IdeHelperServiceProvider::class);
         }
 
-        $this->app->bind( UserAuthServiceContract::class, UserAuthService::class );
+        if ( ! empty(Config::get(self::CONFIG_STRING))) {
+            $this->registerBindingGroups(Config::get(self::CONFIG_STRING));
+        }
+    }
 
-        $this->app->bind( UserRepositoryContract::class, UserRepository::class );
 
-        $this->app->bind( UserServiceContract::class, UserService::class );
-
-        $this->app->bind( FacebookServiceContract::class, FacebookService::class );
-
-        $this->app->bind( GoogleServiceContract::class, GoogleService::class );
-
-        $this->app->bind( SellerRepositoryContract::class, SellerRepository::class );
-
-        $this->app->bind( SellerServiceContract::class, SellerService::class );
-
-        $this->app->bind( ListingRepositoryContract::class, ListingRepository::class );
-
-        $this->app->bind( ListingServiceContract::class, ListingService::class );
-
-        $this->app->bind( SearchListingRepositoryContract::class, SearchListingRepository::class );
-
-        $this->app->bind( ShareServiceContract::class, ShareService::class );
-
-        $this->app->bind( FavoriteServiceContract::class, FavoriteService::class );
-
-        $this->app->bind( FavoriteRepositoryContract::class, FavoriteRepository::class );
-
-        $this->app->bind( ShareRepositoryContract::class, ShareRepository::class );
+    /**
+     * Register Application Binding Groups
+     * @author Yitzchok Willroth (@coderabbi) <coderabbi@gmail.com>
+     * @copyright Yitzchok Willroth (@coderabbi) <coderabbi@gmail.com>
+     * @license MIT <http://opensource.org/licenses/MIT>
+     * @package  Coderabbi\BinderClip
+     * @param array $groups
+     */
+    private function registerBindingGroups(array $groups)
+    {
+        foreach ($groups as $arrays) {
+            foreach ($arrays as $bindings) {
+                foreach ($bindings as $interface => $implementation) {
+                    $this->app->bind($interface, $implementation);
+                }
+            }
+        }
     }
 }

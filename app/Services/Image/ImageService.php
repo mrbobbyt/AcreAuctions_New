@@ -11,15 +11,11 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\UploadedFile;
 use Image as ImageConverter;
 use App\Models\Image;
+use App\Services\Image\Contracts\ImageServiceContract;
 use Throwable;
 
-class ImageService
+class ImageService implements ImageServiceContract
 {
-    const MAX_IMG_WIDTH = 640;
-    const MAX_IMG_HEIGHT = 480;
-    const MAX_PREVIEW_WIDTH = 208;
-    const MAX_PREVIEW_HEIGHT = 156;
-
     protected $listingRepo;
 
     public function __construct(ListingRepositoryContract $listingRepo)
