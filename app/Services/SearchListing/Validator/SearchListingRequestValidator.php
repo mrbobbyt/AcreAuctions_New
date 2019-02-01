@@ -1,7 +1,7 @@
 <?php
 declare(strict_types = 1);
 
-namespace App\Services\Search\Validator;
+namespace App\Services\SearchListing\Validator;
 
 use App\Services\Auth\Validators\AbstractValidator;
 use Illuminate\Http\Request;
@@ -42,6 +42,12 @@ class SearchListingRequestValidator implements AbstractValidator
             'county' => 'nullable|string',
             'city' => 'nullable|string',
             'zip' => 'nullable|numeric',
+
+            'property_type' => 'nullable|numeric|exists:property_types,id',
+            'sale_type' => 'nullable|numeric|exists:sale_types,id',
+        ], [
+            'property_type.exists' => 'Property type not found.',
+            'sale_type.exists' => 'Financing type not found.',
         ]);
 
         return $validator->validate();

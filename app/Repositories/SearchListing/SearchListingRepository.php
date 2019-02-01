@@ -28,15 +28,20 @@ class SearchListingRepository implements SearchListingRepositoryContract
      */
     public function findByParams(array $data): LengthAwarePaginator
     {
-        $geoParams = array_only($data['body'], ['acreage', 'state', 'city', 'county', 'zip', 'longitude', 'latitude']);
-        $priceParams = array_only($data['body'], ['price']);
-
+        $listingParams = array_only($data['body'], ['property_type']);
+        $geoParams = array_only($data['body'], ['acreage', 'state', 'city',
+            'county', 'zip', 'longitude', 'latitude']);
+        $priceParams = array_only($data['body'], ['price', 'sale_type']);
+//dd($listingParams);
         $listings = Listing::whereHas('geo', function ($q) use ($geoParams) {
-            $q->whereFields($geoParams);
-        })
-        ->whereHas('price', function ($q) use ($priceParams) {
-            $q->whereFields($priceParams);
-        })->with(['images', 'geo', 'price', 'sellerWithLogo'])
+                $q->whereFields($geoParams);
+            })
+            ->whereHas('price', function ($q) use ($priceParams) {
+                $q->whereFields($priceParams);
+            })
+            //->where([$listingParams])
+            ->with(['images', 'geo', 'price', 'sellerWithLogo', 'docs',
+                'subdivision', 'links', 'videos'])
             ->paginate(5);
 
         return $listings;

@@ -69,7 +69,7 @@ class ImageService
             });
         }
         $name = str_random(20) .'_listing_'. $id;
-        $img->save(public_path().'/images/'.$type.'/'.$name);
+        $img->save(public_path().'/images/'.$type.'/'.$name.'.jpg');
 
         $image = Image::query()->make()->fill([
             'entity_id' => $id,

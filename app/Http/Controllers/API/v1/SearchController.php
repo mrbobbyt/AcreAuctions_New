@@ -4,7 +4,7 @@ declare(strict_types = 1);
 namespace App\Http\Controllers\API\v1;
 
 use App\Repositories\SearchListing\Contracts\SearchListingRepositoryContract;
-use App\Services\Search\Validator\SearchListingRequestValidator;
+use App\Services\SearchListing\Validator\SearchListingRequestValidator;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Throwable;
