@@ -18,7 +18,7 @@ class FullsizePreview extends Model
 
     protected $hidden = ['fullsize_id', 'preview_id', 'listing_id'];
 
-    protected $appends = ['full_path_fullsize', 'full_path_preview'];
+    protected $appends = ['fullsize', 'preview'];
 
     public $timestamps = false;
 
@@ -26,17 +26,17 @@ class FullsizePreview extends Model
     /**
      * @return string
      */
-    public function getFullPathFullsizeAttribute()
+    public function getFullsizeAttribute()
     {
-        return Image::query()->where('id', $this->fullsize_id)->first();
+        return '/images/fullsize/'. Image::query()->where('id', $this->fullsize_id)->first()->name;
     }
 
 
     /**
      * @return string
      */
-    public function getFullPathPreviewAttribute()
+    public function getPreviewAttribute()
     {
-        return Image::query()->where('id', $this->preview_id)->first();
+        return '/images/preview/'. Image::query()->where('id', $this->preview_id)->first()->name;
     }
 }

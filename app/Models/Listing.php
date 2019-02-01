@@ -3,6 +3,7 @@ declare(strict_types = 1);
 
 namespace App\Models;
 
+use App\Traits\ModelBuilderScopes;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -23,9 +24,12 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
  * @property int utilities
  * @property int zoning
  * @property string zoning_desc
+ * @property int property_type
  */
 class Listing extends Model
 {
+    use ModelBuilderScopes;
+
     protected $fillable = [
         'inner_listing_id', 'apn', 'title', 'subtitle', 'slug', 'description', 'is_featured', 'is_verified',
         'seller_id', 'utilities', 'zoning', 'zoning_desc', 'property_type'
@@ -183,11 +187,16 @@ class Listing extends Model
 
     /**
      * Check is user make this listing favorite
-     * @param int $id
      * @return bool
      */
-    public function isFavorite(int $id)
+    public function isFavorite(): bool
     {
-        return $this->favorite()->where('user_id', $id)->exists();
+        if(\JWTAuth::user()) {
+            return $this->favorite()
+                ->where('user_id', \JWTAuth::user()->getJWTIdentifier())
+                ->exists();
+        }
+
+        return false;
     }
 }

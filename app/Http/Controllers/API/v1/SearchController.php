@@ -3,6 +3,7 @@ declare(strict_types = 1);
 
 namespace App\Http\Controllers\API\v1;
 
+use App\Http\Resources\ListingResource;
 use App\Repositories\SearchListing\Contracts\SearchListingRepositoryContract;
 use App\Services\SearchListing\Validator\SearchListingRequestValidator;
 use Illuminate\Http\Request;
@@ -46,7 +47,7 @@ class SearchController extends Controller
 
         return response()->json([
             'status' => 'Success',
-            'listing' => $result
+            'listing' => ListingResource::collection($result)
         ]);
     }
 }
