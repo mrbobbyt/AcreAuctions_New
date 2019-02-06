@@ -47,7 +47,6 @@ class ListingResource extends JsonResource
 
             'geo' => $this->geo,
             'price' => $this->price,
-            'sale_type' => $this->getSaleType ? $this->getSaleType->name : null,
             'subdivision' =>$this->subdivision ?? null,
             'gallery' => $this->gallery,
             'docs' => $this->docs,

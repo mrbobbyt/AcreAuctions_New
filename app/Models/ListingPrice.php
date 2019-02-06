@@ -28,7 +28,9 @@ class ListingPrice extends Model
 
     protected $guarded = ['id'];
 
-    protected $hidden = ['created_at', 'updated_at', 'listing_id'];
+    protected $hidden = ['created_at', 'updated_at', 'listing_id', 'sale_type'];
+
+    protected $appends = ['get_sale_type'];
 
 
     /**
@@ -38,5 +40,14 @@ class ListingPrice extends Model
     public function getSaleType()
     {
         return $this->belongsTo('App\Models\SaleType', 'sale_type', 'id');
+    }
+
+
+    /**
+     * @return string
+     */
+    public function getGetSaleTypeAttribute()
+    {
+        return SaleType::query()->find($this->sale_type);
     }
 }

@@ -45,7 +45,9 @@ class ListingGeo extends Model
     }
 
 
-
+    /**
+     * @return string
+     */
     public function getGetRoadAccessAttribute()
     {
         return RoadAccess::query()->find($this->road_access);
