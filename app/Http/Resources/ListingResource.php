@@ -43,7 +43,7 @@ class ListingResource extends JsonResource
             'utilities' => $this->getUtilities ? $this->getUtilities->name : null,
             'zoning' => $this->getZoning ? $this->getZoning->name : null,
             'zoning_desc' => $this->zoning_desc,
-            'property type' => $this->getPropertyType ? $this->getPropertyType->name : null,
+            'property_type' => $this->getPropertyType ? $this->getPropertyType->name : null,
 
             'geo' => $this->geo,
             'price' => $this->price,
