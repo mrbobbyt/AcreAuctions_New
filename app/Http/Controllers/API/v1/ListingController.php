@@ -188,7 +188,7 @@ class ListingController extends Controller
     /**
      * Return properties for create listing
      * METHOD: get
-     * URL: /land-for-sale/create
+     * URL: /land-for-sale/properties
      * @return JsonResponse
      */
     public function createWithProperties(): JsonResponse
