@@ -11,6 +11,7 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Pagination\Paginator;
+use Illuminate\Validation\ValidationException;
 use Throwable;
 use Illuminate\Http\JsonResponse;
 
@@ -41,6 +42,11 @@ class SearchController extends Controller
                 $result = $this->searchRepo->findAll();
             }
 
+        } catch (ValidationException $e) {
+            return response()->json([
+                'status' => 'Error',
+                'message' => $e->validator->errors()->first(),
+            ], 400);
         } catch (Throwable $e) {
             return response()->json([
                 'status' => 'Error',
