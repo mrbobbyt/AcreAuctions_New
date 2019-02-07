@@ -9,7 +9,7 @@ use Exception;
 use File;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\UploadedFile;
-use Image as ImageConverter;
+use Intervention\Image\Facades\Image as ImageConverter;
 use App\Models\Image;
 use App\Services\Image\Contracts\ImageServiceContract;
 use Throwable;
@@ -28,6 +28,7 @@ class ImageService implements ImageServiceContract
      * @param UploadedFile $item
      * @param int $id
      * @return bool
+     * @throws Throwable
      */
     public function create(UploadedFile $item, int $id): bool
     {
@@ -70,7 +71,7 @@ class ImageService implements ImageServiceContract
         $image = Image::query()->make()->fill([
             'entity_id' => $id,
             'entity_type' => Image::TYPE_LISTING,
-            'name' => $name,
+            'name' => $name.'.jpg',
         ]);
 
         $image->saveOrFail();
