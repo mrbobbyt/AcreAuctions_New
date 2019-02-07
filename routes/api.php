@@ -66,13 +66,12 @@ Route::put('admin/verify-seller', 'API\v1\AdminController@verifySeller')
 
 /******** Listing ********/
 
+Route::get('land-for-sale/properties', 'API\v1\ListingController@createWithProperties');
+
 Route::get('land-for-sale/{slug}', 'API\v1\ListingController@view')
     ->middleware('listing.verification');
 
 Route::post('land-for-sale/create', 'API\v1\ListingController@create')
-    ->middleware('jwt.verify');
-
-Route::get('land-for-sale/properties', 'API\v1\ListingController@createWithProperties')
     ->middleware('jwt.verify');
 
 Route::post('land-for-sale/{id}/update', 'API\v1\ListingController@update')

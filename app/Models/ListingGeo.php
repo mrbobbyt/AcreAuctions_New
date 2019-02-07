@@ -30,9 +30,7 @@ class ListingGeo extends Model
 
     protected $guarded = ['id'];
 
-    protected $hidden = ['created_at', 'updated_at', 'listing_id', 'road_access'];
-
-    protected $appends = ['get_road_access'];
+    protected $hidden = ['created_at', 'updated_at', 'listing_id'];
 
 
     /**
@@ -42,14 +40,5 @@ class ListingGeo extends Model
     public function getRoadAccess()
     {
         return $this->belongsTo('App\Models\RoadAccess', 'road_access', 'id');
-    }
-
-
-    /**
-     * @return string
-     */
-    public function getGetRoadAccessAttribute()
-    {
-        return RoadAccess::query()->find($this->road_access);
     }
 }

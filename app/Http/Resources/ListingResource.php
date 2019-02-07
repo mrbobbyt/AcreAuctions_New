@@ -3,7 +3,7 @@ declare(strict_types = 1);
 
 namespace App\Http\Resources;
 
-use App\Repositories\Listing\Contracts\ListingRepositoryContract;
+use App\Repositories\Listing\ListingRepository;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 /**
@@ -45,8 +45,8 @@ class ListingResource extends JsonResource
             'zoning_desc' => $this->zoning_desc,
             'property_type' => $this->getPropertyType ? $this->getPropertyType->name : null,
 
-            'geo' => $this->geo,
-            'price' => $this->price,
+            'geo' => ListingGeoResource::make( (new ListingRepository())->findGeoByPk($this->id) ),
+            'price' => ListingPriceResource::make( (new ListingRepository())->findPriceByPk($this->id) ),
             'subdivision' =>$this->subdivision ?? null,
             'gallery' => $this->gallery,
             'docs' => $this->docs,
