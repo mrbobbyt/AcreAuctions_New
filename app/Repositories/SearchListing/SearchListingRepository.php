@@ -15,8 +15,7 @@ class SearchListingRepository implements SearchListingRepositoryContract
      */
     public function findAll(): Collection
     {
-        $listings = Listing::with(['images', 'geo', 'price', 'sellerWithLogo', 'docs',
-            'subdivision', 'links', 'videos'])->get();
+        $listings = Listing::get();
 
         return $listings;
     }
@@ -29,18 +28,47 @@ class SearchListingRepository implements SearchListingRepositoryContract
      */
     public function findByParams(array $data): Collection
     {
-        $listingParams = array_only($data['body'], ['property_type']);
         $geoParams = array_only($data['body'], ['acreage', 'state', 'city',
-            'county', 'zip', 'longitude', 'latitude']);
-        $priceParams = array_only($data['body'], ['price', 'sale_type']);
+            'zip', 'longitude', 'latitude']);
+        $priceParams = array_only($data['body'], ['price']);
 
-        $listings = Listing::whereHas('geo', function ($q) use ($geoParams) {
+        $county = [];
+        if (isset($data['body']['county'])) {
+            $county = explode(',', $data['body']['county']);
+        }
+
+        $propType = [];
+        if (isset($data['body']['property_type'])) {
+            $propType = explode(',', $data['body']['property_type']);
+        }
+
+        $saleType = [];
+        if (isset($data['body']['sale_type'])) {
+            $saleType = explode(',', $data['body']['sale_type']);
+        }
+
+        $listings = Listing::
+            whereHas('geo', function ($q) use ($geoParams) {
                 $q->whereFields($geoParams);
+            })
+            ->whereHas('geo', function ($q) use ($county) {
+                if ($county) {
+                    $q->whereIn('county', $county);
+                }
             })
             ->whereHas('price', function ($q) use ($priceParams) {
                 $q->whereFields($priceParams);
             })
-            ->whereFields($listingParams)
+            ->whereHas('price', function ($q) use ($saleType) {
+                if ($saleType) {
+                    $q->whereIn('sale_type', $saleType);
+                }
+            })
+            ->orWhere(function ($q) use ($propType) {
+                if($propType) {
+                    $q->whereIn('property_type', $propType);
+                }
+            })
             ->get();
 
         return $listings;
