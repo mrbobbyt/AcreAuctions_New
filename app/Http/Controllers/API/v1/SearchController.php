@@ -36,11 +36,7 @@ class SearchController extends Controller
         try {
             $data = (new SearchListingRequestValidator())->attempt($request);
 
-            if ($data['body']) {
-                $result = $this->searchRepo->findByParams($data);
-            } else {
-                $result = $this->searchRepo->findAll();
-            }
+            $result = $this->searchRepo->findAll($data);
 
         } catch (ValidationException $e) {
             return response()->json([

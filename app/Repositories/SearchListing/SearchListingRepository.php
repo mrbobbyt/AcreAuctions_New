@@ -11,10 +11,17 @@ class SearchListingRepository implements SearchListingRepositoryContract
 {
     /**
      * Find all listings
+     * @param array $data
      * @return Collection
      */
-    public function findAll(): Collection
+    public function findAll(array $data): Collection
     {
+        if ($data['body']) {
+            if (count($data['body']) === 1 && in_array('property_type', $data['body'])) {
+                return $this->findOnlyPropertyType();
+            }
+            return $this->findByParams($data['body']);
+        }
         $listings = Listing::get();
 
         return $listings;
@@ -26,7 +33,7 @@ class SearchListingRepository implements SearchListingRepositoryContract
      * @param array $data
      * @return Collection
      */
-    public function findByParams(array $data): Collection
+    protected function findByParams(array $data): Collection
     {
         $geoParams = array_only($data['body'], ['acreage', 'state', 'city',
             'zip', 'longitude', 'latitude']);
@@ -70,6 +77,20 @@ class SearchListingRepository implements SearchListingRepositoryContract
                 }
             })
             ->get();
+
+        return $listings;
+    }
+
+
+    /**
+     * Find only by property type
+     * @param string $propType
+     * @return Collection
+     */
+    protected function findOnlyPropertyType(string $propType): Collection
+    {
+        $props = explode(',', $propType);
+        $listings = Listing::whereIn('property_type', $props)->get();
 
         return $listings;
     }
