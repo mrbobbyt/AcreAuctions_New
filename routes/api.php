@@ -85,6 +85,8 @@ Route::delete('land-for-sale/{id}/delete', 'API\v1\ListingController@delete')
 
 Route::get('search', 'API\v1\SearchController@search');
 
+Route::get('/land-for-sale/filters', 'API\v1\SearchController@filters');
+
 
 /******** Favorite ********/
 

@@ -5,24 +5,24 @@ namespace App\Repositories\SearchListing;
 
 use App\Models\Listing;
 use App\Repositories\SearchListing\Contracts\SearchListingRepositoryContract;
-use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 
 class SearchListingRepository implements SearchListingRepositoryContract
 {
     /**
      * Find all listings
      * @param array $data
-     * @return Collection
+     * @return LengthAwarePaginator
      */
-    public function findAll(array $data): Collection
+    public function findAll(array $data): LengthAwarePaginator
     {
         if ($data['body']) {
-            if (count($data['body']) === 1 && in_array('property_type', $data['body'])) {
-                return $this->findOnlyPropertyType();
+            if (count($data['body']) === 1 && array_key_exists('property_type', $data['body'])) {
+                return $this->findOnlyPropertyType($data['body']['property_type']);
             }
-            return $this->findByParams($data['body']);
+            return $this->findByParams($data);
         }
-        $listings = Listing::get();
+        $listings = Listing::paginate(5);
 
         return $listings;
     }
@@ -31,9 +31,9 @@ class SearchListingRepository implements SearchListingRepositoryContract
     /**
      * Find all listings with requested fields
      * @param array $data
-     * @return Collection
+     * @return LengthAwarePaginator
      */
-    protected function findByParams(array $data): Collection
+    protected function findByParams(array $data): LengthAwarePaginator
     {
         $geoParams = array_only($data['body'], ['acreage', 'state', 'city',
             'zip', 'longitude', 'latitude']);
@@ -76,7 +76,7 @@ class SearchListingRepository implements SearchListingRepositoryContract
                     $q->whereIn('property_type', $propType);
                 }
             })
-            ->get();
+            ->paginate(5);
 
         return $listings;
     }
@@ -85,13 +85,19 @@ class SearchListingRepository implements SearchListingRepositoryContract
     /**
      * Find only by property type
      * @param string $propType
-     * @return Collection
+     * @return LengthAwarePaginator
      */
-    protected function findOnlyPropertyType(string $propType): Collection
+    protected function findOnlyPropertyType(string $propType): LengthAwarePaginator
     {
         $props = explode(',', $propType);
-        $listings = Listing::whereIn('property_type', $props)->get();
+        $listings = Listing::whereIn('property_type', $props)->paginate(5);
 
         return $listings;
+    }
+
+
+    public function getFilters()
+    {
+
     }
 }

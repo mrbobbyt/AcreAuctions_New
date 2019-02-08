@@ -3,14 +3,11 @@ declare(strict_types = 1);
 
 namespace App\Http\Controllers\API\v1;
 
-use App\Http\Resources\ListingResource;
+use App\Http\Resources\ListingCollection;
 use App\Repositories\SearchListing\Contracts\SearchListingRepositoryContract;
 use App\Services\SearchListing\Validator\SearchListingRequestValidator;
-use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
-use Illuminate\Pagination\LengthAwarePaginator;
-use Illuminate\Pagination\Paginator;
 use Illuminate\Validation\ValidationException;
 use Throwable;
 use Illuminate\Http\JsonResponse;
@@ -52,35 +49,13 @@ class SearchController extends Controller
 
         return response()->json([
             'status' => 'Success',
-            'listing' => $this->paginate(ListingResource::collection($result), url()->current())
+            'listings' => new ListingCollection($result)
         ]);
     }
 
 
-    /**
-     * Make search results paginated
-     * @param $items
-     * @param null $baseUrl
-     * @param int $perPage
-     * @param null $page
-     * @param array $options
-     * @return LengthAwarePaginator
-     */
-    public function paginate($items, $baseUrl = null, $perPage = 5, $page = null, $options = []): LengthAwarePaginator
+    public function filters()
     {
-        $page = $page ?: (Paginator::resolveCurrentPage() ?: 1);
 
-        $items = $items instanceof Collection ?
-            $items : Collection::make($items);
-
-        $lap = new LengthAwarePaginator($items->forPage($page, $perPage),
-            $items->count(),
-            $perPage, $page, $options);
-
-        if ($baseUrl) {
-            $lap->setPath($baseUrl);
-        }
-
-        return $lap;
     }
 }

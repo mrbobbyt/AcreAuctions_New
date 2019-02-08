@@ -15,4 +15,5 @@ interface SearchListingRepositoryContract
      */
     public function findAll(array $data);
 
+    public function getFilters();
 }
