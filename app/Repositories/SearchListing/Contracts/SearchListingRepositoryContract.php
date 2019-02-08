@@ -15,5 +15,10 @@ interface SearchListingRepositoryContract
      */
     public function findAll(array $data);
 
-    public function getFilters();
+
+    /**
+     * Find all counties
+     * @return array
+     */
+    public function getCounties();
 }

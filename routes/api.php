@@ -64,6 +64,13 @@ Route::put('admin/verify-seller', 'API\v1\AdminController@verifySeller')
     ->middleware('jwt.verify', 'admin');
 
 
+/********* Search *********/
+
+Route::get('search', 'API\v1\SearchController@search');
+
+Route::get('land-for-sale/filters', 'API\v1\SearchController@filters');
+
+
 /******** Listing ********/
 
 Route::get('land-for-sale/properties', 'API\v1\ListingController@createWithProperties');
@@ -79,13 +86,6 @@ Route::post('land-for-sale/{id}/update', 'API\v1\ListingController@update')
 
 Route::delete('land-for-sale/{id}/delete', 'API\v1\ListingController@delete')
     ->middleware('jwt.verify', 'listing.permission');
-
-
-/********* Search *********/
-
-Route::get('search', 'API\v1\SearchController@search');
-
-Route::get('/land-for-sale/filters', 'API\v1\SearchController@filters');
 
 
 /******** Favorite ********/

@@ -4,6 +4,7 @@ declare(strict_types = 1);
 namespace App\Repositories\SearchListing;
 
 use App\Models\Listing;
+use App\Models\ListingGeo;
 use App\Repositories\SearchListing\Contracts\SearchListingRepositoryContract;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 
@@ -96,8 +97,17 @@ class SearchListingRepository implements SearchListingRepositoryContract
     }
 
 
-    public function getFilters()
+    /**
+     * Find all counties
+     * @return array
+     */
+    public function getCounties()
     {
+        $counties = ListingGeo::query()
+            ->groupBy('county')
+            ->pluck('county')
+            ->all();
 
+        return $counties;
     }
 }
