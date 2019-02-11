@@ -11,97 +11,65 @@ use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 class SearchListingRepository implements SearchListingRepositoryContract
 {
     /**
-     * Find all listings
+     * Find all listings with requested fields
      * @param array $data
      * @return LengthAwarePaginator
      */
     public function findAll(array $data): LengthAwarePaginator
     {
-        if ($data['body']) {
-            if (count($data['body']) === 1 && array_key_exists('property_type', $data['body'])) {
-                return $this->findOnlyPropertyType($data['body']['property_type']);
-            }
-            return $this->findByParams($data);
+        $listings = (new Listing)->newQuery();
+
+        // Search by geo params
+        $geoParams = array_only($data['body'], ['state', 'city', 'zip', 'longitude', 'latitude']);
+        if ($geoParams) {
+            $listings->whereHas('geo', function ($q) use ($geoParams) {
+                $q->whereFields($geoParams);
+            });
         }
-        $listings = Listing::paginate(5);
 
-        return $listings;
-    }
-
-
-    /**
-     * Find all listings with requested fields
-     * @param array $data
-     * @return LengthAwarePaginator
-     */
-    protected function findByParams(array $data): LengthAwarePaginator
-    {
-        $geoParams = array_only($data['body'], ['state', 'city',
-            'zip', 'longitude', 'latitude']);
-        $priceParam = $data['body']['price'] ?? '';
-        $acreageParam = $data['body']['acreage'] ?? '';
-
-        $county = [];
+        // Multiple filter search by county in geo params
         if (isset($data['body']['county'])) {
             $county = explode(',', $data['body']['county']);
+            $listings->whereHas('geo', function ($q) use ($county) {
+                $q->whereIn('county', $county);
+            });
         }
 
-        $propType = [];
-        if (isset($data['body']['property_type'])) {
-            $propType = explode(',', $data['body']['property_type']);
+        // Search by range of acreage of listings
+        if (isset($data['body']['acreage'])) {
+            $acreageParam = $data['body']['acreage'];
+            $listings->whereHas('geo', function ($q) use ($acreageParam) {
+                $q->where('acreage', '>=', $acreageParam);
+            });
         }
 
-        $saleType = [];
-        if (isset($data['body']['sale_type'])) {
-            $saleType = explode(',', $data['body']['sale_type']);
-        }
-
-        $listings = Listing::
-            whereHas('geo', function ($q) use ($geoParams) {
-                $q->whereFields($geoParams);
-            })
-            ->whereHas('geo', function ($q) use ($county) {
-                if ($county) {
-                    $q->whereIn('county', $county);
-                }
-            })
-            ->whereHas('geo', function ($q) use ($acreageParam) {
-                if ($acreageParam) {
-                    $q->where('acreage', '>=', $acreageParam);
-                }
-            })
-            ->whereHas('price', function ($q) use ($priceParam) {
+        // Search by range of price of listings
+        if (isset($data['body']['price'])) {
+           $priceParam = $data['body']['price'];
+           $listings->whereHas('price', function ($q) use ($priceParam) {
                 if ($priceParam) {
                     $q->where('price', '>=', $priceParam);
                 }
-            })
-            ->whereHas('price', function ($q) use ($saleType) {
-                if ($saleType) {
-                    $q->whereIn('sale_type', $saleType);
-                }
-            })
-            ->orWhere(function ($q) use ($propType) {
-                if($propType) {
-                    $q->whereIn('property_type', $propType);
-                }
-            })
-            ->paginate(5);
+            });
+        }
 
-        return $listings;
-    }
+        // Multiple filter search by sale type (financing) in price params
+        if (isset($data['body']['sale_type'])) {
+            $saleType = explode(',', $data['body']['sale_type']);
+            $listings->whereHas('price', function ($q) use ($saleType) {
+                $q->whereIn('sale_type', $saleType);
+            });
+        }
 
+        // Multiple filter search by property type in base listing params
+        if (isset($data['body']['property_type'])) {
+            $propType = explode(',', $data['body']['property_type']);
+            $listings->where(function ($q) use ($propType) {
+                $q->whereIn('property_type', $propType);
+            });
+        }
 
-    /**
-     * Find only by property type
-     * @param string $propType
-     * @return LengthAwarePaginator
-     */
-    protected function findOnlyPropertyType(string $propType): LengthAwarePaginator
-    {
-        $props = explode(',', $propType);
-        $listings = Listing::whereIn('property_type', $props)->paginate(5);
-
-        return $listings;
+        return $listings->paginate(5);
     }
 
 
