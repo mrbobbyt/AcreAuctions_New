@@ -36,9 +36,10 @@ class SearchListingRepository implements SearchListingRepositoryContract
      */
     protected function findByParams(array $data): LengthAwarePaginator
     {
-        $geoParams = array_only($data['body'], ['acreage', 'state', 'city',
+        $geoParams = array_only($data['body'], ['state', 'city',
             'zip', 'longitude', 'latitude']);
-        $priceParams = array_only($data['body'], ['price']);
+        $priceParam = $data['body']['price'] ?? '';
+        $acreageParam = $data['body']['acreage'] ?? '';
 
         $county = [];
         if (isset($data['body']['county'])) {
@@ -64,8 +65,15 @@ class SearchListingRepository implements SearchListingRepositoryContract
                     $q->whereIn('county', $county);
                 }
             })
-            ->whereHas('price', function ($q) use ($priceParams) {
-                $q->whereFields($priceParams);
+            ->whereHas('geo', function ($q) use ($acreageParam) {
+                if ($acreageParam) {
+                    $q->where('acreage', '>=', $acreageParam);
+                }
+            })
+            ->whereHas('price', function ($q) use ($priceParam) {
+                if ($priceParam) {
+                    $q->where('price', '>=', $priceParam);
+                }
             })
             ->whereHas('price', function ($q) use ($saleType) {
                 if ($saleType) {
