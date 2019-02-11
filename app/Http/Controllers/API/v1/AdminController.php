@@ -3,6 +3,7 @@ declare(strict_types = 1);
 
 namespace App\Http\Controllers\API\v1;
 
+use App\Http\Resources\UserCollection;
 use App\Repositories\Admin\Contracts\AdminRepositoryContract;
 use App\Services\Admin\Contracts\AdminServiceContract;
 use Illuminate\Http\Request;
@@ -92,7 +93,7 @@ class AdminController extends Controller
 
         return response()->json([
             'status' => 'Success',
-            'seller' => $result
+            'users' => new UserCollection($result)
         ]);
     }
 

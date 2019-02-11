@@ -5,10 +5,16 @@ namespace App\Repositories\Admin;
 
 use App\Models\User;
 use App\Repositories\Admin\Contracts\AdminRepositoryContract;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 
 class AdminRepository implements AdminRepositoryContract
 {
-    public function findUsers(array $data)
+    /**
+     * Find users by fname/lname/email
+     * @param array $data
+     * @return LengthAwarePaginator
+     */
+    public function findUsers(array $data): LengthAwarePaginator
     {
         if (strpos($data['body']['name'], ' ')) {
             list ($fname, $lname) = explode(' ', $data['body']['name']);
@@ -24,7 +30,7 @@ class AdminRepository implements AdminRepositoryContract
                 ])
                 ->orWhere('email', 'like', '%'.$fname.'%')
                 ->orWhere('email', 'like', '%'.$lname.'%')
-                ->get();
+                ->paginate(20);
 
         } else {
             $name = '%'.$data['body']['name'].'%';
@@ -33,7 +39,8 @@ class AdminRepository implements AdminRepositoryContract
                 ->where('fname', 'like', $name)
                 ->orWhere('lname', 'like', $name)
                 ->orWhere('email', 'like', $name)
-                ->get();
+                ->paginate(20);
         }
     }
+
 }
