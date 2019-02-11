@@ -3,12 +3,14 @@ declare(strict_types = 1);
 
 namespace App\Http\Controllers\API\v1;
 
-use App\Services\Seller\Contracts\SellerServiceContract;
+use App\Repositories\Admin\Contracts\AdminRepositoryContract;
+use App\Services\Admin\Contracts\AdminServiceContract;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
 
-use App\Services\Seller\Validators\VerifySellerRequestValidator;
+use App\Services\Admin\Validators\VerifySellerRequestValidator;
+use App\Services\Admin\Validators\SearchUserRequestValidator;
 
 use Throwable;
 use Illuminate\Validation\ValidationException;
@@ -16,11 +18,13 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class AdminController extends Controller
 {
-    protected $sellerService;
+    protected $adminService;
+    protected $adminRepo;
 
-    public function __construct(SellerServiceContract $sellerService)
+    public function __construct(AdminServiceContract $adminService, AdminRepositoryContract $adminRepo)
     {
-        $this->sellerService = $sellerService;
+        $this->adminService = $adminService;
+        $this->adminRepo = $adminRepo;
     }
 
 
@@ -35,7 +39,7 @@ class AdminController extends Controller
     {
         try {
             $data = app(VerifySellerRequestValidator::class)->attempt($request);
-            $this->sellerService->verify($data['seller']);
+            $this->adminService->verifySeller($data['seller']);
 
         } catch (ValidationException $e) {
             return response()->json([
@@ -57,6 +61,38 @@ class AdminController extends Controller
         return response()->json([
             'status' => 'Success',
             'seller' => 'Seller successfully verified.'
+        ]);
+    }
+
+
+    /**
+     * Search user by name and email
+     * METHOD: get
+     * URL: /admin/user-search
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function userSearch(Request $request): JsonResponse
+    {
+        try {
+            $data = app(SearchUserRequestValidator::class)->attempt($request);
+            $result = $this->adminRepo->findUsers($data);
+
+        } catch (ValidationException $e) {
+            return response()->json([
+                'status' => 'Error',
+                'message' => $e->validator->errors()->first(),
+            ], 400);
+        } catch (Throwable $e) {
+            return response()->json([
+                'status' => 'Error',
+                'message' => 'Search user error.'
+            ], 500);
+        }
+
+        return response()->json([
+            'status' => 'Success',
+            'seller' => $result
         ]);
     }
 

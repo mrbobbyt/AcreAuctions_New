@@ -63,6 +63,9 @@ Route::delete('seller/{id}/delete', 'API\v1\SellerController@delete')
 Route::put('admin/verify-seller', 'API\v1\AdminController@verifySeller')
     ->middleware('jwt.verify', 'admin');
 
+Route::get('admin/user-search', 'API\v1\AdminController@userSearch')
+    ->middleware('jwt.verify', 'admin');
+
 
 /********* Search *********/
 

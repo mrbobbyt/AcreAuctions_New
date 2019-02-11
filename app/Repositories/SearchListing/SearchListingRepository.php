@@ -15,7 +15,7 @@ class SearchListingRepository implements SearchListingRepositoryContract
      * @param array $data
      * @return LengthAwarePaginator
      */
-    public function findAll(array $data): LengthAwarePaginator
+    public function findListings(array $data): LengthAwarePaginator
     {
         $listings = (new Listing)->newQuery();
 

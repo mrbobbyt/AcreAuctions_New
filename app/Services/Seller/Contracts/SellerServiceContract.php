@@ -22,14 +22,6 @@ interface SellerServiceContract
 
 
     /**
-     * Make seller verified
-     * @param object $seller
-     * @return bool
-     */
-    public function verify(object $seller);
-
-
-    /**
      * Update seller
      * @param int $id
      * @param array $data

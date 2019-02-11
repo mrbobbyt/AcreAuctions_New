@@ -13,7 +13,7 @@ interface SearchListingRepositoryContract
      * @param array $data
      * @return Collection
      */
-    public function findAll(array $data);
+    public function findListings(array $data);
 
 
     /**

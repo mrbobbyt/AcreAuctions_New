@@ -1,7 +1,7 @@
 <?php
 declare(strict_types = 1);
 
-namespace App\Services\Seller\Validators;
+namespace App\Services\Admin\Validators;
 
 use App\Repositories\Seller\Contracts\SellerRepositoryContract;
 use App\Services\Auth\Validators\AbstractValidator;

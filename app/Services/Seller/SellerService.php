@@ -77,19 +77,6 @@ class SellerService implements SellerServiceContract
 
 
     /**
-     * Make seller verified
-     * @param object $seller
-     * @return bool
-     */
-    public function verify(object $seller): bool
-    {
-        $seller['is_verified'] = 1;
-
-        return $seller->saveOrFail();
-    }
-
-
-    /**
      * Update seller
      * @param array $data
      * @param int $id

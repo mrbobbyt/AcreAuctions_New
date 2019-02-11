@@ -18,6 +18,8 @@ return [
                 'App\Repositories\Favorite\FavoriteRepository',
             'App\Repositories\Social\Contracts\ShareRepositoryContract' =>
                 'App\Repositories\Social\ShareRepository',
+            'App\Repositories\Admin\Contracts\AdminRepositoryContract' =>
+                'App\Repositories\Admin\AdminRepository',
         ],
 
         'services' => [
@@ -39,6 +41,8 @@ return [
                 'App\Services\Favorite\FavoriteService',
             'App\Services\Image\Contracts\ImageServiceContract' =>
                 'App\Services\Image\ImageService',
+            'App\Services\Admin\Contracts\AdminServiceContract' =>
+                'App\Services\Admin\AdminService',
         ],
 
     ],
