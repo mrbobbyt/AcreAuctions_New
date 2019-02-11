@@ -43,4 +43,14 @@ class AdminRepository implements AdminRepositoryContract
         }
     }
 
+
+    /**
+     * Get all users
+     * @return LengthAwarePaginator
+     */
+    public function getAllUsers(): LengthAwarePaginator
+    {
+        return User::paginate(20);
+    }
+
 }

@@ -14,4 +14,11 @@ interface AdminRepositoryContract
      */
     public function findUsers(array $data);
 
+
+    /**
+     * Get all users
+     * @return LengthAwarePaginator
+     */
+    public function getAllUsers();
+
 }

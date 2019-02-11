@@ -67,6 +67,30 @@ class AdminController extends Controller
 
 
     /**
+     * METHOD: get
+     * URL: /admin/all-users
+     * @return JsonResponse
+     */
+    public function getAllUsers(): JsonResponse
+    {
+        try {
+            $result = $this->adminRepo->getAllUsers();
+
+        } catch (Throwable $e) {
+            return response()->json([
+                'status' => 'Error',
+                'message' => 'Search user error.'
+            ], 500);
+        }
+
+        return response()->json([
+            'status' => 'Success',
+            'users' => new UserCollection($result)
+        ]);
+    }
+
+
+    /**
      * Search user by name and email
      * METHOD: get
      * URL: /admin/user-search
