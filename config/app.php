@@ -177,8 +177,10 @@ return [
 
         //JWTAuth
         Tymon\JWTAuth\Providers\LaravelServiceProvider::class,
+
         Chencha\Share\ShareServiceProvider::class,
         Intervention\Image\ImageServiceProvider::class,
+        Maatwebsite\Excel\ExcelServiceProvider::class,
     ],
 
     /*
@@ -231,7 +233,8 @@ return [
         'JWTAuth' => Tymon\JWTAuth\Facades\JWTAuth::class,
         'JWTFactory' => Tymon\JWTAuth\Facades\JWTFactory::class,
         'Share' => Chencha\Share\ShareFacade::class,
-        'Image' => Intervention\Image\Facades\Image::class,
+        'ImageConverter' => Intervention\Image\Facades\Image::class,
+        'Excel' => Maatwebsite\Excel\Facades\Excel::class,
     ],
 
 ];

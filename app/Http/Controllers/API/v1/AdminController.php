@@ -3,9 +3,11 @@ declare(strict_types = 1);
 
 namespace App\Http\Controllers\API\v1;
 
+use App\Exports\UsersExport;
 use App\Http\Resources\UserCollection;
 use App\Repositories\Admin\Contracts\AdminRepositoryContract;
 use App\Services\Admin\Contracts\AdminServiceContract;
+use App\Services\Admin\Validators\UserExportRequestValidator;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
@@ -13,6 +15,7 @@ use Illuminate\Http\JsonResponse;
 use App\Services\Admin\Validators\VerifySellerRequestValidator;
 use App\Services\Admin\Validators\SearchUserRequestValidator;
 
+use Excel;
 use Throwable;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
@@ -118,6 +121,39 @@ class AdminController extends Controller
         return response()->json([
             'status' => 'Success',
             'users' => new UserCollection($result)
+        ]);
+    }
+
+
+    /**
+     * Export users data
+     * METHOD: post
+     * URL: /admin/user-export
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function userExport(Request $request)
+    {
+        try {
+            $data = app(UserExportRequestValidator::class)->attempt($request);
+            $file = (new UsersExport($data['body']['id']))->download('users.'. $data['type']['type'] );
+
+        } catch (ValidationException $e) {
+            return response()->json([
+                'status' => 'Error',
+                'message' => $e->validator->errors()->first(),
+            ], 400);
+        } catch (Throwable $e) {
+            return response()->json([
+                'status' => 'Error',
+                'message' => /*'Search user error.'*/$e->getMessage()
+            ], 500);
+        }
+
+        //return $file;
+        return response()->json([
+            'status' => 'Success',
+            'file' => $file
         ]);
     }
 

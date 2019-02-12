@@ -69,6 +69,9 @@ Route::get('admin/all-users', 'API\v1\AdminController@getAllUsers')
 Route::get('admin/user-search', 'API\v1\AdminController@userSearch')
     ->middleware('jwt.verify', 'admin');
 
+Route::post('admin/user-export', 'API\v1\AdminController@userExport')
+    ->middleware('jwt.verify', 'admin');
+
 
 /********* Search *********/
 

@@ -30,7 +30,7 @@ class AdminRepository implements AdminRepositoryContract
                 ])
                 ->orWhere('email', 'like', '%'.$fname.'%')
                 ->orWhere('email', 'like', '%'.$lname.'%')
-                ->paginate(20);
+                ->paginate(15);
 
         } else {
             $name = '%'.$data['body']['name'].'%';
@@ -39,7 +39,7 @@ class AdminRepository implements AdminRepositoryContract
                 ->where('fname', 'like', $name)
                 ->orWhere('lname', 'like', $name)
                 ->orWhere('email', 'like', $name)
-                ->paginate(20);
+                ->paginate(15);
         }
     }
 

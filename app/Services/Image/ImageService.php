@@ -9,7 +9,7 @@ use Exception;
 use File;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\UploadedFile;
-use Intervention\Image\Facades\Image as ImageConverter;
+use ImageConverter;
 use App\Models\Image;
 use App\Services\Image\Contracts\ImageServiceContract;
 use Throwable;
