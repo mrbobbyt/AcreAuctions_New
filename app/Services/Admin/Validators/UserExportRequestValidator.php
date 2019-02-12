@@ -20,9 +20,16 @@ class UserExportRequestValidator implements AbstractValidator
      */
     public function attempt(Request $request)
     {
+        $formats = [
+            'csv' => \Maatwebsite\Excel\Excel::CSV,
+            'pdf' => \Maatwebsite\Excel\Excel::MPDF,
+            'xls' => \Maatwebsite\Excel\Excel::XLS,
+        ];
+
         return [
             'body' => $this->validateBody($request),
             'type' => $this->validateType($request),
+            'format' => $formats[$request->input('type')],
         ];
     }
 

@@ -136,7 +136,8 @@ class AdminController extends Controller
     {
         try {
             $data = app(UserExportRequestValidator::class)->attempt($request);
-            $file = (new UsersExport($data['body']['id']))->download('users.'. $data['type']['type'] );
+            $file = (new UsersExport($data['body']['id']))
+                ->download('users.'. $data['type']['type'], $data['format']);
 
         } catch (ValidationException $e) {
             return response()->json([
@@ -146,11 +147,10 @@ class AdminController extends Controller
         } catch (Throwable $e) {
             return response()->json([
                 'status' => 'Error',
-                'message' => /*'Search user error.'*/$e->getMessage()
+                'message' => 'Search user error.'
             ], 500);
         }
 
-        //return $file;
         return response()->json([
             'status' => 'Success',
             'file' => $file
