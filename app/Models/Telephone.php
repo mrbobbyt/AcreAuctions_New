@@ -24,6 +24,8 @@ class Telephone extends Model
 
     protected $hidden = ['created_at', 'updated_at', 'entity_id', 'entity_type'];
 
+    protected $appends = ['type'];
+
 
     /**
      * @param string $type
@@ -43,6 +45,28 @@ class Telephone extends Model
                 break;
             case 'seller':
                 return self::TYPE_SELLER;
+                break;
+        }
+    }
+
+
+    /**
+     * @return string
+     */
+    public function getTypeAttribute()
+    {
+        switch ($this->entity_type) {
+            case self::TYPE_USER_PHONE:
+                return 'phone';
+                break;
+            case self::TYPE_USER_FAX:
+                return 'fax';
+                break;
+            case self::TYPE_USER_TOLL_FREE:
+                return 'toll_free';
+                break;
+            case self::TYPE_SELLER:
+                return 'seller';
                 break;
         }
     }

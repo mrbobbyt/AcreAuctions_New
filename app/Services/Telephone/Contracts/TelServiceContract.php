@@ -35,4 +35,12 @@ interface TelServiceContract
      * @return mixed
      */
     public function delete(Model $model);
+
+
+    /**
+     * @param int $key
+     * @param int $id
+     * @return bool|Model
+     */
+    public function find(int $key, int $id);
 }

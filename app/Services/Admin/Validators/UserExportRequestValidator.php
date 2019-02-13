@@ -24,6 +24,7 @@ class UserExportRequestValidator implements AbstractValidator
             'csv' => \Maatwebsite\Excel\Excel::CSV,
             'pdf' => \Maatwebsite\Excel\Excel::MPDF,
             'xls' => \Maatwebsite\Excel\Excel::XLS,
+            'html' => \Maatwebsite\Excel\Excel::HTML,
         ];
 
         return [

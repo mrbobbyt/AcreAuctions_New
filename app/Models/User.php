@@ -122,4 +122,15 @@ class User extends Authenticatable implements JWTSubject
         return $this->hasMany('App\Models\Telephone', 'entity_id', 'id')
             ->whereIn('entity_type', [Telephone::TYPE_USER_PHONE, Telephone::TYPE_USER_FAX, Telephone::TYPE_USER_TOLL_FREE]);
     }
+
+
+    /**
+     * Get user address
+     * @return HasOne
+     */
+    public function address()
+    {
+        return $this->hasOne('App\Models\Address', 'entity_id')
+            ->where('entity_type', Address::TYPE_USER);
+    }
 }

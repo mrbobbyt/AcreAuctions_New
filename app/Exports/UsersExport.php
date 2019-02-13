@@ -36,7 +36,7 @@ class UsersExport implements FromQuery, WithHeadings, WithMapping
      */
     public function headings(): array
     {
-        return [ 'ID', 'First name', 'Last name', 'Email', 'Role' ];
+        return [ 'ID', 'First name', 'Last name', 'Email', 'Role', 'Telephones', 'Address' ];
     }
 
 
@@ -52,6 +52,8 @@ class UsersExport implements FromQuery, WithHeadings, WithMapping
             $user->lname,
             $user->email ?? null,
             $user->getRoleName->name ?? null,
+            $user->telephones,
+            $user->address,
         ];
     }
 }

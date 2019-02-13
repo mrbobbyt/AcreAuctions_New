@@ -45,6 +45,8 @@ return [
                 'App\Services\Admin\AdminService',
             'App\Services\Telephone\Contracts\TelServiceContract' =>
                 'App\Services\Telephone\TelService',
+            'App\Services\Address\Contracts\AddressServiceContract' =>
+                'App\Services\Address\AddressService',
         ],
 
     ],

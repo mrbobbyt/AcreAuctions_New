@@ -3,6 +3,7 @@ declare(strict_types = 1);
 
 namespace App\Services\User;
 
+use App\Models\Address;
 use App\Models\Image;
 use File;
 use Illuminate\Database\Eloquent\Model;
@@ -11,6 +12,7 @@ use App\Repositories\User\Contracts\UserRepositoryContract;
 use App\Services\Auth\Contracts\UserAuthServiceContract;
 use App\Services\Telephone\Contracts\TelServiceContract;
 use App\Services\User\Contracts\UserServiceContract;
+use App\Services\Address\Contracts\AddressServiceContract;
 
 use Exception;
 use Throwable;
@@ -20,15 +22,18 @@ class UserService implements UserServiceContract
     protected $userRepo;
     protected $userAuthService;
     protected $telService;
+    protected $addressService;
 
     public function __construct(
         UserRepositoryContract $userRepo,
         UserAuthServiceContract $userAuthService,
-        TelServiceContract $telService
+        TelServiceContract $telService,
+        AddressServiceContract $addressService
     ) {
         $this->userRepo = $userRepo;
         $this->userAuthService = $userAuthService;
         $this->telService = $telService;
+        $this->addressService = $addressService;
     }
 
 
@@ -59,6 +64,10 @@ class UserService implements UserServiceContract
             }
         }
 
+        if ($data['address']) {
+            $this->addressService->update(Address::TYPE_USER, $data['address'], $id);
+        }
+
         return $user;
     }
 
@@ -73,8 +82,16 @@ class UserService implements UserServiceContract
     public function delete(int $id): bool
     {
         $user = $this->userRepo->findByPk($id);
-        $this->deleteAvatar($user);
-        $this->telService->delete($user);
+        if ($user->avatar) {
+            $this->deleteAvatar($user);
+        }
+        if ($user->telephones) {
+            $this->telService->delete($user);
+        }
+        if ($user->address) {
+            $this->addressService->delete($user);
+        }
+
         $user->delete();
 
         return true;
@@ -119,12 +136,11 @@ class UserService implements UserServiceContract
      */
     protected function deleteAvatar(Model $user): bool
     {
-        if ($user->avatar) {
-            if (File::exists(get_image_path($user->avatar->name))) {
-                File::delete(get_image_path($user->avatar->name));
-            }
-            $user->avatar->delete();
+        if (File::exists(get_image_path($user->avatar->name))) {
+            File::delete(get_image_path($user->avatar->name));
         }
+
+        $user->avatar->delete();
 
         return true;
     }

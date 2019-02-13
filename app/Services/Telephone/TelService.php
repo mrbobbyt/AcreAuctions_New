@@ -18,7 +18,7 @@ class TelService implements TelServiceContract
      * @return bool
      * @throws Throwable
      */
-    public function create(int $key, int $value, int $id)
+    public function create(int $key, int $value, int $id): bool
     {
         $model = Telephone::query()->make()->fill([
             'entity_id' => $id,
