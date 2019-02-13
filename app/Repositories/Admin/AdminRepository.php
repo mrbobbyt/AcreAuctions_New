@@ -3,6 +3,7 @@ declare(strict_types = 1);
 
 namespace App\Repositories\Admin;
 
+use App\Models\Telephone;
 use App\Models\User;
 use App\Repositories\Admin\Contracts\AdminRepositoryContract;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
@@ -36,7 +37,10 @@ class AdminRepository implements AdminRepositoryContract
             $name = '%'.$data['body']['name'].'%';
 
             return User::query()
-                ->where('fname', 'like', $name)
+                ->whereHas('telephones', function ($q) use ($name) {
+                    $q->where('number',  'like', '%'.$name.'%');
+                })
+                ->orWhere('fname', 'like', $name)
                 ->orWhere('lname', 'like', $name)
                 ->orWhere('email', 'like', $name)
                 ->orWhere('email', 'like', $name)
