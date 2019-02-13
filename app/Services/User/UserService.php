@@ -5,14 +5,13 @@ namespace App\Services\User;
 
 use App\Models\Address;
 use App\Models\Image;
-use File;
 use Illuminate\Database\Eloquent\Model;
 
 use App\Repositories\User\Contracts\UserRepositoryContract;
-use App\Services\Auth\Contracts\UserAuthServiceContract;
 use App\Services\Telephone\Contracts\TelServiceContract;
 use App\Services\User\Contracts\UserServiceContract;
 use App\Services\Address\Contracts\AddressServiceContract;
+use App\Services\Image\Contracts\AvatarServiceContract;
 
 use Exception;
 use Throwable;
@@ -20,20 +19,20 @@ use Throwable;
 class UserService implements UserServiceContract
 {
     protected $userRepo;
-    protected $userAuthService;
     protected $telService;
     protected $addressService;
+    protected $avatarService;
 
     public function __construct(
         UserRepositoryContract $userRepo,
-        UserAuthServiceContract $userAuthService,
         TelServiceContract $telService,
-        AddressServiceContract $addressService
+        AddressServiceContract $addressService,
+        AvatarServiceContract $avatarService
     ) {
         $this->userRepo = $userRepo;
-        $this->userAuthService = $userAuthService;
         $this->telService = $telService;
         $this->addressService = $addressService;
+        $this->avatarService = $avatarService;
     }
 
 
@@ -55,7 +54,7 @@ class UserService implements UserServiceContract
         $user->saveOrFail();
 
         if ($data['image']) {
-            $this->updateAvatar($data['image'], $id);
+            $this->avatarService->update($data['image']['image'], $id, Image::TYPE_USER_AVATAR);
         }
 
         if ($data['tel']) {
@@ -82,8 +81,9 @@ class UserService implements UserServiceContract
     public function delete(int $id): bool
     {
         $user = $this->userRepo->findByPk($id);
+
         if ($user->avatar) {
-            $this->deleteAvatar($user);
+            $this->avatarService->delete($user->avatar);
         }
         if ($user->telephones) {
             $this->telService->delete($user);
@@ -93,54 +93,6 @@ class UserService implements UserServiceContract
         }
 
         $user->delete();
-
-        return true;
-    }
-
-
-    /**
-     * Update User avatar
-     * @param array $data
-     * @param int $id
-     * @return bool
-     * @throws Exception
-     * @throws Throwable
-     */
-    protected function updateAvatar(array $data, int $id): bool
-    {
-        $image = Image::query()
-            ->where([
-                ['entity_id', $id],
-                ['entity_type', Image::TYPE_USER_AVATAR]
-            ])
-            ->first();
-
-        if ($image === null) {
-            return $this->userAuthService->createAvatar($data, $id);
-        }
-
-        if (File::exists(get_image_path($image->name))) {
-            File::delete(get_image_path($image->name));
-        }
-        $image->name = upload_image($data['avatar'], 'avatar');
-        $image->updated_at = date('Y-m-d H:i:s');
-
-        return $image->saveOrFail();
-    }
-
-
-    /**
-     * Delete User avatar
-     * @param Model $user
-     * @return bool
-     */
-    protected function deleteAvatar(Model $user): bool
-    {
-        if (File::exists(get_image_path($user->avatar->name))) {
-            File::delete(get_image_path($user->avatar->name));
-        }
-
-        $user->avatar->delete();
 
         return true;
     }

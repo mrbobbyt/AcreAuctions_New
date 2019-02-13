@@ -47,6 +47,8 @@ return [
                 'App\Services\Telephone\TelService',
             'App\Services\Address\Contracts\AddressServiceContract' =>
                 'App\Services\Address\AddressService',
+            'App\Services\Image\Contracts\AvatarServiceContract' =>
+                'App\Services\Image\AvatarService',
         ],
 
     ],

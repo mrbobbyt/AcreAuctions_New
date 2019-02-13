@@ -44,10 +44,6 @@ class UserAuthService implements UserAuthServiceContract
         $user = $this->model->query()->make()->fill($data['body']);
         $user->saveOrFail();
 
-        if (isset($data['image']) && $data['image']) {
-            $this->createAvatar($data['image'], $user->id);
-        }
-
         return $user;
     }
 
@@ -136,25 +132,6 @@ class UserAuthService implements UserAuthServiceContract
         }
 
         throw new JWTException();
-    }
-
-
-    /**
-     * Create User avatar
-     * @param array $data
-     * @param int $id
-     * @return bool
-     * @throws Throwable
-     */
-    public function createAvatar(array $data, int $id): bool
-    {
-        $image = Image::query()->make()->fill([
-            'entity_id' => $id,
-            'entity_type' => Image::TYPE_USER_AVATAR,
-            'name' => upload_image($data['avatar'], 'avatar'),
-        ]);
-
-        return $image->saveOrFail();
     }
 
 

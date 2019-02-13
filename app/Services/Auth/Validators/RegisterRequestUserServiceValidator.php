@@ -20,7 +20,6 @@ class RegisterRequestUserServiceValidator implements AbstractValidator
     {
         return [
             'body' => $this->validateBody($request),
-            'image' => $this->validateImage($request),
         ];
     }
 
@@ -39,22 +38,6 @@ class RegisterRequestUserServiceValidator implements AbstractValidator
             'lname' => 'required|string|max:255|min:3',
             'password'=> 'required|max:255|min:6|confirmed|string',
             'role' => ['integer', 'nullable', new CheckRole],
-        ]);
-
-        return $validator->validate();
-    }
-
-
-    /**
-     * Validate avatar
-     * @param Request $request
-     * @throws ValidationException
-     * @return array
-     */
-    protected function validateImage(Request $request)
-    {
-        $validator = Validator::make($request->only('avatar'), [
-            'avatar' => 'nullable|image'
         ]);
 
         return $validator->validate();

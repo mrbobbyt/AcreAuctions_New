@@ -1,5 +1,6 @@
 <?php
 declare(strict_types = 1);
+# only for listings, because have fullsize and preview
 
 namespace App\Services\Image;
 
@@ -115,14 +116,10 @@ class ImageService implements ImageServiceContract
             $type = 'preview';
         }
 
-        if ($type && File::exists(public_path().'/images/'.$type.'/'.$image->name)) {
+        if (File::exists(public_path().'/images/'.$type.'/'.$image->name)) {
             File::delete(public_path().'/images/'.$type.'/'.$image->name);
         }
 
-        if ($image) {
-            $image->delete();
-        }
-
-        return true;
+        return $image->delete();
     }
 }
