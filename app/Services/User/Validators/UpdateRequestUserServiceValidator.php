@@ -22,6 +22,7 @@ class UpdateRequestUserServiceValidator implements AbstractValidator
         return [
             'body' => $this->validateBody($request),
             'image' => $this->validateImage($request),
+            'tel' => $this->validateTelephone($request),
         ];
     }
 
@@ -55,6 +56,25 @@ class UpdateRequestUserServiceValidator implements AbstractValidator
     {
         $validator = Validator::make($request->only('avatar'), [
             'avatar' => 'nullable|image',
+        ]);
+
+        return $validator->validate();
+    }
+
+
+    /**
+     * Validate telephone
+     * @param Request $request
+     * @throws ValidationException
+     * @return array
+     */
+    protected function validateTelephone(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'tel' => 'array',
+            'tel.phone' => 'nullable|numeric',
+            'tel.fax' => 'nullable|numeric',
+            'tel.toll_free' => 'nullable|numeric',
         ]);
 
         return $validator->validate();

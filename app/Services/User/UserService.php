@@ -4,11 +4,13 @@ declare(strict_types = 1);
 namespace App\Services\User;
 
 use App\Models\Image;
-use App\Repositories\User\Contracts\UserRepositoryContract;
-use App\Services\Auth\Contracts\UserAuthServiceContract;
-use App\Services\User\Contracts\UserServiceContract;
 use File;
 use Illuminate\Database\Eloquent\Model;
+
+use App\Repositories\User\Contracts\UserRepositoryContract;
+use App\Services\Auth\Contracts\UserAuthServiceContract;
+use App\Services\Telephone\Contracts\TelServiceContract;
+use App\Services\User\Contracts\UserServiceContract;
 
 use Exception;
 use Throwable;
@@ -17,11 +19,16 @@ class UserService implements UserServiceContract
 {
     protected $userRepo;
     protected $userAuthService;
+    protected $telService;
 
-    public function __construct(UserRepositoryContract $userRepo, UserAuthServiceContract $userAuthService)
-    {
+    public function __construct(
+        UserRepositoryContract $userRepo,
+        UserAuthServiceContract $userAuthService,
+        TelServiceContract $telService
+    ) {
         $this->userRepo = $userRepo;
         $this->userAuthService = $userAuthService;
+        $this->telService = $telService;
     }
 
 
@@ -46,6 +53,12 @@ class UserService implements UserServiceContract
             $this->updateAvatar($data['image'], $id);
         }
 
+        if ($data['tel']) {
+            foreach ($data['tel']['tel'] as $key => $tel) {
+                $this->telService->update($key, (int)$tel, $id);
+            }
+        }
+
         return $user;
     }
 
@@ -61,6 +74,7 @@ class UserService implements UserServiceContract
     {
         $user = $this->userRepo->findByPk($id);
         $this->deleteAvatar($user);
+        $this->telService->delete($user);
         $user->delete();
 
         return true;
@@ -105,11 +119,10 @@ class UserService implements UserServiceContract
      */
     protected function deleteAvatar(Model $user): bool
     {
-        if (File::exists(get_image_path($user->avatar->name))) {
-            File::delete(get_image_path($user->avatar->name));
-        }
-
         if ($user->avatar) {
+            if (File::exists(get_image_path($user->avatar->name))) {
+                File::delete(get_image_path($user->avatar->name));
+            }
             $user->avatar->delete();
         }
 

@@ -39,6 +39,7 @@ class AdminRepository implements AdminRepositoryContract
                 ->where('fname', 'like', $name)
                 ->orWhere('lname', 'like', $name)
                 ->orWhere('email', 'like', $name)
+                ->orWhere('email', 'like', $name)
                 ->paginate(15);
         }
     }

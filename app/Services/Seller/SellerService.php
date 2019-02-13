@@ -9,6 +9,7 @@ use App\Models\Seller;
 use App\Models\Telephone;
 use App\Repositories\User\Contracts\UserRepositoryContract;
 use App\Services\Seller\Exceptions\SellerAlreadyExistsException;
+use App\Services\Telephone\Contracts\TelServiceContract;
 use Exception;
 use File;
 use Illuminate\Database\Eloquent\Model;
@@ -23,12 +24,18 @@ class SellerService implements SellerServiceContract
     protected $model;
     protected $sellerRepo;
     protected $userRepo;
+    protected $telService;
 
-    public function __construct(Seller $seller, SellerRepositoryContract $sellerRepo, UserRepositoryContract $userRepo)
-    {
+    public function __construct(
+        Seller $seller,
+        SellerRepositoryContract $sellerRepo,
+        UserRepositoryContract $userRepo,
+        TelServiceContract $telService
+    ) {
         $this->model = $seller;
         $this->sellerRepo = $sellerRepo;
         $this->userRepo = $userRepo;
+        $this->telService = $telService;
     }
 
 
@@ -68,7 +75,7 @@ class SellerService implements SellerServiceContract
 
         if ($data['tel']) {
             foreach ($data['tel']['tel'] as $key => $item) {
-                $this->createTelephone((int)$item, $seller->id);
+                $this->telService->create((int)$item, $seller->id);
             }
         }
 
@@ -103,7 +110,7 @@ class SellerService implements SellerServiceContract
         }
         if ($data['tel']) {
             foreach ($data['tel']['tel'] as $key => $item) {
-                $this->updateTelephone($key, $item, $id);
+                $this->telService->update($key, $item, $id);
             }
         }
 
@@ -137,7 +144,7 @@ class SellerService implements SellerServiceContract
         $seller = $this->sellerRepo->findByPk($id);
         $this->deleteImages($seller);
         $this->deleteEmails($seller);
-        $this->deleteTelephones($seller);
+        $this->telService->delete($seller);
         $seller->delete();
 
         return true;
@@ -241,25 +248,6 @@ class SellerService implements SellerServiceContract
 
 
     /**
-     * Save telephones
-     * @param int $tel
-     * @param int $id
-     * @return bool
-     * @throws Throwable
-     */
-    protected function createTelephone(int $tel, int $id)
-    {
-        $model = Telephone::query()->make()->fill([
-            'entity_id' => $id,
-            'entity_type' => Telephone::TYPE_SELLER,
-            'number' => $tel,
-        ]);
-
-        return $model->saveOrFail();
-    }
-
-
-    /**
      * @param int $key
      * @param string $item
      * @param int $id
@@ -278,23 +266,6 @@ class SellerService implements SellerServiceContract
 
 
     /**
-     * @param int $key
-     * @param string $item
-     * @param int $id
-     * @return bool
-     * @throws Throwable
-     */
-    protected function updateTelephone(int $key, string $item, int $id): bool
-    {
-        if ($tel = $this->sellerRepo->findTelephone($key, $id)) {
-            $tel->number = $item;
-            return $tel->saveOrFail();
-        }
-        return $this->createEmail($item, $id);
-    }
-
-
-    /**
      * Delete all related emails
      * @param Model $seller
      * @return mixed
@@ -304,18 +275,5 @@ class SellerService implements SellerServiceContract
        return $seller->emails->each(function ($item, $key) {
            $item->delete();
        });
-    }
-
-
-    /**
-     * Delete all related telephones
-     * @param Model $seller
-     * @return mixed
-     */
-    protected function deleteTelephones(Model $seller)
-    {
-        return $seller->telephones->each(function ($item, $key) {
-            $item->delete();
-        });
     }
 }

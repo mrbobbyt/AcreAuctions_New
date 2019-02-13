@@ -43,6 +43,8 @@ return [
                 'App\Services\Image\ImageService',
             'App\Services\Admin\Contracts\AdminServiceContract' =>
                 'App\Services\Admin\AdminService',
+            'App\Services\Telephone\Contracts\TelServiceContract' =>
+                'App\Services\Telephone\TelService',
         ],
 
     ],

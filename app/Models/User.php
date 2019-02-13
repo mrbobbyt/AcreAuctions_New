@@ -111,4 +111,15 @@ class User extends Authenticatable implements JWTSubject
     {
         return $this->belongsToMany('App\Models\Listing', 'favorites', 'user_id', 'listing_id');
     }
+
+
+    /**
+     * Get related seller telephones
+     * @return HasMany
+     */
+    public function telephones()
+    {
+        return $this->hasMany('App\Models\Telephone', 'entity_id', 'id')
+            ->whereIn('entity_type', [Telephone::TYPE_USER_PHONE, Telephone::TYPE_USER_FAX, Telephone::TYPE_USER_TOLL_FREE]);
+    }
 }

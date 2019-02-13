@@ -36,7 +36,7 @@ Route::get('user/profile', 'API\v1\UserController@profile')
 
 Route::get('user/{id}', 'API\v1\UserController@view');
 
-Route::put('user/{id}/update', 'API\v1\UserController@update')
+Route::post('user/{id}/update', 'API\v1\UserController@update')
     ->middleware('jwt.verify', 'user.permission');
 
 Route::delete('user/{id}/delete', 'API\v1\UserController@delete')
@@ -51,7 +51,7 @@ Route::get('seller/{slug}', 'API\v1\SellerController@view')
 Route::post('seller/create', 'API\v1\SellerController@create')
     ->middleware('jwt.verify', 'user.seller');
 
-Route::put('seller/{id}/update', 'API\v1\SellerController@update')
+Route::post('seller/{id}/update', 'API\v1\SellerController@update')
     ->middleware('jwt.verify', 'seller.permission');
 
 Route::delete('seller/{id}/delete', 'API\v1\SellerController@delete')
@@ -60,7 +60,7 @@ Route::delete('seller/{id}/delete', 'API\v1\SellerController@delete')
 
 /********* Admin *********/
 
-Route::put('admin/verify-seller', 'API\v1\AdminController@verifySeller')
+Route::post('admin/verify-seller', 'API\v1\AdminController@verifySeller')
     ->middleware('jwt.verify', 'admin');
 
 Route::get('admin/all-users', 'API\v1\AdminController@getAllUsers')
