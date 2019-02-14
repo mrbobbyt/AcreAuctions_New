@@ -55,8 +55,7 @@ class UpdateSellerRequestValidator implements AbstractValidator
     protected function validateImage(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'logo' => 'nullable|image',
-            'cover' => 'nullable|image',
+            'image' => 'nullable|image',
         ]);
 
         return $validator->validate();

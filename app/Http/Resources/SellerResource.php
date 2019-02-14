@@ -27,7 +27,7 @@ class SellerResource extends JsonResource
             'head' => $this->getHead->getFullName(),
             'title' => $this->title,
             'description' => $this->description,
-            'logo' => $this->logo,
+            'avatar' => $this->avatar,
             'cover' => $this->cover,
             'telephones' => $this->telephones,
             'email' => $this->emails,

@@ -19,7 +19,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 class Seller extends Model
 {
     protected $fillable = [
-        'user_id', 'title', 'slug', 'description', 'logo', 'cover', 'is_verified', 'address'
+        'user_id', 'title', 'slug', 'description', 'is_verified', 'address'
     ];
 
     protected $guarded = ['id'];

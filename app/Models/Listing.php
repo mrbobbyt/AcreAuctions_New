@@ -170,7 +170,7 @@ class Listing extends Model
      */
     public function sellerWithLogo()
     {
-        return $this->seller()->select('id', 'title', 'slug')->with('logo');
+        return $this->seller()->select('id', 'title', 'slug')->with('avatar');
     }
 
 
