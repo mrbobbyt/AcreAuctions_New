@@ -91,7 +91,7 @@ class SellerController extends Controller
         } catch (JWTException | Throwable $e) {
             return response()->json([
                 'status' => 'Error',
-                'message' => /*'Seller create error.'*/$e->getMessage()
+                'message' => 'Seller create error.'
             ], 500);
         }
 

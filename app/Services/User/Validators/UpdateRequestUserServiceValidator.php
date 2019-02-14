@@ -56,7 +56,7 @@ class UpdateRequestUserServiceValidator implements AbstractValidator
     protected function validateImage(Request $request)
     {
         $validator = Validator::make($request->only('avatar'), [
-            'avatar' => 'nullable|image',
+            'image' => 'nullable|image',
         ]);
 
         return $validator->validate();

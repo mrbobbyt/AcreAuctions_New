@@ -6,18 +6,18 @@ namespace App\Services\Seller;
 use App\Models\Email;
 use App\Models\Image;
 use App\Models\Seller;
-use App\Models\Telephone;
-use App\Repositories\User\Contracts\UserRepositoryContract;
-use App\Services\Seller\Exceptions\SellerAlreadyExistsException;
-use App\Services\Telephone\Contracts\TelServiceContract;
-use Exception;
-use File;
 use Illuminate\Database\Eloquent\Model;
+
+use App\Repositories\User\Contracts\UserRepositoryContract;
+use App\Services\Image\Contracts\AvatarServiceContract;
+use App\Services\Telephone\Contracts\TelServiceContract;
 use App\Repositories\Seller\Contracts\SellerRepositoryContract;
 use App\Services\Seller\Contracts\SellerServiceContract;
-use Illuminate\Http\UploadedFile;
+
 use Throwable;
+use Exception;
 use Tymon\JWTAuth\Exceptions\JWTException;
+use App\Services\Seller\Exceptions\SellerAlreadyExistsException;
 
 class SellerService implements SellerServiceContract
 {
@@ -25,17 +25,20 @@ class SellerService implements SellerServiceContract
     protected $sellerRepo;
     protected $userRepo;
     protected $telService;
+    protected $avatarService;
 
     public function __construct(
         Seller $seller,
         SellerRepositoryContract $sellerRepo,
         UserRepositoryContract $userRepo,
-        TelServiceContract $telService
+        TelServiceContract $telService,
+        AvatarServiceContract $avatarService
     ) {
         $this->model = $seller;
         $this->sellerRepo = $sellerRepo;
         $this->userRepo = $userRepo;
         $this->telService = $telService;
+        $this->avatarService = $avatarService;
     }
 
 
@@ -60,11 +63,8 @@ class SellerService implements SellerServiceContract
 
         $seller->saveOrFail();
 
-        // Create images
-        foreach ($data['image'] as $name => $item) {
-            if ($item) {
-                $this->createImages($name, $item, $seller->id);
-            }
+        if ($data['image']) {
+            $this->avatarService->create($data['image']['image'], $seller->id);
         }
 
         if ($data['email']) {
@@ -96,11 +96,7 @@ class SellerService implements SellerServiceContract
         $seller = $this->sellerRepo->findByPk($id);
 
         if ($data['image']) {
-            foreach ($data['image'] as $name => $item) {
-                if ($item) {
-                    $this->updateImages($name, $item, $id);
-                }
-            }
+            $this->avatarService->update($data['image']['image'], $id, Image::TYPE_SELLER_LOGO);
         }
 
         if ($data['email']) {
@@ -142,87 +138,10 @@ class SellerService implements SellerServiceContract
     public function delete(int $id): bool
     {
         $seller = $this->sellerRepo->findByPk($id);
-        $this->deleteImages($seller);
+        $this->avatarService->delete($seller->avatar);
         $this->deleteEmails($seller);
         $this->telService->delete($seller);
         $seller->delete();
-
-        return true;
-    }
-
-
-    /**
-     * Upload image
-     * @param string $name
-     * @param UploadedFile $item
-     * @param int $id
-     * @return bool
-     * @throws Exception
-     * @throws Throwable
-     */
-    protected function createImages(string $name, UploadedFile $item, int $id): bool
-    {
-        $image = Image::query()->make()->fill([
-            'entity_id' => $id,
-            'entity_type' => ($name === 'logo') ? Image::TYPE_SELLER_LOGO : Image::TYPE_SELLER_COVER,
-            'name' => upload_image($item, $name),
-        ]);
-
-        return $image->saveOrFail();
-    }
-
-
-    /**
-     * Update User avatar
-     * @param string $name
-     * @param UploadedFile $item
-     * @param int $id
-     * @return bool
-     * @throws Throwable
-     * @throws Exception
-     */
-    protected function updateImages(string $name, UploadedFile $item, int $id): bool
-    {
-        $image = Image::query()
-            ->where([
-                ['entity_id', $id],
-                ['entity_type', ($name === 'logo') ? Image::TYPE_SELLER_LOGO : Image::TYPE_SELLER_COVER]
-            ])->first();
-
-        if ($image === null) {
-            return $this->createImages($name, $item, $id);
-        }
-
-        if (File::exists(get_image_path($image->name))) {
-            File::delete(get_image_path($image->name));
-        }
-        $image->name = upload_image($item, $name);
-        $image->updated_at = date('Y-m-d H:i:s');
-
-        return $image->saveOrFail();
-    }
-
-
-    /**
-     * Delete User avatar
-     * @param Model $seller
-     * @return bool
-     */
-    protected function deleteImages(Model $seller): bool
-    {
-        if ($seller->logo) {
-            if (File::exists(get_image_path($seller->logo->name))) {
-                File::delete(get_image_path($seller->logo->name));
-            }
-            $seller->logo->delete();
-        }
-
-        if ($seller->cover) {
-            if (File::exists(get_image_path($seller->cover->name))) {
-                File::delete(get_image_path($seller->cover->name));
-            }
-            $seller->cover->delete();
-        }
 
         return true;
     }

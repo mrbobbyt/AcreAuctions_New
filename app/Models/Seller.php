@@ -59,20 +59,9 @@ class Seller extends Model
      * Get related seller logo
      * @return HasOne
      */
-    public function logo()
+    public function avatar()
     {
         return $this->hasOne('App\Models\Image','entity_id', 'id')
             ->where('entity_type', Image::TYPE_SELLER_LOGO);
-    }
-
-
-    /**
-     * Get related seller cover
-     * @return HasOne
-     */
-    public function cover()
-    {
-        return $this->hasOne('App\Models\Image','entity_id', 'id')
-            ->where('entity_type', Image::TYPE_SELLER_COVER);
     }
 }
