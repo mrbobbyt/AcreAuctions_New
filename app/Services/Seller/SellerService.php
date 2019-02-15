@@ -73,8 +73,8 @@ class SellerService implements SellerServiceContract
             }
         }
 
-        if ($data['tel']) {
-            foreach ($data['tel']['tel'] as $key => $item) {
+        if ($data['telephones']) {
+            foreach ($data['telephones']['telephones'] as $key => $item) {
                 $this->telService->create((int)$item, $seller->id);
             }
         }
@@ -104,8 +104,8 @@ class SellerService implements SellerServiceContract
                 $this->updateEmail($key, $item, $id);
             }
         }
-        if ($data['tel']) {
-            foreach ($data['tel']['tel'] as $key => $item) {
+        if ($data['telephones']) {
+            foreach ($data['telephones']['telephones'] as $key => $item) {
                 $this->telService->update($key, $item, $id);
             }
         }

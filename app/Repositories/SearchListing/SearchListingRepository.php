@@ -5,6 +5,7 @@ namespace App\Repositories\SearchListing;
 
 use App\Models\Listing;
 use App\Models\ListingGeo;
+use App\Models\ListingStatus;
 use App\Repositories\SearchListing\Contracts\SearchListingRepositoryContract;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 
@@ -69,7 +70,7 @@ class SearchListingRepository implements SearchListingRepositoryContract
             });
         }
 
-        return $listings->paginate(5);
+        return $listings->where('status', ListingStatus::TYPE_AVAILABLE)->paginate(5);
     }
 
 

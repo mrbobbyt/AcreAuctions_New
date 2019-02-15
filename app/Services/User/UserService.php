@@ -57,8 +57,8 @@ class UserService implements UserServiceContract
             $this->avatarService->update($data['image']['image'], $id, Image::TYPE_USER_AVATAR);
         }
 
-        if ($data['tel']) {
-            foreach ($data['tel']['tel'] as $key => $tel) {
+        if ($data['telephones']) {
+            foreach ($data['telephones']['telephones'] as $key => $tel) {
                 $this->telService->update($key, (int)$tel, $id);
             }
         }

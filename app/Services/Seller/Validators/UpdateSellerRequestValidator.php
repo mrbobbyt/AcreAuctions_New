@@ -23,7 +23,7 @@ class UpdateSellerRequestValidator implements AbstractValidator
             'body' => $this->validateBody($request),
             'image' => $this->validateImage($request),
             'email' => $this->validateEmail($request),
-            'tel' => $this->validateTelephone($request),
+            'telephones' => $this->validateTelephone($request),
         ];
     }
 
@@ -88,8 +88,8 @@ class UpdateSellerRequestValidator implements AbstractValidator
     protected function validateTelephone(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'tel' => 'array',
-            'tel.*' => 'nullable|numeric',
+            'telephones' => 'array',
+            'telephones.*' => 'nullable|numeric',
         ]);
 
         return $validator->validate();
