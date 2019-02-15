@@ -64,7 +64,7 @@ class UserService implements UserServiceContract
         }
 
         if ($data['address']) {
-            $this->addressService->update(Address::TYPE_USER, $data['address'], $id);
+            $this->addressService->update(Address::TYPE_USER, $data['address']['address'], $id);
         }
 
         return $user;

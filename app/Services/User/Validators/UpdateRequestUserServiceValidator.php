@@ -91,11 +91,12 @@ class UpdateRequestUserServiceValidator implements AbstractValidator
     protected function validateAddress(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'address_first' => 'nullable|string',
-            'address_second' => 'nullable|string',
-            'city' => 'nullable|string',
-            'state' => 'nullable|string',
-            'zip' => 'nullable|numeric',
+            'address' => 'array',
+            'address.address_first' => 'nullable|string',
+            'address.address_second' => 'nullable|string',
+            'address.city' => 'nullable|string',
+            'address.state' => 'nullable|string',
+            'address.zip' => 'nullable|numeric',
         ]);
 
         return $validator->validate();
