@@ -18,7 +18,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
  * @property string slug
  * @property string description
  * @property bool is_featured
- * @property bool is_verified
+ * @property int status
  * @property int seller_id
  * @property int utilities
  * @property int zoning
@@ -30,7 +30,7 @@ class Listing extends Model
     use ModelBuilderScopes;
 
     protected $fillable = [
-        'inner_listing_id', 'apn', 'title', 'slug', 'description', 'is_featured', 'is_verified',
+        'inner_listing_id', 'apn', 'title', 'slug', 'description', 'is_featured', 'status',
         'seller_id', 'utilities', 'zoning', 'zoning_desc', 'property_type'
     ];
 
@@ -197,5 +197,15 @@ class Listing extends Model
         }
 
         return false;
+    }
+
+
+    /**
+     * Get listing status
+     * @return BelongsTo
+     */
+    public function getStatus()
+    {
+        return $this->belongsTo('App\Models\ListingStatus', 'status', 'id');
     }
 }

@@ -39,6 +39,7 @@ class ListingResource extends JsonResource
             'slug' => $this->slug,
             'description' => $this->description,
             'is_featured' => $this->is_featured,
+            'status' => $this->getStatus ? $this->getStatus->name : null,
             'seller' => $this->sellerWithLogo,
             'utilities' => $this->getUtilities ? $this->getUtilities->name : null,
             'zoning' => $this->getZoning ? $this->getZoning->name : null,

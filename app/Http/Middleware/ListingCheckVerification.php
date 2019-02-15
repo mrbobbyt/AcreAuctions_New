@@ -32,7 +32,7 @@ class ListingCheckVerification
             ], 403);
         }
 
-        if ($listing->is_verified ||
+        if ($listing->status === \App\Models\ListingStatus::TYPE_AVAILABLE ||
             ((bool)JWTAuth::check(JWTAuth::getToken()) &&
                 (
                     (JWTAuth::parseToken()->authenticate()->role === \App\Models\User::ROLE_ADMIN) ||
