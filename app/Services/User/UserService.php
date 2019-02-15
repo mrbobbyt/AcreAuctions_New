@@ -51,6 +51,11 @@ class UserService implements UserServiceContract
         foreach ($data['body'] as $key=>$property) {
             $user->$key = $property;
         }
+
+        if (isset($data['body']['password'])) {
+            $user->password = bcrypt($data['body']['password']);
+        }
+
         $user->saveOrFail();
 
         if ($data['image']) {
