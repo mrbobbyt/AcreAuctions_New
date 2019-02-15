@@ -48,9 +48,7 @@ class SearchListingRepository implements SearchListingRepositoryContract
         if (isset($data['body']['price'])) {
            $priceParam = $data['body']['price'];
            $listings->whereHas('price', function ($q) use ($priceParam) {
-                if ($priceParam) {
-                    $q->where('price', '>=', $priceParam);
-                }
+                $q->where('price', '>=', $priceParam);
             });
         }
 

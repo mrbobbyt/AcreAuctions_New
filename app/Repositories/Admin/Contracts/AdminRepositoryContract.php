@@ -21,4 +21,18 @@ interface AdminRepositoryContract
      */
     public function getAllUsers();
 
+
+    /**
+     * Find Listings by state/county/price/acres/status
+     * @param array $data
+     * @return LengthAwarePaginator
+     */
+    public function findListings(array $data);
+
+
+    /**
+     * Get all listings
+     * @return LengthAwarePaginator
+     */
+    public function getAllListings();
 }
