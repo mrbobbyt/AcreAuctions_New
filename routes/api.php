@@ -122,3 +122,8 @@ Route::get('share/list', 'API\v1\ShareController@getNetworks');
 
 Route::post('share/create', 'API\v1\ShareController@create');
 
+
+/********** Main **********/
+
+Route::get('home/search', 'API\v1\HomeController@search');
+

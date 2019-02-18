@@ -85,4 +85,51 @@ class SearchListingRepository implements SearchListingRepositoryContract
 
         return $counties;
     }
+
+
+    /**
+     * Find all listings at homepage
+     * @param array $data
+     * @return LengthAwarePaginator
+     */
+    public function findHomeListings(array $data): LengthAwarePaginator
+    {
+        $listings = (new Listing)->newQuery();
+
+        // Search by geo params
+        $address = array_only($data['body'], ['address']);
+        if ($address) {
+            $listings->whereHas('geo', function ($q) use ($address) {
+                $q->where('county', 'like', '%'.$address.'%')
+                    ->orWhere('city', 'like', '%'.$address.'%')
+                    ->orWhere('zip', 'like', '%'.$address.'%');
+            });
+        }
+
+        // Search by geo params
+        $geoParams = array_only($data['body'], ['state', 'city', 'longitude', 'latitude']);
+        if ($geoParams) {
+            $listings->whereHas('geo', function ($q) use ($geoParams) {
+                $q->whereFields($geoParams);
+            });
+        }
+
+        // Search by range of acreage of listings
+        if (isset($data['body']['acreage'])) {
+            $acreageParam = $data['body']['acreage'];
+            $listings->whereHas('geo', function ($q) use ($acreageParam) {
+                $q->where('acreage', '>=', $acreageParam);
+            });
+        }
+
+        // Search by range of price of listings
+        if (isset($data['body']['price'])) {
+            $priceParam = $data['body']['price'];
+            $listings->whereHas('price', function ($q) use ($priceParam) {
+                $q->where('price', '>=', $priceParam);
+            });
+        }
+
+        return $listings->where('status', ListingStatus::TYPE_AVAILABLE)->paginate(5);
+    }
 }

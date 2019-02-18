@@ -3,7 +3,7 @@ declare(strict_types = 1);
 
 namespace App\Repositories\SearchListing\Contracts;
 
-use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 
 interface SearchListingRepositoryContract
 {
@@ -11,7 +11,7 @@ interface SearchListingRepositoryContract
     /**
      * Find all listings
      * @param array $data
-     * @return Collection
+     * @return LengthAwarePaginator
      */
     public function findListings(array $data);
 
@@ -21,4 +21,12 @@ interface SearchListingRepositoryContract
      * @return array
      */
     public function getCounties();
+
+
+    /**
+     * Find all listings at homepage
+     * @param array $data
+     * @return LengthAwarePaginator
+     */
+    public function findHomeListings(array $data);
 }
