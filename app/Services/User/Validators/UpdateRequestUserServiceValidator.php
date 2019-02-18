@@ -40,7 +40,8 @@ class UpdateRequestUserServiceValidator implements AbstractValidator
             'fname' => 'nullable|string|max:255|min:3',
             'lname' => 'nullable|string|max:255|min:3',
             'email' => 'nullable|string|email|max:255|unique:users',
-            'role' => ['nullable','integer', new CheckRole]
+            //'role' => ['nullable','integer', new CheckRole],
+            'password' => 'nullable|max:255|min:6|string|confirmed',
         ]);
 
         return $validator->validate();
