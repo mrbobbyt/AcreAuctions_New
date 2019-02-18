@@ -48,7 +48,7 @@ class ListingResource extends JsonResource
 
             'geo' => ListingGeoResource::make( (new ListingRepository())->findGeoByPk($this->id) ),
             'price' => ListingPriceResource::make( (new ListingRepository())->findPriceByPk($this->id) ),
-            'subdivision' =>$this->subdivision ?? null,
+            'subdivision' => $this->subdivision ?? null,
             'gallery' => $this->gallery,
             'docs' => $this->docs,
             'links' => $this->links,

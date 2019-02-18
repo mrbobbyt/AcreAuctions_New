@@ -9,7 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
 use Validator;
 
-class UserExportRequestValidator implements AbstractValidator
+class ExportRequestValidator implements AbstractValidator
 {
 
     /**

@@ -79,6 +79,9 @@ Route::get('admin/all-listings', 'API\v1\AdminController@getAllListings')
 Route::get('admin/listing-search', 'API\v1\AdminController@listingSearch')
     ->middleware('jwt.verify', 'admin');
 
+Route::post('admin/listing-export', 'API\v1\AdminController@listingExport')
+    ->middleware('jwt.verify', 'admin');
+
 
 /********* Search *********/
 

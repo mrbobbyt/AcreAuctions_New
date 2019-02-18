@@ -3,19 +3,22 @@ declare(strict_types = 1);
 
 namespace App\Http\Controllers\API\v1;
 
+use App\Exports\ListingsExport;
 use App\Exports\UsersExport;
 use App\Http\Resources\ListingCollection;
 use App\Http\Resources\UserCollection;
-use App\Repositories\Admin\Contracts\AdminRepositoryContract;
-use App\Services\Admin\Contracts\AdminServiceContract;
-use App\Services\Admin\Validators\SearchListingRequestValidator;
-use App\Services\Admin\Validators\UserExportRequestValidator;
+
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
 
 use App\Services\Admin\Validators\VerifySellerRequestValidator;
 use App\Services\Admin\Validators\SearchUserRequestValidator;
+use App\Services\Admin\Validators\ExportRequestValidator;
+use App\Services\Admin\Validators\SearchListingRequestValidator;
+
+use App\Repositories\Admin\Contracts\AdminRepositoryContract;
+use App\Services\Admin\Contracts\AdminServiceContract;
 
 use Throwable;
 use Illuminate\Validation\ValidationException;
@@ -133,10 +136,10 @@ class AdminController extends Controller
      * @param Request $request
      * @return JsonResponse
      */
-    public function userExport(Request $request)
+    public function userExport(Request $request): JsonResponse
     {
         try {
-            $data = app(UserExportRequestValidator::class)->attempt($request);
+            $data = app(ExportRequestValidator::class)->attempt($request);
             $file = (new UsersExport($data['body']['id']))
                 ->download('users.'. $data['type']['type'], $data['format']);
 
@@ -173,7 +176,7 @@ class AdminController extends Controller
         } catch (Throwable $e) {
             return response()->json([
                 'status' => 'Error',
-                'message' => /*'Search listing error.'*/$e->getMessage()
+                'message' => 'Search listing error.'
             ], 500);
         }
 
@@ -204,6 +207,40 @@ class AdminController extends Controller
         return response()->json([
             'status' => 'Success',
             'listings' => new ListingCollection($result)
+        ]);
+    }
+
+
+    /**
+     * Export listings data
+     * METHOD: post
+     * URL: /admin/listing-export
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function listingExport(Request $request): JsonResponse
+    {
+        try {
+            $data = app(ExportRequestValidator::class)->attempt($request);
+            $file = (new ListingsExport($data['body']['id']))
+                ->download('listings.'. $data['type']['type'], $data['format']);
+
+        } catch (ValidationException $e) {
+            return response()->json([
+                'status' => 'Error',
+                'message' => $e->validator->errors()->first(),
+            ], 400);
+        } catch (Throwable $e) {
+            return response()->json([
+                'status' => 'Error',
+                'message' => 'Search listing error.'
+            ], 500);
+        }
+
+        //return $file;
+        return response()->json([
+            'status' => 'Success',
+            'file' => $file
         ]);
     }
 }
