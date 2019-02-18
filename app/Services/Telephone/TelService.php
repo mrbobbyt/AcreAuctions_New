@@ -42,6 +42,11 @@ class TelService implements TelServiceContract
         $type = Telephone::checkType($key);
 
         if ( $tel = $this->find($type, $id) ) {
+
+            if (empty($value)) {
+                return $tel->delete();
+            }
+
             $tel->number = $value;
             return $tel->saveOrFail();
         }
