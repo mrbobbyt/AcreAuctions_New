@@ -97,7 +97,7 @@ class SearchListingRepository implements SearchListingRepositoryContract
         $listings = (new Listing)->newQuery();
 
         // Search by geo params
-        $address = array_only($data['body'], ['address']);
+        $address = $data['body']['address'];
         if ($address) {
             $listings->whereHas('geo', function ($q) use ($address) {
                 $q->where('county', 'like', '%'.$address.'%')
