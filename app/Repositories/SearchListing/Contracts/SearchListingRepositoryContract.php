@@ -4,6 +4,7 @@ declare(strict_types = 1);
 namespace App\Repositories\SearchListing\Contracts;
 
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Database\Eloquent\Collection;
 
 interface SearchListingRepositoryContract
 {
@@ -29,4 +30,11 @@ interface SearchListingRepositoryContract
      * @return LengthAwarePaginator
      */
     public function findHomeListings(array $data);
+
+
+    /**
+     * Get 8 random featured listings
+     * @return Collection
+     */
+    public function findFeaturedListings();
 }

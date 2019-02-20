@@ -4,6 +4,7 @@ declare(strict_types = 1);
 namespace App\Http\Controllers\API\v1;
 
 use App\Http\Resources\ListingCollection;
+use App\Http\Resources\ListingResource;
 use App\Repositories\SearchListing\Contracts\SearchListingRepositoryContract;
 use App\Services\SearchListing\Validator\SearchHomeListingRequestValidator;
 use Illuminate\Http\JsonResponse;
@@ -50,6 +51,30 @@ class HomeController extends Controller
         return response()->json([
             'status' => 'Success',
             'listings' => new ListingCollection($result)
+        ]);
+    }
+
+
+    /**
+     * METHOD: get
+     * URL: /home/featured
+     * @return JsonResponse
+     */
+    public function featured(): JsonResponse
+    {
+        try {
+            $result = $this->searchRepo->findFeaturedListings();
+
+        } catch (Throwable $e) {
+            return response()->json([
+                'status' => 'Error',
+                'message' => $e->getMessage()
+            ], 500);
+        }
+
+        return response()->json([
+            'status' => 'Success',
+            'listings' => ListingResource::collection($result)
         ]);
     }
 }

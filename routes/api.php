@@ -127,3 +127,4 @@ Route::post('share/create', 'API\v1\ShareController@create');
 
 Route::get('home/search', 'API\v1\HomeController@search');
 
+Route::get('home/featured', 'API\v1\HomeController@featured');

@@ -8,6 +8,7 @@ use App\Models\ListingGeo;
 use App\Models\ListingStatus;
 use App\Repositories\SearchListing\Contracts\SearchListingRepositoryContract;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Database\Eloquent\Collection;
 
 class SearchListingRepository implements SearchListingRepositoryContract
 {
@@ -131,5 +132,19 @@ class SearchListingRepository implements SearchListingRepositoryContract
         }
 
         return $listings->where('status', ListingStatus::TYPE_AVAILABLE)->paginate(5);
+    }
+
+
+    /**
+     * Get 8 random featured listings
+     * @return Collection
+     */
+    public function findFeaturedListings(): Collection
+    {
+        return Listing::query()
+            ->where('is_featured', 1)
+            ->inRandomOrder()
+            ->limit(8)
+            ->get();
     }
 }
