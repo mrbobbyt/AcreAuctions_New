@@ -21,8 +21,18 @@ class SearchListingRepository implements SearchListingRepositoryContract
     {
         $listings = (new Listing)->newQuery();
 
+        // Search by geo params by handwriting
+        $address = $data['body']['address'];
+        if ($address) {
+            $listings->whereHas('geo', function ($q) use ($address) {
+                $q->where('county', 'like', '%'.$address.'%')
+                    ->orWhere('city', 'like', '%'.$address.'%')
+                    ->orWhere('zip', 'like', '%'.$address.'%');
+            });
+        }
+
         // Search by geo params
-        $geoParams = array_only($data['body'], ['state', 'city', 'zip', 'longitude', 'latitude']);
+        $geoParams = array_only($data['body'], ['longitude', 'latitude']);
         if ($geoParams) {
             $listings->whereHas('geo', function ($q) use ($geoParams) {
                 $q->whereFields($geoParams);
@@ -37,20 +47,42 @@ class SearchListingRepository implements SearchListingRepositoryContract
             });
         }
 
-        // Search by range of acreage of listings
-        if (isset($data['body']['acreage'])) {
-            $acreageParam = $data['body']['acreage'];
-            $listings->whereHas('geo', function ($q) use ($acreageParam) {
-                $q->where('acreage', '>=', $acreageParam);
+        // Multiple filter search by state in geo params
+        if (isset($data['body']['state'])) {
+            $state = explode(',', $data['body']['state']);
+            $listings->whereHas('geo', function ($q) use ($state) {
+                $q->whereIn('state', $state);
             });
         }
 
+        // Search by range of acreage of listings
+        if (isset($data['body']['minSize'])) {
+            if ( isset($data['body']['minSize']) && isset($data['body']['maxSize']) ) {
+                $acreageParam = [$data['body']['minSize'], $data['body']['maxSize']];
+                $listings->whereHas('geo', function ($q) use ($acreageParam) {
+                    $q->whereBetween('acreage', $acreageParam);
+                });
+            } else {
+                $acreageParam = $data['body']['minSize'];
+                $listings->whereHas('geo', function ($q) use ($acreageParam) {
+                    $q->where('acreage', '>=', $acreageParam);
+                });
+            }
+        }
+
         // Search by range of price of listings
-        if (isset($data['body']['price'])) {
-           $priceParam = $data['body']['price'];
-           $listings->whereHas('price', function ($q) use ($priceParam) {
-                $q->where('price', '>=', $priceParam);
-            });
+        if (isset($data['body']['minPrice'])) {
+           if ( isset($data['body']['minPrice']) && isset($data['body']['maxPrice']) ) {
+               $priceParam = [$data['body']['minPrice'], $data['body']['maxPrice']];
+               $listings->whereHas('price', function ($q) use ($priceParam) {
+                   $q->whereBetween('price', $priceParam);
+               });
+           } else {
+               $priceParam = $data['body']['minPrice'];
+               $listings->whereHas('price', function ($q) use ($priceParam) {
+                   $q->where('price', '>=', $priceParam);
+               });
+           }
         }
 
         // Multiple filter search by sale type (financing) in price params
@@ -89,49 +121,17 @@ class SearchListingRepository implements SearchListingRepositoryContract
 
 
     /**
-     * Find all listings at homepage
-     * @param array $data
-     * @return LengthAwarePaginator
+     * Find all states
+     * @return array
      */
-    public function findHomeListings(array $data): LengthAwarePaginator
+    public function getStates()
     {
-        $listings = (new Listing)->newQuery();
+        $states = ListingGeo::query()
+            ->groupBy('state')
+            ->pluck('state')
+            ->all();
 
-        // Search by geo params
-        $address = $data['body']['address'];
-        if ($address) {
-            $listings->whereHas('geo', function ($q) use ($address) {
-                $q->where('county', 'like', '%'.$address.'%')
-                    ->orWhere('city', 'like', '%'.$address.'%')
-                    ->orWhere('zip', 'like', '%'.$address.'%');
-            });
-        }
-
-        // Search by geo params
-        $geoParams = array_only($data['body'], ['state', 'city', 'longitude', 'latitude']);
-        if ($geoParams) {
-            $listings->whereHas('geo', function ($q) use ($geoParams) {
-                $q->whereFields($geoParams);
-            });
-        }
-
-        // Search by range of acreage of listings
-        if (isset($data['body']['acreage'])) {
-            $acreageParam = $data['body']['acreage'];
-            $listings->whereHas('geo', function ($q) use ($acreageParam) {
-                $q->where('acreage', '>=', $acreageParam);
-            });
-        }
-
-        // Search by range of price of listings
-        if (isset($data['body']['price'])) {
-            $priceParam = $data['body']['price'];
-            $listings->whereHas('price', function ($q) use ($priceParam) {
-                $q->where('price', '>=', $priceParam);
-            });
-        }
-
-        return $listings->where('status', ListingStatus::TYPE_AVAILABLE)->paginate(5);
+        return $states;
     }
 
 

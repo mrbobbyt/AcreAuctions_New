@@ -68,6 +68,7 @@ class SearchController extends Controller
     {
         try {
             $counties = $this->searchRepo->getCounties();
+            $states = $this->searchRepo->getStates();
 
         } catch (Throwable $e) {
             return response()->json([
@@ -79,6 +80,7 @@ class SearchController extends Controller
         return response()->json([
             'status' => 'Success',
             'counties' => $counties,
+            'states' => $states,
             'property_type' => $this->listingRepo->getPropertyTypes(),
             'sale_types' => $this->listingRepo->getSaleTypes(),
         ]);

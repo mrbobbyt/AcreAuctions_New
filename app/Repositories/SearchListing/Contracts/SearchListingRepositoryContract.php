@@ -25,11 +25,10 @@ interface SearchListingRepositoryContract
 
 
     /**
-     * Find all listings at homepage
-     * @param array $data
-     * @return LengthAwarePaginator
+     * Find all states
+     * @return array
      */
-    public function findHomeListings(array $data);
+    public function getStates();
 
 
     /**

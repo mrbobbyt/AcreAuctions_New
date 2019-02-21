@@ -32,19 +32,22 @@ class SearchListingRequestValidator implements AbstractValidator
     public function validateBody(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'state' => 'nullable|string',
-            'acreage' => 'nullable|numeric',
-            'price' => 'nullable|numeric',
+            'address' => 'nullable|string', // county, city, zip
+
+            'minSize' => 'nullable|numeric',
+            'maxSize' => 'nullable|numeric',
+
+            'minPrice' => 'nullable|numeric',
+            'maxPrice' => 'nullable|numeric',
 
             'longitude' => 'nullable|numeric',
             'latitude' => 'nullable|numeric',
 
+            'state' => 'nullable|string',
             'county' => 'nullable|string',
-            'city' => 'nullable|string',
-            'zip' => 'nullable|numeric',
 
-            'property_type' => 'nullable|string',
-            'sale_type' => 'nullable|string',
+            'property_type' => 'nullable|string|exists:property_type,id',
+            'sale_type' => 'nullable|string|exists:sale_type,id',
         ], [
             'property_type.exists' => 'Property type not found.',
             'sale_type.exists' => 'Financing type not found.',
