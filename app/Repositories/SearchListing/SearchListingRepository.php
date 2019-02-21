@@ -22,12 +22,12 @@ class SearchListingRepository implements SearchListingRepositoryContract
         $listings = (new Listing)->newQuery();
 
         // Search by geo params by handwriting
-        $address = $data['body']['address'];
-        if ($address) {
+        if (isset($data['body']['address'])) {
+            $address = $data['body']['address'];
             $listings->whereHas('geo', function ($q) use ($address) {
-                $q->where('county', 'like', '%'.$address.'%')
-                    ->orWhere('city', 'like', '%'.$address.'%')
-                    ->orWhere('zip', 'like', '%'.$address.'%');
+                $q->where('county', 'like', '%' . $address . '%')
+                    ->orWhere('city', 'like', '%' . $address . '%')
+                    ->orWhere('zip', 'like', '%' . $address . '%');
             });
         }
 
