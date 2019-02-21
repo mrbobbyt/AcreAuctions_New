@@ -46,8 +46,8 @@ class SearchListingRequestValidator implements AbstractValidator
             'state' => 'nullable|string',
             'county' => 'nullable|string',
 
-            'property_type' => 'nullable|string|exists:property_type,id',
-            'sale_type' => 'nullable|string|exists:sale_type,id',
+            'property_type' => 'nullable|string|exists:property_types,id',
+            'sale_type' => 'nullable|string|exists:sale_types,id',
         ], [
             'property_type.exists' => 'Property type not found.',
             'sale_type.exists' => 'Financing type not found.',
