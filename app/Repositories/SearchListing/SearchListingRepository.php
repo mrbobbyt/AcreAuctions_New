@@ -39,14 +39,6 @@ class SearchListingRepository implements SearchListingRepositoryContract
             });
         }
 
-        // Multiple filter search by county in geo params
-        if (isset($data['body']['county'])) {
-            $county = explode(',', $data['body']['county']);
-            $listings->whereHas('geo', function ($q) use ($county) {
-                $q->whereIn('county', $county);
-            });
-        }
-
         // Multiple filter search by state in geo params
         if (isset($data['body']['state'])) {
             $state = explode(',', $data['body']['state']);

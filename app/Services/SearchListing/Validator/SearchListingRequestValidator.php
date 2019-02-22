@@ -44,7 +44,6 @@ class SearchListingRequestValidator implements AbstractValidator
             'latitude' => 'nullable|numeric',
 
             'state' => 'nullable|string',
-            'county' => 'nullable|string',
 
             'property_type' => 'nullable|string|exists:property_types,id',
             'sale_type' => 'nullable|string|exists:sale_types,id',

@@ -67,7 +67,6 @@ class SearchController extends Controller
     public function filters(): JsonResponse
     {
         try {
-            $counties = $this->searchRepo->getCounties();
             $states = $this->searchRepo->getStates();
 
         } catch (Throwable $e) {
@@ -79,7 +78,6 @@ class SearchController extends Controller
 
         return response()->json([
             'status' => 'Success',
-            'counties' => $counties,
             'states' => $states,
             'property_type' => $this->listingRepo->getPropertyTypes(),
             'sale_types' => $this->listingRepo->getSaleTypes(),

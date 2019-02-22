@@ -18,13 +18,6 @@ interface SearchListingRepositoryContract
 
 
     /**
-     * Find all counties
-     * @return array
-     */
-    public function getCounties();
-
-
-    /**
      * Find all states
      * @return array
      */
