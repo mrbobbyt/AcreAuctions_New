@@ -7,6 +7,7 @@ use Closure;
 use Illuminate\Http\Request;
 use Throwable;
 use Tymon\JWTAuth\Exceptions\JWTException;
+use Tymon\JWTAuth\Exceptions\PayloadException;
 use Tymon\JWTAuth\Http\Middleware\BaseMiddleware;
 use JWTAuth;
 use Tymon\JWTAuth\Exceptions\TokenInvalidException;
@@ -24,23 +25,17 @@ class JwtMiddleware extends BaseMiddleware
     {
         try {
             $user = JWTAuth::parseToken()->authenticate();
-        } catch (TokenInvalidException $e) {
+        } catch (TokenInvalidException | PayloadException $e) {
             return response()->json([
                 'status' => 'Error',
                 'message' => 'Token is Invalid'
             ], 400);
         } catch (TokenExpiredException $e) {
-            try {
-                $refreshed = JWTAuth::refresh(JWTAuth::getToken());
-                $request->headers->set('Authorization', 'Bearer ' . $refreshed);
-            } catch (JWTException $e) {
-                return response()->json([
-                    'status' => 'Error',
-                    'message' => 'Token is not refreshable.'
-                ], 400);
-            }
-            $user = JWTAuth::setToken($refreshed)->toUser();
-        } catch (Throwable $e) {
+            return response()->json([
+                'status' => 'Error',
+                'message' => 'Token is expired.'
+            ], 400);
+        } catch (JWTException | Throwable $e) {
             return response()->json([
                 'status' => 'Error',
                 'message' => 'Authorization Token not found'

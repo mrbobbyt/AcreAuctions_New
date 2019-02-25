@@ -29,6 +29,7 @@ Route::get('', 'API\v1\AuthController@index');
 
 Route::get('auth-callback', 'API\v1\AuthController@handleSocials');
 
+Route::get('refresh-token', 'API\v1\AuthController@refreshToken');
 
 /********** User **********/
 

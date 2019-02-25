@@ -330,4 +330,28 @@ class AuthController extends Controller
         ]);
     }
 
+
+    /**
+     * METHOD: get
+     * URL: /refresh-token
+     * @return JsonResponse
+     */
+    public function refreshToken(): JsonResponse
+    {
+        try {
+            $refreshed = \JWTAuth::refresh(\JWTAuth::getToken());
+
+        } catch (JWTException | Throwable $e) {
+            return response()->json([
+                'status' => 'Error',
+                'message' => /*'User login error.'*/$e->getMessage()
+            ], 404);
+        }
+
+        return response()->json([
+            'status' => 'Success',
+            'token' => $refreshed
+        ]);
+    }
+
 }
