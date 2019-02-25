@@ -93,7 +93,21 @@ class SearchListingRepository implements SearchListingRepositoryContract
             });
         }
 
-        return $listings->where('status', ListingStatus::TYPE_AVAILABLE)->paginate(5);
+        // Get all availiable listings
+        $listings->where('status', ListingStatus::TYPE_AVAILABLE);
+
+        // Return sort listings
+        if (isset($data['body']['sort'])) {
+            list($field, $dir) = explode(':', $data['body']['sort']);
+            $relation = $field ==='price' ? 'price' : 'geo';
+            if ($dir === 'asc') {
+                return $listings->get()->sortBy($relation.'.'.$field)->paginate(5);
+            } else {
+                return $listings->get()->sortByDesc($relation.'.'.$field)->paginate(5);
+            }
+        }
+
+        return $listings->paginate(5);
     }
 
 

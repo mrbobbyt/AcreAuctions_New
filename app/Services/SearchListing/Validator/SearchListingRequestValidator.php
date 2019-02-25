@@ -47,9 +47,12 @@ class SearchListingRequestValidator implements AbstractValidator
 
             'property_type' => 'nullable|string|exists:property_types,id',
             'sale_type' => 'nullable|string|exists:sale_types,id',
+
+            'sort' => ['nullable', 'regex:/(price|acreage):(asc|desc)/'],
         ], [
             'property_type.exists' => 'Property type not found.',
             'sale_type.exists' => 'Financing type not found.',
+            'sort:regex' => 'Error sort type',
         ]);
 
         return $validator->validate();
