@@ -3,6 +3,7 @@ declare(strict_types = 1);
 
 namespace App\Services\Auth\Contracts;
 
+use Exception;
 use Illuminate\Database\Eloquent\Model;
 use Throwable;
 use Tymon\JWTAuth\Exceptions\JWTException;
@@ -39,9 +40,10 @@ interface UserAuthServiceContract
     /**
      * Send email with invitation token when user forgot password
      * @param array $data
+     * @param string $reason
      * @throws Throwable
      */
-    public function sendEmailWithToken(array $data);
+    public function sendEmailWithToken(array $data, string $reason);
 
 
     /**
@@ -52,4 +54,13 @@ interface UserAuthServiceContract
      * @throws Throwable
      */
     public function createOrLogin(array $data);
+
+
+    /**
+     * Confirm user after registration
+     * @param array $data
+     * @return Model
+     * @throws Exception
+     */
+    public function confirmUser(array $data);
 }

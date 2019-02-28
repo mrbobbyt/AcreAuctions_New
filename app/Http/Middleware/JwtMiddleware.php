@@ -42,6 +42,13 @@ class JwtMiddleware extends BaseMiddleware
             ], 403);
         }
 
+        if ($user->email_verified_at === null) {
+            return response()->json([
+                'status' => 'Error',
+                'message' => 'Registration is not completed. Please confirm your email.'
+            ], 401);
+        }
+
         return $next($request);
     }
 }

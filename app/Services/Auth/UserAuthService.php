@@ -4,9 +4,12 @@ declare(strict_types = 1);
 namespace App\Services\Auth;
 
 use App\Mail\ForgotPasswordMail;
-use App\Models\Image;
+use App\Mail\RegisterMail;
 use App\Models\PasswordResets;
 use App\Models\User;
+use App\Models\RegisterToken;
+use Exception;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Mail;
 
@@ -87,15 +90,21 @@ class UserAuthService implements UserAuthServiceContract
     /**
      * Send email with invitation token when user forgot password
      * @param array $data
+     * @param string $reason
      * @throws Throwable
      */
-    public function sendEmailWithToken(array $data): void
+    public function sendEmailWithToken(array $data, string $reason): void
     {
         $token = $this->createTokenWithoutPassword($data['body']['email']);
-        $this->createForgotToken($data, $token);
-
-        Mail::to($data['body']['email'])
-            ->send(new ForgotPasswordMail($token));
+        if ($reason === 'forgot') {
+            $this->createForgotToken($data, $token);
+            Mail::to($data['body']['email'])
+                ->send(new ForgotPasswordMail($token));
+        } elseif ($reason === 'register') {
+            $this->createRegisterToken($data, $token);
+            Mail::to($data['body']['email'])
+                ->send(new RegisterMail($token));
+        }
     }
 
 
@@ -114,6 +123,23 @@ class UserAuthService implements UserAuthServiceContract
         ]);
 
         return $pwd->saveOrFail();
+    }
+
+    /**
+     * Create token when user register
+     * @param array $data
+     * @param string $token
+     * @throws Throwable
+     * @return bool
+     */
+    protected function createRegisterToken(array $data, string $token): bool
+    {
+        $reg = RegisterToken::query()->make()->fill([
+            'email' => $data['body']['email'],
+            'token' => $token,
+        ]);
+
+        return $reg->saveOrFail();
     }
 
 
@@ -147,7 +173,8 @@ class UserAuthService implements UserAuthServiceContract
         if ($this->userRepo->checkUserExists($data['body']['email'])) {
             $user = $this->userRepo->findByEmail($data['body']['email']);
         } else {
-            $user = $this->create($data);
+            $this->create($data);
+            return ['register' => true];
         }
         $token = $this->createToken($data['body']);
 
@@ -155,5 +182,24 @@ class UserAuthService implements UserAuthServiceContract
             'user' => $user,
             'token' => $token,
         ];
+    }
+
+
+    /**
+     * Confirm user after registration
+     * @param array $data
+     * @return Model
+     * @throws Exception
+     */
+    public function confirmUser(array $data): Model
+    {
+        $registerToken = RegisterToken::query()->where('token', $data['token'])->first();
+        if ($user = $this->userRepo->findByEmail($registerToken->email)) {
+            $registerToken->delete();
+        }
+        $user->email_verified_at = date('Y-m-d H:i:s');
+        $user->save();
+
+        return $user;
     }
 }

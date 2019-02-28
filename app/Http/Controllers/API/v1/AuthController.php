@@ -6,6 +6,7 @@ namespace App\Http\Controllers\API\v1;
 use App\Http\Controllers\Controller;
 use App\Repositories\User\Contracts\UserRepositoryContract;
 use App\Services\Auth\Contracts\UserAuthServiceContract;
+use App\Services\Auth\Validators\ConfirmRegisterRequestValidator;
 use App\Services\Social\Contracts\FacebookServiceContract;
 use App\Services\Social\Contracts\GoogleServiceContract;
 use Illuminate\Http\JsonResponse;
@@ -103,7 +104,6 @@ class AuthController extends Controller
         try {
             $data = app(LoginRequestUserServiceValidator::class)->attempt($request);
             $token = $this->userService->createToken($data['body']);
-            $user = $this->userRepo->findByEmail($data['body']['email']);
 
         } catch (ValidationException $e) {
             return response()->json([
@@ -125,7 +125,7 @@ class AuthController extends Controller
         return response()->json([
             'status' => 'Success',
             'token' => $token,
-            'user' => UserResource::make($user)
+            'user' => UserResource::make($data['user'])
         ]);
     }
 
@@ -140,8 +140,8 @@ class AuthController extends Controller
     {
         try {
             $data = (new RegisterRequestUserServiceValidator())->attempt($request);
-            $user = $this->userService->create($data);
-            $token = $this->userService->createToken($data['body']);
+            $this->userService->create($data);
+            return $this->sendEmail($data, 'register');
 
         } catch (ValidationException $e) {
             return response()->json([
@@ -154,12 +154,6 @@ class AuthController extends Controller
                 'message' => 'Can not register.'
             ], 500);
         }
-
-        return response()->json([
-            'status' => 'Success',
-            'token' => $token,
-            'user' => UserResource::make($user)
-        ]);
     }
 
 
@@ -173,6 +167,9 @@ class AuthController extends Controller
             $client = $this->fbService->getProfile();
             $data = (new FacebookRequestValidator())->attempt($client);
             $user = $this->userService->createOrLogin($data);
+            if (isset($user['register'])) {
+                return $this->sendEmail($data, 'register');
+            }
 
         } catch (FacebookResponseException | FacebookSDKException $e) {
             // When Graph returns an error
@@ -210,6 +207,9 @@ class AuthController extends Controller
             $client = $this->googleService->getProfile();
             $data = (new GoogleRequestValidator())->attempt($client);
             $user = $this->userService->createOrLogin($data);
+            if (isset($user['register'])) {
+                return $this->sendEmail($data, 'register');
+            }
 
         } catch (ValidationException $e) {
             return response()->json([
@@ -265,7 +265,7 @@ class AuthController extends Controller
     {
         try {
             $data = (new ForgotRequestUserServiceValidator())->attempt($request);
-            $this->userService->sendEmailWithToken($data);
+            return $this->sendEmail($data, 'forgot');
 
         } catch (ValidationException $e) {
             return response()->json([
@@ -278,11 +278,6 @@ class AuthController extends Controller
                 'message' => 'User action error.'
                 ], 500);
         }
-
-        return response()->json([
-            'status' => 'Success',
-            'message' => 'The invitation token has been sent! Please check your email.'
-        ]);
 
         /** when user went on link with received token - redirect him on reset password page **/
     }
@@ -318,12 +313,6 @@ class AuthController extends Controller
             ], 500);
         }
 
-        /**
-         * have to sent new token
-         * maybe need to sent email with access token
-         * return response()->json(['The reset password has been sent! Please check your email.']);
-         */
-
         return response()->json([
             'status' => 'Success',
             'token' => $token
@@ -344,7 +333,7 @@ class AuthController extends Controller
         } catch (JWTException | Throwable $e) {
             return response()->json([
                 'status' => 'Error',
-                'message' => /*'User login error.'*/$e->getMessage()
+                'message' => 'User login error.'
             ], 404);
         }
 
@@ -354,4 +343,67 @@ class AuthController extends Controller
         ]);
     }
 
+
+    /**
+     * Send email after registration
+     * @param $data
+     * @param $reason
+     * @return JsonResponse
+     */
+    protected function sendEmail($data, $reason): JsonResponse
+    {
+        try {
+            $this->userService->sendEmailWithToken($data, $reason);
+
+        } catch (Throwable $e) {
+            return response()->json([
+                'status' => 'Error',
+                'message' => 'User action error.'
+            ], 500);
+        }
+
+        return response()->json([
+            'status' => 'Success',
+            'message' => 'The invitation token has been sent! Please check your email.'
+        ]);
+    }
+
+
+    /**
+     * METHOD: get
+     * URL: /confirm
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function confirmRegister(Request $request): JsonResponse
+    {
+        try {
+            $data = app(ConfirmRegisterRequestValidator::class)->attempt($request);
+            $user = $this->userService->confirmUser($data['body']);
+            $data['body']['email'] = $user->email;
+            $token = $this->userService->createToken($data['body']);
+
+        } catch (ValidationException $e) {
+            return response()->json([
+                'status' => 'Error',
+                'message' => $e->validator->errors()->first(),
+            ], 400);
+        } catch (ModelNotFoundException $e) {
+            return response()->json([
+                'status' => 'Error',
+                'message' => 'User not exist.'
+            ], 404);
+        } catch (JWTException | Throwable $e) {
+            return response()->json([
+                'status' => 'Error',
+                'message' => 'Can not login.'
+            ], 500);
+        }
+
+        return response()->json([
+            'status' => 'Success',
+            'token' => $token,
+            'user' => UserResource::make($user)
+        ]);
+    }
 }

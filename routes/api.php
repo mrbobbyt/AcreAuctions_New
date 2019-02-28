@@ -15,6 +15,8 @@
 
 Route::post('register', 'API\v1\AuthController@register');
 
+Route::get('confirm', 'API\v1\AuthController@confirmRegister');
+
 Route::post('login', 'API\v1\AuthController@login');
 
 Route::get('logout', 'API\v1\AuthController@logout')

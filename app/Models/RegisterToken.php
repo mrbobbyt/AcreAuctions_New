@@ -7,12 +7,15 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
+ * @property int id
  * @property string email
  * @property string token
  */
-class PasswordResets extends Model
+class RegisterToken extends Model
 {
     protected $fillable = ['email', 'token', 'created_at'];
+
+    protected $hidden = ['id'];
 
 
     /**
@@ -23,5 +26,4 @@ class PasswordResets extends Model
     {
         return $this->belongsTo('App\Models\User', 'email', 'email');
     }
-
 }
