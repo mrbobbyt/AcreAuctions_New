@@ -13,10 +13,11 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  */
 class RegisterToken extends Model
 {
-    protected $fillable = ['email', 'token', 'created_at'];
+    protected $fillable = ['email', 'token'];
 
     protected $hidden = ['id'];
 
+    public $timestamps = false;
 
     /**
      * Get belongs user model
