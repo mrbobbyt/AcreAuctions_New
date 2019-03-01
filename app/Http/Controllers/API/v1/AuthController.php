@@ -5,6 +5,7 @@ namespace App\Http\Controllers\API\v1;
 
 use App\Http\Controllers\Controller;
 use App\Repositories\User\Contracts\UserRepositoryContract;
+use App\Repositories\User\Exceptions\NotEndedRegistrationException;
 use App\Services\Auth\Contracts\UserAuthServiceContract;
 use App\Services\Auth\Validators\ConfirmRegisterRequestValidator;
 use App\Services\Social\Contracts\FacebookServiceContract;
@@ -103,6 +104,7 @@ class AuthController extends Controller
     {
         try {
             $data = app(LoginRequestUserServiceValidator::class)->attempt($request);
+            $this->userRepo->checkCompleteRegister($data['user']);
             $token = $this->userService->createToken($data['body']);
 
         } catch (ValidationException $e) {
@@ -115,6 +117,11 @@ class AuthController extends Controller
                 'status' => 'Error',
                 'message' => 'User not exist.'
             ], 404);
+        } catch (NotEndedRegistrationException $e) {
+            return response()->json([
+                'status' => 'Error',
+                'message' => $e->getMessage()
+            ], 401);
         } catch (JWTException | Throwable $e) {
             return response()->json([
                 'status' => 'Error',

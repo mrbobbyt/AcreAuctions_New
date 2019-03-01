@@ -5,7 +5,7 @@ namespace App\Repositories\User;
 
 use App\Models\User;
 use App\Repositories\User\Contracts\UserRepositoryContract;
-use App\Repositories\User\Exceptions\NoPermissionException;
+use App\Repositories\User\Exceptions\NotEndedRegistrationException;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use JWTAuth;
@@ -82,5 +82,18 @@ class UserRepository implements UserRepositoryContract
     public function breakToken()
     {
         return JWTAuth::invalidate(JWTAuth::getToken());
+    }
+
+
+    /**
+     * Check is user complete registration
+     * @param Model $user
+     * @throws NotEndedRegistrationException
+     */
+    public function checkCompleteRegister(Model $user): void
+    {
+        if ($user->email_verified_at === null) {
+            throw new NotEndedRegistrationException;
+        }
     }
 }

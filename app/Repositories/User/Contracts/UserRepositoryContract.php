@@ -4,6 +4,7 @@ declare(strict_types = 1);
 namespace App\Repositories\User\Contracts;
 
 use App\Repositories\User\Exceptions\NoPermissionException;
+use App\Repositories\User\Exceptions\NotEndedRegistrationException;
 use Illuminate\Database\Eloquent\Model;
 use Tymon\JWTAuth\Contracts\JWTSubject;
 use Tymon\JWTAuth\Exceptions\JWTException;
@@ -59,4 +60,12 @@ interface UserRepositoryContract
      * @throws JWTException
      */
     public function breakToken();
+
+
+    /**
+     * Check is user complete registration
+     * @param Model $user
+     * @throws NotEndedRegistrationException
+     */
+    public function checkCompleteRegister(Model $user);
 }
