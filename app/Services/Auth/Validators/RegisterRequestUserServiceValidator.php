@@ -38,6 +38,7 @@ class RegisterRequestUserServiceValidator implements AbstractValidator
             'lname' => 'required|string|max:255|min:3',
             'password'=> 'required|max:255|min:6|confirmed|string',
             'role' => ['integer', 'nullable', new CheckRole],
+            'clientUrl' => 'required|string|max:255|min:5'
         ]);
 
         return $validator->validate();

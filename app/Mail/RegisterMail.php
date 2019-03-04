@@ -11,10 +11,12 @@ class RegisterMail extends Mailable
 {
     use Queueable, SerializesModels;
 
+    protected $clientUrl;
     protected $token;
 
-    public function __construct(string $token)
+    public function __construct(string $clientUrl, string $token)
     {
+        $this->clientUrl = $clientUrl;
         $this->token = $token;
     }
 
@@ -26,6 +28,9 @@ class RegisterMail extends Mailable
     public function build()
     {
         return $this->view('emails.registerMail')
-            ->with(['token' => $this->token]);
+            ->with([
+                'clientUrl' => $this->clientUrl,
+                'token' => $this->token
+            ]);
     }
 }

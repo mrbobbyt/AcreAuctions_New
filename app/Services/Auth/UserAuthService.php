@@ -102,8 +102,9 @@ class UserAuthService implements UserAuthServiceContract
                 ->send(new ForgotPasswordMail($token));
         } elseif ($reason === 'register') {
             $this->createRegisterToken($data, $token);
+            $clientUrl = $data['body']['clientUrl'];
             Mail::to($data['body']['email'])
-                ->send(new RegisterMail($token));
+                ->send(new RegisterMail($clientUrl, $token));
         }
     }
 
