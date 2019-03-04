@@ -10,6 +10,7 @@
     "require": {
         "php": "^7.2",
         "ext-json": "*",
+        "aws/aws-sdk-php": "^3.87",
         "barryvdh/laravel-cors": "^0.11.2",
         "chencha/share": "^5.2",
         "doctrine/dbal": "^2.9",
