@@ -38,7 +38,8 @@ class CreateListingRequestValidator implements AbstractValidator
     public function validateBody(Request $request): array
     {
         $validator = Validator::make($request->all(), [
-            'apn' => 'nullable|numeric',
+            'apn' => 'required|numeric',
+            'listing_id' => 'required|string',
             'title' => 'required|string|max:255|min:3',
             'description' => 'nullable|string',
             'utilities' => 'nullable|numeric|exists:utilities,id',
