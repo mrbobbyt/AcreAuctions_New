@@ -90,7 +90,7 @@ Route::post('admin/listing-export', 'API\v1\AdminController@listingExport')
 
 Route::get('search', 'API\v1\SearchController@search');
 
-Route::get('land-for-sale/filters', 'API\v1\SearchController@filters');
+Route::get('land-for-sale/filters', 'API\v1\SearchController@getFilters');
 
 
 /******** Listing ********/

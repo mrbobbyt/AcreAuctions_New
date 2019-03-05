@@ -11,19 +11,22 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Validation\ValidationException;
 use Throwable;
-use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Response;
 
 class SearchController extends Controller
 {
     protected $searchRepo;
     protected $listingRepo;
+    protected $searchListingRequestValidator;
 
     public function __construct(
         SearchListingRepositoryContract $searchRepo,
-        ListingRepositoryContract $listingRepo
+        ListingRepositoryContract $listingRepo,
+        SearchListingRequestValidator $searchListingRequestValidator
     ) {
         $this->searchRepo = $searchRepo;
         $this->listingRepo = $listingRepo;
+        $this->searchListingRequestValidator = $searchListingRequestValidator;
     }
 
 
@@ -31,53 +34,37 @@ class SearchController extends Controller
      * METHOD: get
      * URL: /search
      * @param Request $request
-     * @return JsonResponse
+     * @return Response
      */
-    public function search(Request $request): JsonResponse
+    public function search(Request $request): Response
     {
         try {
-            $data = (new SearchListingRequestValidator())->attempt($request);
-
-            $result = $this->searchRepo->findListings($data);
-
+            $searchData = $this->searchListingRequestValidator->attempt($request);
+            $result = $this->searchRepo->findListings($searchData);
         } catch (ValidationException $e) {
-            return response()->json([
-                'status' => 'Error',
-                'message' => $e->validator->errors()->first(),
-            ], 400);
+            return response(['message' => $e->validator->errors()->first()], Response::HTTP_BAD_REQUEST);
         } catch (Throwable $e) {
-            return response()->json([
-                'status' => 'Error',
-                'message' => $e->getMessage()
-            ], 500);
+            return response(['message' => $e->getMessage()], Response::HTTP_BAD_REQUEST);
         }
 
-        return response()->json([
-            'status' => 'Success',
-            'listings' => new ListingCollection($result)
-        ]);
+        return response(['listings' => new ListingCollection($result)]);
     }
 
 
     /**
      * METHOD: get
      * URL: /land-for-sale/filters
-     * @return JsonResponse
+     * @return Response
      */
-    public function filters(): JsonResponse
+    public function getFilters(): Response
     {
         try {
             $states = $this->searchRepo->getStates();
-
         } catch (Throwable $e) {
-            return response()->json([
-                'status' => 'Error',
-                'message' => $e->getMessage()
-            ], 500);
+            return response(['message' => $e->getMessage()], Response::HTTP_BAD_REQUEST);
         }
 
-        return response()->json([
-            'status' => 'Success',
+        return response([
             'states' => $states,
             'property_type' => $this->listingRepo->getPropertyTypes(),
             'sale_types' => $this->listingRepo->getSaleTypes(),

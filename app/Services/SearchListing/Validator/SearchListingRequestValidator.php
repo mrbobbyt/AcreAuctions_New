@@ -18,16 +18,13 @@ class SearchListingRequestValidator implements AbstractValidator
      */
     public function attempt(Request $request)
     {
-        return [
-            'body' => $this->validateBody($request),
-        ];
+        return $this->validateBody($request);
     }
 
     /**
      * Validate given data
      * @param Request $request
      * @return array
-     * @throws ValidationException
      */
     public function validateBody(Request $request)
     {

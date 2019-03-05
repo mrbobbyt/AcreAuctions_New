@@ -1,5 +1,5 @@
 <?php
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace App\Repositories\SearchListing;
 
@@ -12,6 +12,9 @@ use Illuminate\Database\Eloquent\Collection;
 
 class SearchListingRepository implements SearchListingRepositoryContract
 {
+    const SORT_ORDER_ASC = 'asc';
+    const SORT_ORDER_DESC = 'desc';
+
     /**
      * Find all listings with requested fields
      * @param array $data
@@ -22,8 +25,8 @@ class SearchListingRepository implements SearchListingRepositoryContract
         $listings = (new Listing)->newQuery();
 
         // Search by geo params by handwriting
-        if (isset($data['body']['address'])) {
-            $address = $data['body']['address'];
+        if (isset($data['address'])) {
+            $address = $data['address'];
             $listings->whereHas('geo', function ($q) use ($address) {
                 $q->where('county', 'like', '%' . $address . '%')
                     ->orWhere('city', 'like', '%' . $address . '%')
@@ -32,7 +35,7 @@ class SearchListingRepository implements SearchListingRepositoryContract
         }
 
         // Search by geo params
-        $geoParams = array_only($data['body'], ['longitude', 'latitude']);
+        $geoParams = \array_only($data, ['longitude', 'latitude']);
         if ($geoParams) {
             $listings->whereHas('geo', function ($q) use ($geoParams) {
                 $q->whereFields($geoParams);
@@ -40,22 +43,22 @@ class SearchListingRepository implements SearchListingRepositoryContract
         }
 
         // Multiple filter search by state in geo params
-        if (isset($data['body']['state'])) {
-            $state = explode(',', $data['body']['state']);
+        if (isset($data['state'])) {
+            $state = explode(',', $data['state']);
             $listings->whereHas('geo', function ($q) use ($state) {
                 $q->whereIn('state', $state);
             });
         }
 
         // Search by range of acreage of listings
-        if (isset($data['body']['minSize'])) {
-            if ( isset($data['body']['minSize']) && isset($data['body']['maxSize']) ) {
-                $acreageParam = [$data['body']['minSize'], $data['body']['maxSize']];
+        if (isset($data['minSize'])) {
+            if (isset($data['minSize']) && isset($data['maxSize'])) {
+                $acreageParam = [$data['minSize'], $data['maxSize']];
                 $listings->whereHas('geo', function ($q) use ($acreageParam) {
                     $q->whereBetween('acreage', $acreageParam);
                 });
             } else {
-                $acreageParam = $data['body']['minSize'];
+                $acreageParam = $data['minSize'];
                 $listings->whereHas('geo', function ($q) use ($acreageParam) {
                     $q->where('acreage', '>=', $acreageParam);
                 });
@@ -63,47 +66,57 @@ class SearchListingRepository implements SearchListingRepositoryContract
         }
 
         // Search by range of price of listings
-        if (isset($data['body']['minPrice'])) {
-           if ( isset($data['body']['minPrice']) && isset($data['body']['maxPrice']) ) {
-               $priceParam = [$data['body']['minPrice'], $data['body']['maxPrice']];
-               $listings->whereHas('price', function ($q) use ($priceParam) {
-                   $q->whereBetween('price', $priceParam);
-               });
-           } else {
-               $priceParam = $data['body']['minPrice'];
-               $listings->whereHas('price', function ($q) use ($priceParam) {
-                   $q->where('price', '>=', $priceParam);
-               });
-           }
+        if (isset($data['minPrice'])) {
+            if (isset($data['minPrice']) && isset($data['maxPrice'])) {
+                $priceParam = [$data['minPrice'], $data['maxPrice']];
+                $listings->whereHas('price', function ($q) use ($priceParam) {
+                    $q->whereBetween('price', $priceParam);
+                });
+            } else {
+                $priceParam = $data['minPrice'];
+                $listings->whereHas('price', function ($q) use ($priceParam) {
+                    $q->where('price', '>=', $priceParam);
+                });
+            }
         }
 
         // Multiple filter search by sale type (financing) in price params
-        if (isset($data['body']['sale_type'])) {
-            $saleType = explode(',', $data['body']['sale_type']);
+        if (isset($data['sale_type'])) {
+            $saleType = explode(',', $data['sale_type']);
             $listings->whereHas('price', function ($q) use ($saleType) {
                 $q->whereIn('sale_type', $saleType);
             });
         }
 
         // Multiple filter search by property type in base listing params
-        if (isset($data['body']['property_type'])) {
-            $propType = explode(',', $data['body']['property_type']);
+        if (isset($data['property_type'])) {
+            $propType = explode(',', $data['property_type']);
             $listings->where(function ($q) use ($propType) {
                 $q->whereIn('property_type', $propType);
             });
         }
 
-        // Get all availiable listings
+        // Get all available listings
         $listings->where('status', ListingStatus::TYPE_AVAILABLE);
 
         // Return sort listings
-        if (isset($data['body']['sort'])) {
-            list($field, $dir) = explode(':', $data['body']['sort']);
-            $relation = $field ==='price' ? 'price' : 'geo';
-            if ($dir === 'asc') {
-                return $listings->get()->sortBy($relation.'.'.$field)->paginate(5);
-            } else {
-                return $listings->get()->sortByDesc($relation.'.'.$field)->paginate(5);
+        if (isset($data['sort'])) {
+            list($field, $dir) = explode(':', $data['sort']);
+            $relation = $field === 'price' ? 'price' : 'geo';
+
+            switch ($dir) {
+                case self::SORT_ORDER_DESC:
+                    return $listings
+                        ->get()
+                        ->sortByDesc($relation . '.' . $field)
+                        ->paginate(5);
+
+                case self::SORT_ORDER_ASC:
+                default:
+                    return $listings
+                        ->get()
+                        ->sortBy($relation . '.' . $field)
+                        ->paginate(5);
             }
         }
 
@@ -117,12 +130,10 @@ class SearchListingRepository implements SearchListingRepositoryContract
      */
     public function getCounties()
     {
-        $counties = ListingGeo::query()
+        return ListingGeo::query()
             ->groupBy('county')
             ->pluck('county')
             ->all();
-
-        return $counties;
     }
 
 
@@ -132,12 +143,10 @@ class SearchListingRepository implements SearchListingRepositoryContract
      */
     public function getStates()
     {
-        $states = ListingGeo::query()
+        return ListingGeo::query()
             ->groupBy('state')
             ->pluck('state')
             ->all();
-
-        return $states;
     }
 
 
