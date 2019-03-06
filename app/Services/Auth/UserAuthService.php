@@ -10,18 +10,17 @@ use App\Models\User;
 use App\Models\RegisterToken;
 use Exception;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Mail;
 
 use App\Repositories\User\Contracts\UserRepositoryContract;
 use App\Services\Auth\Contracts\UserAuthServiceContract;
 
 use JWTAuth;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Throwable;
 use Tymon\JWTAuth\Exceptions\JWTException;
 
 class UserAuthService implements UserAuthServiceContract
-
 {
     protected $model;
     protected $userRepo;
@@ -41,10 +40,10 @@ class UserAuthService implements UserAuthServiceContract
      */
     public function create(array $data): object
     {
-        if (isset($data['body']['password'])) {
-            $data['body']['password'] = bcrypt($data['body']['password']);
+        if (isset($data['password'])) {
+            $data['password'] = bcrypt($data['password']);
         }
-        $user = $this->model->query()->make()->fill($data['body']);
+        $user = $this->model->query()->make()->fill($data);
         $user->saveOrFail();
 
         return $user;
@@ -53,18 +52,19 @@ class UserAuthService implements UserAuthServiceContract
 
     /**
      * Create token for new User
-     * @param $data
+     * @param string $email
+     * @param string $password
      * @return string
      * @throws JWTException
      */
-    public function createToken($data): string
+    public function createToken(string $email, string $password = null): string
     {
-        if (isset($data['password'])) {
-            if ($token = JWTAuth::attempt(['email' => $data['email'], 'password' => $data['password']])) {
-                return $token;
-            }
-        } else {
-            return $this->createTokenWithoutPassword($data['email']);
+        if (!isset($password)) {
+            return $this->createTokenWithoutPassword($email);
+        }
+
+        if ($token = JWTAuth::attempt(['email' => $email, 'password' => $password])) {
+            return $token;
         }
 
         throw new JWTException();
@@ -73,15 +73,15 @@ class UserAuthService implements UserAuthServiceContract
 
     /**
      * Reset user password
-     * @param array $data
+     * @param string $email
+     * @param string $password
      * @return bool
-     * @throws ModelNotFoundException
      * @throws Throwable
      */
-    public function resetPassword(array $data): bool
+    public function resetPassword(string $email, string $password): bool
     {
-        $user = $this->userRepo->findByEmail($data['email']);
-        $user->password = bcrypt($data['password']);
+        $user = $this->userRepo->findByEmail($email);
+        $user->password = bcrypt($password);
 
         return $user->saveOrFail();
     }
@@ -89,37 +89,52 @@ class UserAuthService implements UserAuthServiceContract
 
     /**
      * Send email with invitation token when user forgot password
-     * @param array $data
      * @param string $reason
+     * @param string $email
+     * @param string $clientUrl
+     * @throws JWTException
      * @throws Throwable
      */
-    public function sendEmailWithToken(array $data, string $reason): void
+    public function sendEmailWithToken(string $reason, string $email, string $clientUrl = null): void
     {
-        $token = $this->createTokenWithoutPassword($data['body']['email']);
-        if ($reason === 'forgot') {
-            $this->createForgotToken($data, $token);
-            Mail::to($data['body']['email'])
-                ->send(new ForgotPasswordMail($token));
-        } elseif ($reason === 'register') {
-            $this->createRegisterToken($data, $token);
-            $clientUrl = $data['body']['clientUrl'];
-            Mail::to($data['body']['email'])
-                ->send(new RegisterMail($clientUrl, $token));
+        $token = $this->createTokenWithoutPassword($email);
+        $mail = null;
+
+        switch ($reason) {
+            case PasswordResets::EMAIL_REASON:
+                $this->createForgotToken($email, $token);
+                $mail = new ForgotPasswordMail($token);
+                break;
+
+            case RegisterToken::EMAIL_REASON:
+                if ($clientUrl === null) {
+                    throw new BadRequestHttpException('Incorrect client URL');
+                }
+
+                $this->createRegisterToken($email, $token);
+                $mail = new RegisterMail($clientUrl, $token);
+                break;
+
+            default:
+                throw new Exception('Incorrect reason');
+                break;
         }
+
+        Mail::to($email)->send($mail);
     }
 
 
     /**
      * Create reset token when user forgot password
-     * @param array $data
+     * @param string $email
      * @param string $token
-     * @throws Throwable
      * @return bool
+     * @throws Throwable
      */
-    protected function createForgotToken(array $data, string $token): bool
+    protected function createForgotToken(string $email, string $token): bool
     {
         $pwd = PasswordResets::query()->make()->fill([
-            'email' => $data['body']['email'],
+            'email' => $email,
             'token' => $token,
         ]);
 
@@ -128,15 +143,15 @@ class UserAuthService implements UserAuthServiceContract
 
     /**
      * Create token when user register
-     * @param array $data
+     * @param string $email
      * @param string $token
-     * @throws Throwable
      * @return bool
+     * @throws Throwable
      */
-    protected function createRegisterToken(array $data, string $token): bool
+    protected function createRegisterToken(string $email, string $token): bool
     {
         $reg = RegisterToken::query()->make()->fill([
-            'email' => $data['body']['email'],
+            'email' => $email,
             'token' => $token,
         ]);
 

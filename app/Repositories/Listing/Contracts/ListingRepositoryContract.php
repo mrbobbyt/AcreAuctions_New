@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Tymon\JWTAuth\Exceptions\JWTException;
 use Tymon\JWTAuth\Exceptions\TokenExpiredException;
 use Tymon\JWTAuth\Exceptions\TokenInvalidException;
+use App\Repositories\Listing\Exceptions\ListingNotFoundException;
 
 interface ListingRepositoryContract
 {
@@ -14,6 +15,7 @@ interface ListingRepositoryContract
      * Find seller by url
      * @param string $slug
      * @return Model
+     * @throws ListingNotFoundException
      */
     public function findBySlug(string $slug);
 

@@ -13,6 +13,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  */
 class RegisterToken extends Model
 {
+    const EMAIL_REASON = 'register';
+
     protected $fillable = ['email', 'token'];
 
     protected $hidden = ['id'];

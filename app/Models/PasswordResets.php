@@ -12,6 +12,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  */
 class PasswordResets extends Model
 {
+    const EMAIL_REASON = 'forgot';
+
     protected $fillable = ['email', 'token', 'created_at'];
 
 

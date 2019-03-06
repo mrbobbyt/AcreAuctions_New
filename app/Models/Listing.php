@@ -47,7 +47,7 @@ class Listing extends Model
      */
     public function geo()
     {
-        return $this->hasOne('App\Models\ListingGeo');
+        return $this->hasOne(ListingGeo::class);
     }
 
 
@@ -57,7 +57,7 @@ class Listing extends Model
      */
     public function images()
     {
-        return $this->hasMany('App\Models\Image', 'entity_id', 'id')
+        return $this->hasMany(Image::class, 'entity_id', 'id')
             ->where('entity_type', Image::TYPE_LISTING);
     }
 
@@ -68,7 +68,7 @@ class Listing extends Model
      */
     public function gallery()
     {
-        return $this->hasMany('App\Models\FullsizePreview', 'listing_id', 'id');
+        return $this->hasMany(FullsizePreview::class, 'listing_id', 'id');
     }
 
     /**
@@ -77,7 +77,7 @@ class Listing extends Model
      */
     public function seller()
     {
-        return $this->belongsTo('App\Models\Seller');
+        return $this->belongsTo(Seller::class);
     }
 
 
@@ -87,7 +87,7 @@ class Listing extends Model
      */
     public function price()
     {
-        return $this->hasOne('App\Models\ListingPrice');
+        return $this->hasOne(ListingPrice::class);
     }
 
 
@@ -97,7 +97,7 @@ class Listing extends Model
      */
     public function docs()
     {
-        return $this->hasMany('App\Models\Doc', 'entity_id', 'id')
+        return $this->hasMany(Doc::class, 'entity_id', 'id')
             ->where('entity_type', Doc::TYPE_LISTING);
     }
 
@@ -108,7 +108,7 @@ class Listing extends Model
      */
     public function getUtilities()
     {
-        return $this->belongsTo('App\Models\Utility', 'utilities', 'id');
+        return $this->belongsTo(Utility::class, 'utilities', 'id');
     }
 
 
@@ -118,7 +118,7 @@ class Listing extends Model
      */
     public function getZoning()
     {
-        return $this->belongsTo('App\Models\Zoning', 'zoning', 'id');
+        return $this->belongsTo(Zoning::class, 'zoning', 'id');
     }
 
 
@@ -128,7 +128,7 @@ class Listing extends Model
      */
     public function subdivision()
     {
-        return $this->hasOne('App\Models\Subdivision');
+        return $this->hasOne(Subdivision::class);
     }
 
 
@@ -138,7 +138,7 @@ class Listing extends Model
      */
     public function links()
     {
-        return $this->hasMany('App\Models\Url', 'entity_id', 'id')
+        return $this->hasMany(Url::class, 'entity_id', 'id')
             ->where('entity_type', Url::TYPE_LISTING_LINK);
     }
 
@@ -149,7 +149,7 @@ class Listing extends Model
      */
     public function videos()
     {
-        return $this->hasMany('App\Models\Url', 'entity_id', 'id')
+        return $this->hasMany(Url::class, 'entity_id', 'id')
             ->where('entity_type', Url::TYPE_LISTING_YOUTUBE);
     }
 
@@ -160,7 +160,7 @@ class Listing extends Model
      */
     public function getPropertyType()
     {
-        return $this->belongsTo('App\Models\PropertyType', 'property_type', 'id');
+        return $this->belongsTo(PropertyType::class, 'property_type', 'id');
     }
 
 
@@ -206,6 +206,6 @@ class Listing extends Model
      */
     public function getStatus()
     {
-        return $this->belongsTo('App\Models\ListingStatus', 'status', 'id');
+        return $this->belongsTo(ListingStatus::class, 'status', 'id');
     }
 }

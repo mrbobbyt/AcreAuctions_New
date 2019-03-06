@@ -18,9 +18,7 @@ class ConfirmRegisterRequestValidator implements AbstractValidator
      */
     public function attempt(Request $request)
     {
-        return [
-            'body' => $this->validateBody($request)
-        ];
+        return $this->validateBody($request);
     }
 
     /**

@@ -1,16 +1,19 @@
 <?php
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace App\Http\Controllers\API\v1;
 
 use App\Http\Resources\ListingResource;
+use App\Models\ListingStatus;
 use App\Services\Social\Contracts\ShareServiceContract;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
 
 use App\Repositories\Listing\Contracts\ListingRepositoryContract;
 use App\Services\Listing\Contracts\ListingServiceContract;
+use App\Repositories\Listing\Exceptions\ListingNotFoundException;
 
 use App\Services\Listing\Validator\CreateListingRequestValidator;
 use App\Services\Listing\Validator\UpdateListingRequestValidator;
@@ -29,8 +32,11 @@ class ListingController extends Controller
     protected $listingRepo;
     protected $shareService;
 
-    public function __construct(ListingServiceContract $listingService, ListingRepositoryContract $listingRepo, ShareServiceContract $shareService)
-    {
+    public function __construct(
+        ListingServiceContract $listingService,
+        ListingRepositoryContract $listingRepo,
+        ShareServiceContract $shareService
+    ) {
         $this->listingService = $listingService;
         $this->listingRepo = $listingRepo;
         $this->shareService = $shareService;
@@ -41,31 +47,28 @@ class ListingController extends Controller
      * METHOD: get
      * URL: /land-for-sale/{slug}
      * @param string $slug
-     * @return JsonResponse
+     * @return Response
      */
-    public function view(string $slug): JsonResponse
+    public function view(string $slug): Response
     {
         try {
             $listing = $this->listingRepo->findBySlug($slug);
+
+            if ($listing->status !== ListingStatus::TYPE_AVAILABLE) {
+                return response(['message' => 'Listing not found.'], Response::HTTP_NOT_FOUND);
+            }
+
             $shareLinks = $this->shareService->shareSocials(request()->url(), $listing->title);
 
-        } catch (ModelNotFoundException $e) {
-            return response()->json([
-                'status' => 'Error',
-                'message' => 'Listing not exist.'
-            ], 404);
+            return response([
+                'listing' => ListingResource::make($listing),
+                'shareLinks' => $shareLinks,
+            ]);
+        } catch (ListingNotFoundException $e) {
+            return response(['message' => $e->getMessage()], Response::HTTP_NOT_FOUND);
         } catch (Throwable $e) {
-            return response()->json([
-                'status' => 'Error',
-                'message' => 'Listing show error.'
-            ], 500);
+            return response(['message' => $e->getMessage()], Response::HTTP_I_AM_A_TEAPOT);
         }
-
-        return response()->json([
-            'status' => 'Success',
-            'listing' => ListingResource::make($listing),
-            'shareLinks' => $shareLinks,
-        ]);
     }
 
 
@@ -144,7 +147,7 @@ class ListingController extends Controller
             return response()->json([
                 'status' => 'Error',
                 'message' => 'Listing update error.'
-            ], 500);
+            ], 400);
         }
 
         return response()->json([
@@ -175,7 +178,7 @@ class ListingController extends Controller
             return response()->json([
                 'status' => 'Error',
                 'message' => 'Listing delete error.'
-            ], 500);
+            ], 400);
         }
 
         return response()->json([
@@ -191,7 +194,7 @@ class ListingController extends Controller
      * URL: /land-for-sale/properties
      * @return JsonResponse
      */
-    public function createWithProperties(): JsonResponse
+    public function getAvailableProperties(): JsonResponse
     {
         return response()->json([
             'status' => 'Success',

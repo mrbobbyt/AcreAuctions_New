@@ -21,29 +21,29 @@ interface UserAuthServiceContract
 
     /**
      * Create token for new User
-     * @param $user
-     * @throws JWTException
+     * @param string $email
+     * @param string $password
      * @return string
      */
-    public function createToken($user);
+    public function createToken(string $email, string $password = null): string;
 
 
     /**
      * Reset user password
-     * @param array $data
+     * @param string $email
+     * @param string $password
      * @return bool
-     * @throws Throwable
      */
-    public function resetPassword(array $data);
+    public function resetPassword(string $email, string $password);
 
 
     /**
      * Send email with invitation token when user forgot password
-     * @param array $data
      * @param string $reason
-     * @throws Throwable
+     * @param string $email
+     * @param string $clientUrl
      */
-    public function sendEmailWithToken(array $data, string $reason);
+    public function sendEmailWithToken(string $reason, string $email, string $clientUrl = '');
 
 
     /**

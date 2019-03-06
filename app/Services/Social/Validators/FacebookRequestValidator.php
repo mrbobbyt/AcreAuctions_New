@@ -25,9 +25,7 @@ class FacebookRequestValidator
             'lname' => $name[1]
         ];
 
-        return [
-            'body' => $this->validateBody($user)
-        ];
+        return $this->validateBody($user);
     }
 
     /**

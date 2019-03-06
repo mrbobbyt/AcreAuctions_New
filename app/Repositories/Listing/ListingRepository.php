@@ -16,6 +16,7 @@ use App\Models\Zoning;
 use App\Repositories\User\Contracts\UserRepositoryContract;
 use Tymon\JWTAuth\Exceptions\JWTException;
 use App\Repositories\Listing\Contracts\ListingRepositoryContract;
+use App\Repositories\Listing\Exceptions\ListingNotFoundException;
 use Illuminate\Database\Eloquent\Model;
 use Tymon\JWTAuth\Exceptions\TokenExpiredException;
 use Tymon\JWTAuth\Exceptions\TokenInvalidException;
@@ -26,10 +27,17 @@ class ListingRepository implements ListingRepositoryContract
      * Find listing by url
      * @param string $slug
      * @return Model
+     * @throws ListingNotFoundException
      */
     public function findBySlug(string $slug): Model
     {
-        return Listing::query()->where('slug', $slug)->firstOrFail();
+        $listing = Listing::query()->where('slug', $slug)->first();
+
+        if ($listing === null) {
+            throw new ListingNotFoundException();
+        }
+
+        return $listing;
     }
 
 
@@ -37,10 +45,17 @@ class ListingRepository implements ListingRepositoryContract
      * Find listing by id
      * @param int $id
      * @return Model
+     * @throws ListingNotFoundException
      */
     public function findByPk(int $id): Model
     {
-        return Listing::query()->findOrFail($id);
+        $listing = Listing::find($id);
+
+        if ($listing === null) {
+            throw new ListingNotFoundException();
+        }
+
+        return $listing;
     }
 
 

@@ -11,121 +11,60 @@
 |
 */
 
-/***** Authentication *****/
+Route::namespace('API\v1')->group(function () {
+    Route::get('', 'AuthController@index');
+    Route::post('register', 'AuthController@register');
+    Route::get('confirm', 'AuthController@confirmRegister');
+    Route::post('login', 'AuthController@login');
+    Route::get('auth-callback', 'AuthController@handleSocials');
+    Route::get('refresh-token', 'AuthController@refreshToken');
+    Route::post('forgot', 'AuthController@forgotPassword');
+    Route::post('reset', 'AuthController@resetPassword');
 
-Route::post('register', 'API\v1\AuthController@register');
+    Route::get('search', 'SearchController@search');
 
-Route::get('confirm', 'API\v1\AuthController@confirmRegister');
+    Route::get('land-for-sale/filters', 'SearchController@getFilters');
+    Route::get('land-for-sale/properties', 'ListingController@getAvailableProperties');
 
-Route::post('login', 'API\v1\AuthController@login');
+    Route::get('share/list', 'ShareController@getNetworks');
+    Route::post('share/create', 'ShareController@create');
 
-Route::get('logout', 'API\v1\AuthController@logout')
-    ->middleware('jwt.verify');
+    Route::get('home/featured', 'HomeController@featured');
 
-Route::post('reset', 'API\v1\AuthController@resetPassword')
-    ->middleware('jwt.verify');
+    Route::middleware('jwt.verify')->group(function () {
+        Route::get('user/profile', 'UserController@profile');
+        Route::get('seller/{slug}', 'SellerController@view');
+        Route::get('land-for-sale/{slug}', 'ListingController@view');
+        Route::post('/user/favorite/action', 'FavoriteController@action');
+        Route::get('logout', 'AuthController@logout');
 
-Route::post('forgot', 'API\v1\AuthController@forgotPassword');
+        Route::middleware('role:admin')->group(function () {
+            Route::post('seller/create', 'SellerController@create');
+            Route::post('admin/verify-seller', 'AdminController@verifySeller');
 
-Route::get('', 'API\v1\AuthController@index');
+            Route::get('admin/all-users', 'AdminController@getAllUsers');
+            Route::get('admin/user-search', 'AdminController@userSearch');
+            Route::post('admin/user-export', 'AdminController@userExport');
 
-Route::get('auth-callback', 'API\v1\AuthController@handleSocials');
+            Route::get('admin/all-listings', 'AdminController@getAllListings');
+            Route::get('admin/listing-search', 'AdminController@listingSearch');
+            Route::post('admin/listing-export', 'AdminController@listingExport');
 
-Route::get('refresh-token', 'API\v1\AuthController@refreshToken');
+            Route::post('land-for-sale/create', 'ListingController@create');
+            Route::put('land-for-sale/{id}/update', 'ListingController@update');
+            Route::delete('land-for-sale/{id}/delete', 'ListingController@delete');
+        });
 
-/********** User **********/
+        Route::middleware('owner')->group(function () {
+            Route::get('user/{id}/favorite', 'FavoriteController@view');
+        });
 
-Route::get('user/profile', 'API\v1\UserController@profile')
-    ->middleware('jwt.verify');
+        Route::middleware('ownerOrAdmin')->group(function () {
+            Route::post('user/{id}/update', 'UserController@update');
+            Route::delete('user/{id}/delete', 'UserController@delete');
 
-Route::get('user/{id}', 'API\v1\UserController@view');
-
-Route::post('user/{id}/update', 'API\v1\UserController@update')
-    ->middleware('jwt.verify', 'user.permission');
-
-Route::delete('user/{id}/delete', 'API\v1\UserController@delete')
-    ->middleware('jwt.verify', 'user.permission');
-
-
-/********* Seller *********/
-
-Route::get('seller/{slug}', 'API\v1\SellerController@view')
-    ->middleware('seller.verification');
-
-Route::post('seller/create', 'API\v1\SellerController@create')
-    ->middleware('jwt.verify', 'user.seller');
-
-Route::post('seller/{id}/update', 'API\v1\SellerController@update')
-    ->middleware('jwt.verify', 'seller.permission');
-
-Route::delete('seller/{id}/delete', 'API\v1\SellerController@delete')
-    ->middleware('jwt.verify', 'seller.permission');
-
-
-/********* Admin *********/
-
-Route::post('admin/verify-seller', 'API\v1\AdminController@verifySeller')
-    ->middleware('jwt.verify', 'admin');
-
-Route::get('admin/all-users', 'API\v1\AdminController@getAllUsers')
-    ->middleware('jwt.verify', 'admin');
-
-Route::get('admin/user-search', 'API\v1\AdminController@userSearch')
-    ->middleware('jwt.verify', 'admin');
-
-Route::post('admin/user-export', 'API\v1\AdminController@userExport')
-    ->middleware('jwt.verify', 'admin');
-
-Route::get('admin/all-listings', 'API\v1\AdminController@getAllListings')
-    ->middleware('jwt.verify', 'admin');
-
-Route::get('admin/listing-search', 'API\v1\AdminController@listingSearch')
-    ->middleware('jwt.verify', 'admin');
-
-Route::post('admin/listing-export', 'API\v1\AdminController@listingExport')
-    ->middleware('jwt.verify', 'admin');
-
-
-/********* Search *********/
-
-Route::get('search', 'API\v1\SearchController@search');
-
-Route::get('land-for-sale/filters', 'API\v1\SearchController@getFilters');
-
-
-/******** Listing ********/
-
-Route::get('land-for-sale/properties', 'API\v1\ListingController@createWithProperties');
-
-Route::get('land-for-sale/{slug}', 'API\v1\ListingController@view')
-    ->middleware('listing.verification');
-
-Route::post('land-for-sale/create', 'API\v1\ListingController@create')
-    ->middleware('jwt.verify');
-
-Route::post('land-for-sale/{id}/update', 'API\v1\ListingController@update')
-    ->middleware('jwt.verify', 'listing.permission');
-
-Route::delete('land-for-sale/{id}/delete', 'API\v1\ListingController@delete')
-    ->middleware('jwt.verify', 'listing.permission');
-
-
-/******** Favorite ********/
-
-Route::get('user/{id}/favorite', 'API\v1\FavoriteController@view')
-    ->middleware('jwt.verify', 'user.permission');
-
-Route::post('/user/favorite/action', 'API\v1\FavoriteController@action')
-    ->middleware('jwt.verify');
-
-
-/********* Share *********/
-
-Route::get('share/list', 'API\v1\ShareController@getNetworks');
-
-Route::post('share/create', 'API\v1\ShareController@create');
-
-
-/********** Main **********/
-
-Route::get('home/featured', 'API\v1\HomeController@featured');
+            Route::post('seller/{id}/update', 'SellerController@update');
+            Route::delete('seller/{id}/delete', 'SellerController@delete');
+        });
+    });
+});

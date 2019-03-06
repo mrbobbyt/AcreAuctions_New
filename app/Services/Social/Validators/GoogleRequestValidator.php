@@ -23,9 +23,7 @@ class GoogleRequestValidator
             'lname' => $data->getFamilyName(),
         ];
 
-        return [
-            'body' => $this->validateBody($user)
-        ];
+        return $this->validateBody($user);
     }
 
     /**
