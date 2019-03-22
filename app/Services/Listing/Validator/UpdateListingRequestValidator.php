@@ -104,7 +104,6 @@ class UpdateListingRequestValidator implements AbstractValidator
             'price' => 'nullable|numeric',
             'sale_type' => 'nullable|numeric|exists:sale_types,id',
             'monthly_payment' => 'nullable|numeric',
-            'processing_fee' => 'nullable|numeric',
             'financial_term' => 'nullable|numeric',
             'percentage_rate' => 'nullable|numeric',
             'taxes' => 'nullable|numeric',
@@ -118,14 +117,12 @@ class UpdateListingRequestValidator implements AbstractValidator
      * Validate given data
      * @param Request $request
      * @return array
-     * @throws ValidationException
      */
     public function validateDoc(Request $request): array
     {
         $validator = Validator::make($request->only('doc'), [
             'doc' => 'array',
-            'doc.*.name' => 'nullable|file|mimes:jpeg,png,jpg,gif|max:2048',
-            'doc.*.desc' => 'nullable|string',
+            'doc.*' => 'nullable|file|max:2048',
         ]);
 
         return $validator->validate();
@@ -136,7 +133,6 @@ class UpdateListingRequestValidator implements AbstractValidator
      * Validate given data
      * @param Request $request
      * @return array
-     * @throws ValidationException
      */
     public function validateUrl(Request $request): array
     {

@@ -75,6 +75,11 @@ return [
             'connection' => 'cache',
         ],
 
+//        "geocode" => [
+//            'driver' => 'redis',
+//            'connection' => 'geocode-cache',
+//        ],
+
     ],
 
     /*

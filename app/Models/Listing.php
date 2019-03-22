@@ -12,7 +12,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 /**
  * @property int id
- * @property int inner_listing_id
+ * @property int listing_id
  * @property int apn
  * @property string title
  * @property string slug
@@ -30,8 +30,17 @@ class Listing extends Model
     use ModelBuilderScopes;
 
     protected $fillable = [
-        'inner_listing_id', 'apn', 'title', 'slug', 'description', 'is_featured', 'status',
-        'seller_id', 'utilities', 'zoning', 'zoning_desc', 'property_type'
+        'listing_id',
+        'apn',
+        'title',
+        'slug',
+        'description',
+        'is_featured',
+        'status',
+        'seller_id',
+        'zoning',
+        'zoning_desc',
+        'property_type'
     ];
 
     protected $guarded = ['id'];
@@ -104,11 +113,11 @@ class Listing extends Model
 
     /**
      * Get listing utility
-     * @return BelongsTo
+     * @return BelongsToMany
      */
-    public function getUtilities()
+    public function utilities()
     {
-        return $this->belongsTo(Utility::class, 'utilities', 'id');
+        return $this->belongsToMany(Utility::class, 'listing_utilities', 'listing_id', 'utility_id');
     }
 
 

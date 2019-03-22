@@ -8,7 +8,7 @@ use Illuminate\Http\Resources\Json\JsonResource;
 
 /**
  * @property int id
- * @property int inner_listing_id
+ * @property int listing_id
  * @property int apn
  * @property string title
  * @property string slug
@@ -33,7 +33,7 @@ class ListingResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'listing_id' => $this->inner_listing_id,
+            'listing_id' => $this->listing_id,
             'apn' => $this->apn,
             'title' => $this->title,
             'slug' => $this->slug,
@@ -41,7 +41,7 @@ class ListingResource extends JsonResource
             'is_featured' => $this->is_featured,
             'status' => $this->getStatus ? $this->getStatus->name : null,
             'seller' => $this->sellerWithLogo,
-            'utilities' => $this->getUtilities ? $this->getUtilities->name : null,
+            'utilities' => $this->utilities ? $this->utilities : null,
             'zoning' => $this->getZoning ? $this->getZoning->name : null,
             'zoning_desc' => $this->zoning_desc,
             'property_type' => $this->getPropertyType ? $this->getPropertyType->name : null,

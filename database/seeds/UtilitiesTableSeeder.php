@@ -13,12 +13,13 @@ class UtilitiesTableSeeder extends Seeder
     public function run()
     {
         $utilities = [
-            ['name' => 'No Utilities'],
-            ['name' => 'Power available, needs well, and septic'],
-            ['name' => 'Power available, water available, needs septic'],
-            ['name' => 'Power, Water, Sewer Available'],
-            ['name' => 'Full Utilities Available'],
-            ['name' => 'Contact County for Utilities'],
+            ['name' => 'Power'],
+            ['name' => 'Sewer'],
+            ['name' => 'Septic'],
+            ['name' => 'City/County Water'],
+            ['name' => 'Well'],
+            ['name' => 'Gas'],
+            ['name' => 'Telephone'],
         ];
 
         foreach ($utilities as $u) {

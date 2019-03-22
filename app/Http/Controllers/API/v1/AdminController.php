@@ -6,6 +6,7 @@ namespace App\Http\Controllers\API\v1;
 use App\Exports\ListingsExport;
 use App\Exports\UsersExport;
 use App\Http\Resources\ListingCollection;
+use App\Http\Resources\SellerCollection;
 use App\Http\Resources\UserCollection;
 
 use Illuminate\Http\Request;
@@ -20,6 +21,7 @@ use App\Services\Admin\Validators\SearchListingRequestValidator;
 use App\Repositories\Admin\Contracts\AdminRepositoryContract;
 use App\Services\Admin\Contracts\AdminServiceContract;
 
+use Illuminate\Http\Response;
 use Throwable;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
@@ -82,7 +84,6 @@ class AdminController extends Controller
     {
         try {
             $result = $this->adminRepo->getAllUsers();
-
         } catch (Throwable $e) {
             return response()->json([
                 'status' => 'Error',
@@ -96,6 +97,24 @@ class AdminController extends Controller
         ]);
     }
 
+    /**
+     * METHOD: get
+     * URL: /admin/all-sellers
+     * @return Response
+     */
+    public function getAllSellers(): Response
+    {
+        try {
+            $sellers = $this->adminService->getAllSellers();
+
+            return \response(new SellerCollection($sellers));
+        } catch (Throwable $e) {
+            return \response(
+                ['message' => $e->getMessage()],
+                Response::HTTP_I_AM_A_TEAPOT
+            );
+        }
+    }
 
     /**
      * Search user by name and email

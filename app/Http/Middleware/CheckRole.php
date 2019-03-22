@@ -19,7 +19,13 @@ class CheckRole
     public function handle($request, Closure $next, ...$roles)
     {
         foreach ($roles as $role) {
-            if (JWTAuth::user()->getRoleName() === $role) {
+            $userRole = JWTAuth::user()->userRole;
+
+            if ($userRole === null) { // todo
+                return response(['message' => 'Permission denied.'], Response::HTTP_FORBIDDEN);
+            }
+
+            if ($userRole->name === $role) {
                 return $next($request);
             }
         }

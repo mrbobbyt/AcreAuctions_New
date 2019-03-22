@@ -30,7 +30,7 @@ class SellerResource extends JsonResource
             'avatar' => $this->avatar,
             'cover' => $this->cover,
             'telephones' => $this->telephones,
-            'email' => $this->emails,
+            'emails' => $this->emails,
             'address' => $this->address,
         ];
     }

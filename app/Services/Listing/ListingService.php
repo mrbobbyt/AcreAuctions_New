@@ -62,8 +62,6 @@ class ListingService implements ListingServiceContract
      */
     public function create(array $data): Model
     {
-        $data['body']['seller_id'] = $this->listingRepo->findSellerById();
-
         if ($this->listingRepo->findByTitle($data['body']['title'])) {
             throw new ListingAlreadyExistsException();
         }
@@ -79,6 +77,10 @@ class ListingService implements ListingServiceContract
         $listingPrice = $this->modelPrice->query()->make()->fill($data['price']);
         $listingPrice->listing_id = $listing->id;
         $listingPrice->saveOrFail();
+
+        if ($data['utilities']) {
+            $listing->utilities()->sync($data['utilities']['utilities']);
+        }
 
         if ($data['subdivision']) {
             $sub = $this->sub->query()->make()->fill($data['subdivision']['subdivision']);
@@ -102,10 +104,8 @@ class ListingService implements ListingServiceContract
 
         if ($data['url']) {
             foreach ($data['url'] as $key => $arr) {
-                foreach ($arr as $item) {
-                    $type = ($key === 'link' ? Url::TYPE_LISTING_LINK : Url::TYPE_LISTING_YOUTUBE);
-                    $this->createUrl($type , $item, $listing->id);
-                }
+                $type = ($key === 'link' ? Url::TYPE_LISTING_LINK : Url::TYPE_LISTING_YOUTUBE);
+                $this->createUrl($type , $arr, $listing->id);
             }
         }
 
@@ -115,18 +115,17 @@ class ListingService implements ListingServiceContract
 
 
     /**
-     * @param array $item
+     * @param $item
      * @param int $id
      * @return bool
      * @throws Throwable
      */
-    protected function createDoc(array $item, int $id): bool
+    protected function createDoc($item, int $id): bool
     {
         $doc = Doc::query()->make()->fill([
             'entity_id' => $id,
             'entity_type' => Doc::TYPE_LISTING,
-            'name' => upload_doc($item['name'], $id, 'doc'),
-            'desc' => $item['desc'] ?? null
+            'name' => upload_doc($item, $id, 'doc'),
         ]);
 
         return $doc->saveOrFail();

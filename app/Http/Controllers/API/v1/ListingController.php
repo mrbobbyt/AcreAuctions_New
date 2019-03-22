@@ -103,7 +103,7 @@ class ListingController extends Controller
         } catch (JWTException | Throwable $e) {
             return response()->json([
                 'status' => 'Error',
-                'message' => 'Listing create error.'
+                'message' => $e->getMessage()
             ], 500);
         }
 

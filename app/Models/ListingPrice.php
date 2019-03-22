@@ -13,7 +13,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int price
  * @property int sale_type
  * @property int monthly_payment
- * @property int processing_fee
  * @property int percentage_rate
  * @property int financial_term
  * @property int taxes
@@ -23,7 +22,7 @@ class ListingPrice extends Model
     use ModelBuilderScopes;
 
     protected $fillable = [
-        'listing_id', 'price', 'sale_type', 'monthly_payment', 'processing_fee', 'percentage_rate', 'financial_term', 'taxes',
+        'listing_id', 'price', 'sale_type', 'monthly_payment', 'percentage_rate', 'financial_term', 'taxes',
     ];
 
     protected $guarded = ['id'];

@@ -11,13 +11,12 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int entity_id
  * @property int entity_type
  * @property string name
- * @property string desc
  */
 class Doc extends Model
 {
     const TYPE_LISTING = 1;
 
-    protected $fillable = ['entity_id', 'entity_type', 'name', 'desc'];
+    protected $fillable = ['entity_id', 'entity_type', 'name'];
 
     protected $guarded = ['id'];
 

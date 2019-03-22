@@ -20,6 +20,7 @@ class CreateListingRequestValidator implements AbstractValidator
     {
         return [
             'body' => $this->validateBody($request),
+            'utilities' => $this->validateUtilities($request),
             'geo' => $this->validateGeo($request),
             'price' => $this->validatePrice($request),
             'image' => $this->validateImage($request),
@@ -33,19 +34,29 @@ class CreateListingRequestValidator implements AbstractValidator
      * Validate given data
      * @param Request $request
      * @return array
-     * @throws ValidationException
      */
     public function validateBody(Request $request): array
     {
+
         $validator = Validator::make($request->all(), [
-            'apn' => 'required|numeric',
+            'seller_id' => 'required|numeric',
+            'apn' => 'required|string',
             'listing_id' => 'required|string',
             'title' => 'required|string|max:255|min:3',
             'description' => 'nullable|string',
-            'utilities' => 'nullable|numeric|exists:utilities,id',
             'zoning' => 'nullable|numeric|exists:zonings,id',
             'zoning_desc' => 'nullable|string',
             'property_type' => 'nullable|numeric|exists:property_types,id',
+        ]);
+
+        return $validator->validate();
+    }
+
+    public function validateUtilities(Request $request): array
+    {
+        $validator = Validator::make($request->all(), [
+            'utilities' => 'array',
+            'utilities.*' => 'numeric|exists:utilities,id',
         ]);
 
         return $validator->validate();
@@ -56,7 +67,6 @@ class CreateListingRequestValidator implements AbstractValidator
      * Validate given data
      * @param Request $request
      * @return array
-     * @throws ValidationException
      */
     public function validateGeo(Request $request): array
     {
@@ -80,7 +90,6 @@ class CreateListingRequestValidator implements AbstractValidator
      * Validate given data
      * @param Request $request
      * @return array
-     * @throws ValidationException
      */
     public function validateImage(Request $request): array
     {
@@ -97,7 +106,6 @@ class CreateListingRequestValidator implements AbstractValidator
      * Validate given data
      * @param Request $request
      * @return array
-     * @throws ValidationException
      */
     public function validatePrice(Request $request): array
     {
@@ -105,7 +113,6 @@ class CreateListingRequestValidator implements AbstractValidator
             'price' => 'required|numeric',
             'sale_type' => 'nullable|numeric|exists:sale_types,id',
             'monthly_payment' => 'nullable|numeric',
-            'processing_fee' => 'nullable|numeric',
             'financial_term' => 'nullable|numeric',
             'percentage_rate' => 'nullable|numeric',
             'taxes' => 'nullable|numeric',
@@ -119,14 +126,12 @@ class CreateListingRequestValidator implements AbstractValidator
      * Validate given data
      * @param Request $request
      * @return array
-     * @throws ValidationException
      */
     public function validateDoc(Request $request): array
     {
         $validator = Validator::make($request->only('doc'), [
             'doc' => 'array',
-            'doc.*.name' => 'nullable|file|mimes:jpeg,png,jpg,gif|max:2048',
-            'doc.*.desc' => 'nullable|string',
+            'doc.*' => 'nullable|file|max:2048',
         ]);
 
         return $validator->validate();
@@ -137,7 +142,6 @@ class CreateListingRequestValidator implements AbstractValidator
      * Validate given data
      * @param Request $request
      * @return array
-     * @throws ValidationException
      */
     public function validateUrl(Request $request): array
     {
@@ -147,6 +151,7 @@ class CreateListingRequestValidator implements AbstractValidator
             'link' => 'array',
             'link.*.name' => ['nullable', 'string', 'regex:'. $urlRegex],
             'link.*.desc' => 'nullable|string',
+
             'video' => 'array',
             'video.*.name' => ['nullable', 'string', 'regex:'. $urlRegex],
             'video.*.desc' => 'nullable|string',
@@ -160,14 +165,13 @@ class CreateListingRequestValidator implements AbstractValidator
      * Validate given data
      * @param Request $request
      * @return array
-     * @throws ValidationException
      */
     public function validateSub(Request $request): array
     {
         $validator = Validator::make($request->only('subdivision'), [
             'subdivision' => 'array',
             'subdivision.name' => 'nullable|string',
-            'subdivision.yearly_dues' => 'nullable|numeric',
+            'subdivision.yearly_dues' => 'nullable|date',
         ]);
 
         return $validator->validate();

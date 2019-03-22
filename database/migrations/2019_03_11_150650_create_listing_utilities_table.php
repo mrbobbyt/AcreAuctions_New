@@ -1,9 +1,10 @@
 <?php
 
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateSubdivisionsTable extends Migration
+class CreateListingUtilitiesTable extends Migration
 {
     /**
      * Run the migrations.
@@ -12,12 +13,10 @@ class CreateSubdivisionsTable extends Migration
      */
     public function up()
     {
-        Schema::create('subdivisions', function (Blueprint $table) {
+        Schema::create('listing_utilities', function (Blueprint $table) {
             $table->increments('id');
             $table->integer('listing_id');
-            $table->string('name');
-            $table->timestamp('yearly_dues');
-            $table->timestamps();
+            $table->integer('utility_id');
         });
     }
 
@@ -28,6 +27,6 @@ class CreateSubdivisionsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('subdivisions');
+        Schema::dropIfExists('listing_utilities');
     }
 }

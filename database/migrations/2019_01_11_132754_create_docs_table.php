@@ -17,7 +17,6 @@ class CreateDocsTable extends Migration
             $table->integer('entity_id');
             $table->integer('entity_type');
             $table->string('name');
-            $table->string('desc')->nullable();
             $table->timestamps();
         });
     }

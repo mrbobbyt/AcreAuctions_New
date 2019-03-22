@@ -17,11 +17,10 @@ class CreateListingPricesTable extends Migration
             $table->integer('listing_id');
             $table->integer('price');
             $table->smallInteger('sale_type')->nullable();
-            $table->integer('monthly_payment')->nullable();
-            $table->integer('processing_fee')->nullable();
+            $table->float('monthly_payment')->nullable();
             $table->integer('financial_term')->nullable();
-            $table->integer('percentage_rate')->nullable();
-            $table->integer('taxes')->nullable();
+            $table->float('percentage_rate')->nullable();
+            $table->float('taxes')->nullable();
             $table->timestamps();
         });
     }

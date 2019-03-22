@@ -181,6 +181,7 @@ return [
         Chencha\Share\ShareServiceProvider::class,
         Intervention\Image\ImageServiceProvider::class,
         Maatwebsite\Excel\ExcelServiceProvider::class,
+        Geocoder\Laravel\Providers\GeocoderService::class,
     ],
 
     /*

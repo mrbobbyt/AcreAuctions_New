@@ -23,6 +23,8 @@ Route::namespace('API\v1')->group(function () {
 
     Route::get('search', 'SearchController@search');
 
+    Route::get('reverse-geocoding', 'GeocodingController@reverseGeocoding');
+
     Route::get('land-for-sale/filters', 'SearchController@getFilters');
     Route::get('land-for-sale/properties', 'ListingController@getAvailableProperties');
 
@@ -41,6 +43,8 @@ Route::namespace('API\v1')->group(function () {
         Route::middleware('role:admin')->group(function () {
             Route::post('seller/create', 'SellerController@create');
             Route::post('admin/verify-seller', 'AdminController@verifySeller');
+
+            Route::get('admin/all-sellers', 'AdminController@getAllSellers');
 
             Route::get('admin/all-users', 'AdminController@getAllUsers');
             Route::get('admin/user-search', 'AdminController@userSearch');

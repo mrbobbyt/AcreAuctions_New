@@ -54,7 +54,7 @@ class ListingsExport implements FromQuery, WithHeadings, WithMapping
     {
         return [
             $listing->id,
-            $listing->inner_listing_id,
+            $listing->listing_id,
             $listing->apn,
             $listing->title,
             $listing->description,
@@ -62,7 +62,7 @@ class ListingsExport implements FromQuery, WithHeadings, WithMapping
             $listing->getStatus->name ?? null,
             $listing->seller->id,
             $listing->seller->title,
-            $listing->getUtilities->name ?? null,
+            $listing->utilities ?? null,
             $listing->getZoning->name ?? null,
             $listing->zoning_desc,
             $listing->getPropertyType->name ?? null,
@@ -83,7 +83,6 @@ class ListingsExport implements FromQuery, WithHeadings, WithMapping
             $listing->price->price,
             $listing->price->getSaleType->name ?? null,
             $listing->price->monthly_payment,
-            $listing->price->processing_fee,
             $listing->price->percentage_rate,
             $listing->price->financial_term,
             $listing->price->taxes,
