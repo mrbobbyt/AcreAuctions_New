@@ -148,7 +148,7 @@ class UserAuthService implements UserAuthServiceContract
      * @return bool
      * @throws Throwable
      */
-    protected function createRegisterToken(string $email, string $token): bool
+    public function createRegisterToken(string $email, string $token): bool
     {
         $reg = RegisterToken::query()->make()->fill([
             'email' => $email,

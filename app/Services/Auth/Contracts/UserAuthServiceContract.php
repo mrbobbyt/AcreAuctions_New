@@ -1,5 +1,5 @@
 <?php
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace App\Services\Auth\Contracts;
 
@@ -54,6 +54,16 @@ interface UserAuthServiceContract
      * @throws Throwable
      */
     public function createOrLogin(array $data);
+
+
+    /**
+     * Create token when user register
+     * @param string $email
+     * @param string $token
+     * @return bool
+     * @throws Throwable
+     */
+    public function createRegisterToken(string $email, string $token): bool;
 
 
     /**

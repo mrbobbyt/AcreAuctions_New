@@ -1,5 +1,5 @@
 <?php
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace App\Services\Seller\Contracts;
 
@@ -7,16 +7,13 @@ use App\Services\Seller\Exceptions\SellerAlreadyExistsException;
 use Exception;
 use Illuminate\Database\Eloquent\Model;
 use Throwable;
-use Tymon\JWTAuth\Exceptions\JWTException;
 
 interface SellerServiceContract
 {
     /**
      * @param array $data
-     * @return Model
+     * @return array
      * @throws Throwable
-     * @throws JWTException
-     * @throws SellerAlreadyExistsException
      */
     public function create(array $data);
 
@@ -40,4 +37,19 @@ interface SellerServiceContract
      */
     public function delete(int $id);
 
+    /**
+     * Send mail for seller
+     * @param string $clientUrl
+     * @param string $email
+     * @param string $token
+     * @return mixed
+     */
+    public function sendAuthMail(string $clientUrl, string $email, string $token);
+
+
+    /**
+     * @param array $data
+     * @return mixed
+     */
+    public function authSeller(array $data);
 }

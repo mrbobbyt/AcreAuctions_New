@@ -7,7 +7,7 @@ use App\Services\Auth\Validators\AbstractValidator;
 use Illuminate\Http\Request;
 use Validator;
 
-class CreateSellerRequestValidator implements AbstractValidator
+class ContinueAuthSellerRequestValidator implements AbstractValidator
 {
     /**
      * Return validated array of data
@@ -28,13 +28,8 @@ class CreateSellerRequestValidator implements AbstractValidator
     public function validateBody(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'company' => 'nullable|string',
-            'email' => 'required|string|email|max:255|unique:users',
-            'clientUrl' => 'required|string',
-            'f_name' => 'required|string|max:255|min:3',
-            'l_name' => 'required|string|max:255|min:3',
-            'mail_address' => 'required|string|max:255',
-            'phone_number' => 'required|numeric',
+            'token' => 'required|string',
+            'password' => 'required', 'string', 'min:6', 'confirmed',
         ]);
 
         return $validator->validate();

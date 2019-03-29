@@ -1,12 +1,19 @@
 <?php
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace App\Services\Seller;
 
+use App\Mail\SellerCreateMail;
 use App\Models\Email;
 use App\Models\Image;
+use App\Models\RegisterToken;
 use App\Models\Seller;
+use App\Models\Telephone;
+use App\Models\User;
+use App\Services\Auth\Contracts\UserAuthServiceContract;
+use App\Services\Seller\Exceptions\NoHaveRegisterToken;
 use Illuminate\Database\Eloquent\Model;
+use Mail;
 
 use App\Repositories\User\Contracts\UserRepositoryContract;
 use App\Services\Image\Contracts\AvatarServiceContract;
@@ -16,7 +23,6 @@ use App\Services\Seller\Contracts\SellerServiceContract;
 
 use Throwable;
 use Exception;
-use Tymon\JWTAuth\Exceptions\JWTException;
 use App\Services\Seller\Exceptions\SellerAlreadyExistsException;
 
 class SellerService implements SellerServiceContract
@@ -24,6 +30,7 @@ class SellerService implements SellerServiceContract
     protected $model;
     protected $sellerRepo;
     protected $userRepo;
+    protected $userService;
     protected $telService;
     protected $avatarService;
 
@@ -31,12 +38,15 @@ class SellerService implements SellerServiceContract
         Seller $seller,
         SellerRepositoryContract $sellerRepo,
         UserRepositoryContract $userRepo,
+        UserAuthServiceContract $userService,
         TelServiceContract $telService,
         AvatarServiceContract $avatarService
-    ) {
+    )
+    {
         $this->model = $seller;
         $this->sellerRepo = $sellerRepo;
         $this->userRepo = $userRepo;
+        $this->userService = $userService;
         $this->telService = $telService;
         $this->avatarService = $avatarService;
     }
@@ -46,38 +56,40 @@ class SellerService implements SellerServiceContract
      * Create new seller
      * @param array $data
      * @return Model
-     * @throws JWTException
-     * @throws SellerAlreadyExistsException
      * @throws Throwable
      */
-    public function create(array $data): Model
+    public function create(array $data)
     {
-        $data['body']['user_id'] = $this->userRepo->getId();
+        $userData = [
+            'fname' => $data['f_name'],
+            'lname' => $data['l_name'],
+            'email' => $data['email'],
+            'role' => User::ROLE_SELLER,
+        ];
 
-        if ($this->sellerRepo->findByTitle($data['body']['title'])) {
-            throw new SellerAlreadyExistsException();
-        }
-        $data['body']['slug'] = make_url($data['body']['title']);
+        $user = $this->userService->create($userData);
+        $registerToken = $this->userService->createToken($user->email);
+        $this->userService->createRegisterToken($user->email, $registerToken);
 
-        $seller = $this->model->query()->make()->fill($data['body']);
+        $sellerTitle = $data['company'] ?? $data['f_name'] . '-' . $data['l_name'];
+        $sellerData = [
+            'user_id' => $user->id,
+            'title' => $sellerTitle,
+            'slug' => make_url($sellerTitle),
+            'is_verified' => 0,
+            'address' => $data['mail_address'],
+        ];
 
+        $seller = $this->model->query()->make()->fill($sellerData);
         $seller->saveOrFail();
 
-        if ($data['image']) {
-            $this->avatarService->create($data['image']['image'], $seller->id);
-        }
+        $this->telService->create(
+            Telephone::TYPE_SELLER,
+            (int)$data['phone_number'],
+            $seller->id
+        );
 
-        if ($data['email']) {
-            foreach ($data['email']['email'] as $key => $item) {
-                $this->createEmail($item, $seller->id);
-            }
-        }
-
-        if ($data['telephones']) {
-            foreach ($data['telephones']['telephones'] as $key => $item) {
-                $this->telService->create((int)$item, $seller->id);
-            }
-        }
+        $this->sendAuthMail($data['clientUrl'], $data['email'], $registerToken);
 
         return $seller;
     }
@@ -191,8 +203,44 @@ class SellerService implements SellerServiceContract
      */
     protected function deleteEmails(Model $seller)
     {
-       return $seller->emails->each(function ($item, $key) {
-           $item->delete();
-       });
+        return $seller->emails->each(function ($item, $key) {
+            $item->delete();
+        });
+    }
+
+    /**
+     * @param string $clientUrl
+     * @param string $email
+     * @param string $token
+     * @return mixed|void
+     */
+    public function sendAuthMail(string $clientUrl, string $email, string $token)
+    {
+        $mail = new SellerCreateMail($clientUrl, $token);
+        Mail::to($email)->send($mail);
+    }
+
+    /**
+     * @param array $data
+     * @return Model
+     * @throws NoHaveRegisterToken
+     */
+    public function authSeller(array $data): Model
+    {
+        $registerToken = RegisterToken::query()->where('token', $data['token'])->first();
+
+        if (!$registerToken) {
+            throw new NoHaveRegisterToken();
+        }
+
+        if ($user = $this->userRepo->findByEmail($registerToken->email)) {
+            $registerToken->delete();
+        }
+
+        $user->password = bcrypt($data['password']);
+        $user->email_verified_at = date('Y-m-d H:i:s');
+        $user->save();
+
+        return $user;
     }
 }

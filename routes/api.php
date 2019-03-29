@@ -21,6 +21,8 @@ Route::namespace('API\v1')->group(function () {
     Route::post('forgot', 'AuthController@forgotPassword');
     Route::post('reset', 'AuthController@resetPassword');
 
+    Route::post('seller/continue-auth', 'SellerController@continueAuth');
+
     Route::get('search', 'SearchController@search');
 
     Route::get('reverse-geocoding', 'GeocodingController@reverseGeocoding');

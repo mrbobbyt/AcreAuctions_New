@@ -17,7 +17,6 @@ class CreateSellersTable extends Migration
             $table->integer('user_id');
             $table->string('title')->unique();
             $table->string('slug')->unique();
-            $table->text('description')->nullable();
             $table->boolean('is_verified')->default(0);
             $table->string('address')->nullable();
             $table->timestamps();
