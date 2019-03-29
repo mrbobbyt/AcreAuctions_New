@@ -16,7 +16,6 @@ class SellersTableSeeder extends Seeder
             'user_id' => 1,
             'title' => 'Dev seller',
             'slug' => 'dev_seller',
-            'description' => 'Some description about seller',
             'is_verified' => true,
             'address' => '1234 Dev Seller str',
         ]);
