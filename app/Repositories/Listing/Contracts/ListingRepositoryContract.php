@@ -122,4 +122,9 @@ interface ListingRepositoryContract
      * @return array
      */
     public function getSaleTypes();
+
+    /**
+     * @return array
+     */
+    public function getListingStatus();
 }

@@ -6,6 +6,7 @@ namespace App\Repositories\Listing;
 use App\Models\Listing;
 use App\Models\ListingGeo;
 use App\Models\ListingPrice;
+use App\Models\ListingStatus;
 use App\Models\PropertyType;
 use App\Models\RoadAccess;
 use App\Models\SaleType;
@@ -205,4 +206,8 @@ class ListingRepository implements ListingRepositoryContract
         return SaleType::getAllFields();
     }
 
+    public function getListingStatus(): array
+    {
+        return ListingStatus::getAllFields();
+    }
 }

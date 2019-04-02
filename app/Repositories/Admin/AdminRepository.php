@@ -107,7 +107,7 @@ class AdminRepository implements AdminRepositoryContract
      */
     public function getAllListings(): LengthAwarePaginator
     {
-        return Listing::paginate(15);
+        return Listing::paginate(10);
     }
 
 }

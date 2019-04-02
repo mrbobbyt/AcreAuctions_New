@@ -202,7 +202,8 @@ class ListingController extends Controller
             'sale_types' => $this->listingRepo->getSaleTypes(),
             'road_access' => $this->listingRepo->getRoadAccess(),
             'utilities' => $this->listingRepo->getUtilities(),
-            'zoning' => $this->listingRepo->getZoning()
+            'zoning' => $this->listingRepo->getZoning(),
+            'listing_status' => $this->listingRepo->getListingStatus()
         ]);
     }
 
