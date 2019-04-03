@@ -117,7 +117,7 @@ class ListingController extends Controller
     /**
      * Update Listing
      * METHOD: put
-     * URL: /land-for-sale/{id}/update
+     * URL: /land-for-sale/{id}
      * @param Request $request
      * @param int $id
      * @return JsonResponse
@@ -160,7 +160,7 @@ class ListingController extends Controller
     /**
      * Delete listing
      * METHOD: delete
-     * URL: /land-for-sale/{id}/delete
+     * URL: /land-for-sale/{id}
      * @param int $id
      * @return JsonResponse
      */

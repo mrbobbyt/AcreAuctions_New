@@ -57,8 +57,8 @@ Route::namespace('API\v1')->group(function () {
             Route::post('admin/listing-export', 'AdminController@listingExport');
 
             Route::post('land-for-sale/create', 'ListingController@create');
-            Route::put('land-for-sale/{id}/update', 'ListingController@update');
-            Route::delete('land-for-sale/{id}/delete', 'ListingController@delete');
+            Route::put('land-for-sale/{id}', 'ListingController@update');
+            Route::delete('land-for-sale/{id}', 'ListingController@delete');
         });
 
         Route::middleware('owner')->group(function () {

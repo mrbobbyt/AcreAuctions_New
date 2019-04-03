@@ -209,24 +209,18 @@ class AdminController extends Controller
     /**
      * METHOD: get
      * URL: /admin/all-listings
-     * @return JsonResponse
+     * @return Response
      */
-    public function getAllListings(): JsonResponse
+    public function getAllListings(): Response
     {
         try {
             $result = $this->adminRepo->getAllListings();
 
         } catch (Throwable $e) {
-            return response()->json([
-                'status' => 'Error',
-                'message' => 'Search listing error.'
-            ], 500);
+            return \response(['message' => $e->getMessage()], Response::HTTP_I_AM_A_TEAPOT);
         }
 
-        return response()->json([
-            'status' => 'Success',
-            'listings' => new ListingCollection($result)
-        ]);
+        return \response(new ListingCollection($result));
     }
 
 

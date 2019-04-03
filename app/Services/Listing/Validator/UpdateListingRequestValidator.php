@@ -38,13 +38,14 @@ class UpdateListingRequestValidator implements AbstractValidator
     public function validateBody(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'apn' => 'nullable|numeric',
+            'apn' => 'nullable|string',
             'title' => 'nullable|string|max:255|min:3',
             'description' => 'nullable|string',
             'utilities' => 'nullable|numeric|exists:utilities,id',
             'zoning' => 'nullable|numeric|exists:zonings,id',
             'zoning_desc' => 'nullable|string',
             'property_type' => 'nullable|numeric|exists:property_types,id',
+            'status' => 'nullable|numeric',
         ]);
 
         return $validator->validate();

@@ -103,11 +103,11 @@ class AdminRepository implements AdminRepositoryContract
 
     /**
      * Get all listings
-     * @return LengthAwarePaginator
+     * @return Listing[]|\Illuminate\Database\Eloquent\Collection
      */
-    public function getAllListings(): LengthAwarePaginator
+    public function getAllListings()
     {
-        return Listing::paginate(10);
+        return Listing::all();
     }
 
 }
