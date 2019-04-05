@@ -1,5 +1,5 @@
 <?php
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace App\Http\Controllers\API\v1;
 
@@ -78,23 +78,17 @@ class AdminController extends Controller
     /**
      * METHOD: get
      * URL: /admin/all-users
-     * @return JsonResponse
+     * @return Response
      */
-    public function getAllUsers(): JsonResponse
+    public function getAllUsers(): Response
     {
         try {
             $result = $this->adminRepo->getAllUsers();
         } catch (Throwable $e) {
-            return response()->json([
-                'status' => 'Error',
-                'message' => 'Search user error.'
-            ], 500);
+            return \response(['message' => $e->getMessage()], Response::HTTP_I_AM_A_TEAPOT);
         }
 
-        return response()->json([
-            'status' => 'Success',
-            'users' => new UserCollection($result)
-        ]);
+        return \response(new UserCollection($result));
     }
 
     /**
@@ -160,7 +154,7 @@ class AdminController extends Controller
         try {
             $data = app(ExportRequestValidator::class)->attempt($request);
             $file = (new UsersExport($data['body']['id']))
-                ->download('users.'. $data['type']['type'], $data['format']);
+                ->download('users.' . $data['type']['type'], $data['format']);
 
         } catch (ValidationException $e) {
             return response()->json([
@@ -236,7 +230,7 @@ class AdminController extends Controller
         try {
             $data = app(ExportRequestValidator::class)->attempt($request);
             $file = (new ListingsExport($data['body']['id']))
-                ->download('listings.'. $data['type']['type'], $data['format']);
+                ->download('listings.' . $data['type']['type'], $data['format']);
 
         } catch (ValidationException $e) {
             return response()->json([

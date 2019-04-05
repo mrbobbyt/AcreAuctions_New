@@ -17,7 +17,7 @@ interface AdminRepositoryContract
 
     /**
      * Get all users
-     * @return LengthAwarePaginator
+     * @return array
      */
     public function getAllUsers();
 

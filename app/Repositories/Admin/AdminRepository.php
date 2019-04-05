@@ -51,11 +51,11 @@ class AdminRepository implements AdminRepositoryContract
 
     /**
      * Get all users
-     * @return LengthAwarePaginator
+     * @return User[]|\Illuminate\Database\Eloquent\Collection
      */
-    public function getAllUsers(): LengthAwarePaginator
+    public function getAllUsers()
     {
-        return User::paginate(15);
+        return User::all();
     }
 
 
