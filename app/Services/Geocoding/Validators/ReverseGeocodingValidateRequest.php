@@ -28,8 +28,7 @@ class ReverseGeocodingValidateRequest implements AbstractValidator
     public function validateBody(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'lat' => 'required|numeric',
-            'lng' => 'required|numeric',
+            'addressByCoords' => 'required|string',
         ]);
 
         return $validator->validate();

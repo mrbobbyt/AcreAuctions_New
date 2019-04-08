@@ -16,7 +16,7 @@ class CreateSubdivisionsTable extends Migration
             $table->increments('id');
             $table->integer('listing_id');
             $table->string('name');
-            $table->timestamp('yearly_dues');
+            $table->integer('yearly_dues');
             $table->timestamps();
         });
     }

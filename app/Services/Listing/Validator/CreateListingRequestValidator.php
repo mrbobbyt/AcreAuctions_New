@@ -171,7 +171,7 @@ class CreateListingRequestValidator implements AbstractValidator
         $validator = Validator::make($request->only('subdivision'), [
             'subdivision' => 'array',
             'subdivision.name' => 'nullable|string',
-            'subdivision.yearly_dues' => 'nullable|date',
+            'subdivision.yearly_dues' => 'nullable|numeric',
         ]);
 
         return $validator->validate();

@@ -25,7 +25,10 @@ class GeocodingController extends Controller
     {
         try {
             $data = (new ReverseGeocodingValidateRequest())->attempt($request);
-            $address = $this->geocodingService->reverse($data['lat'], $data['lng']);
+            $coordinates = explode(',', $data['addressByCoords']);
+            $lat = trim($coordinates[0]);
+            $lng = trim($coordinates[1]);
+            $address = $this->geocodingService->reverse($lat, $lng);
             return \response($address);
         } catch (\Throwable $e) {
             return \response(['message' => $e->getMessage()], Response::HTTP_I_AM_A_TEAPOT);
