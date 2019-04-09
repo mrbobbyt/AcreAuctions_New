@@ -66,8 +66,8 @@ Route::namespace('API\v1')->group(function () {
         });
 
         Route::middleware('ownerOrAdmin')->group(function () {
-            Route::post('user/{id}/update', 'UserController@update');
-            Route::delete('user/{id}/delete', 'UserController@delete');
+            Route::post('user/{id}', 'UserController@update');
+            Route::delete('user/{id}', 'UserController@delete');
 
             Route::post('seller/{id}/update', 'SellerController@update');
             Route::delete('seller/{id}/delete', 'SellerController@delete');
