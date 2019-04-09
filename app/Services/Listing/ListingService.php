@@ -104,8 +104,11 @@ class ListingService implements ListingServiceContract
 
         if ($data['url']) {
             foreach ($data['url'] as $key => $arr) {
-                $type = ($key === 'link' ? Url::TYPE_LISTING_LINK : Url::TYPE_LISTING_YOUTUBE);
-                $this->createUrl($type , $arr, $listing->id);
+                $type = ($key === 'links' ? Url::TYPE_LISTING_LINK : Url::TYPE_LISTING_YOUTUBE);
+
+                foreach ($arr as $item) {
+                    $this->createUrl($type , $item, $listing->id);
+                }
             }
         }
 
@@ -145,7 +148,7 @@ class ListingService implements ListingServiceContract
             'entity_id' => $id,
             'entity_type' => $type,
             'name' => $item['name'],
-            'desc' => $item['desc'] ?? null
+            'desc' => $item['description'] ?? null
         ]);
 
         return $url->saveOrFail();

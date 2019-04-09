@@ -145,16 +145,14 @@ class CreateListingRequestValidator implements AbstractValidator
      */
     public function validateUrl(Request $request): array
     {
-        $urlRegex = '/^(http:\/\/www\.|https:\/\/www\.|http:\/\/|https:\/\/)?[a-z0-9]+([\-\.]{1}[a-z0-9]+)*\.[a-z]{2,5}(:[0-9]{1,5})?(\/.*)?$/';
-
-        $validator = Validator::make($request->only('link', 'video'), [
-            'link' => 'array',
-            'link.*.name' => ['nullable', 'string', 'regex:'. $urlRegex],
-            'link.*.desc' => 'nullable|string',
+        $validator = Validator::make($request->only('links', 'video'), [
+            'links' => 'array',
+            'links.*.name' => ['nullable', 'string'], // TODO: regex url validation
+            'links.*.description' => 'nullable|string',
 
             'video' => 'array',
-            'video.*.name' => ['nullable', 'string', 'regex:'. $urlRegex],
-            'video.*.desc' => 'nullable|string',
+            'video.*.name' => ['nullable', 'string'],
+            'video.*.description' => 'nullable|string',
         ]);
 
         return $validator->validate();
