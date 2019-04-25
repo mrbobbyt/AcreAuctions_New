@@ -67,7 +67,7 @@ class ImageService implements ImageServiceContract
             });
         }
         $name = str_random(20) .'_listing_'. $id;
-        $img->save(public_path().'/images/'.$type.'/'.$name.'.jpg');
+        $img->save(public_path('/images/'.$type.'/'.$name.'.jpg'));
 
         $image = Image::query()->make()->fill([
             'entity_id' => $id,

@@ -1,9 +1,10 @@
 <?php
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace App\Services\Listing;
 
 use App\Models\Doc;
+use App\Models\FullsizePreview;
 use App\Models\ListingPrice;
 use App\Models\Subdivision;
 use App\Models\Url;
@@ -40,7 +41,8 @@ class ListingService implements ListingServiceContract
         ListingRepositoryContract $listingRepo,
         Subdivision $sub,
         ImageService $imageService
-    ) {
+    )
+    {
         $this->model = $listing;
         $this->modelGeo = $listingGeo;
         $this->modelPrice = $listingPrice;
@@ -97,7 +99,7 @@ class ListingService implements ListingServiceContract
         if ($data['doc']) {
             foreach ($data['doc'] as $arr) {
                 foreach ($arr as $item) {
-                    $this->createDoc($item,  $listing->id);
+                    $this->createDoc($item, $listing->id);
                 }
             }
         }
@@ -107,7 +109,7 @@ class ListingService implements ListingServiceContract
                 $type = ($key === 'links' ? Url::TYPE_LISTING_LINK : Url::TYPE_LISTING_YOUTUBE);
 
                 foreach ($arr as $item) {
-                    $this->createUrl($type , $item, $listing->id);
+                    $this->createUrl($type, $item, $listing->id);
                 }
             }
         }
@@ -194,24 +196,25 @@ class ListingService implements ListingServiceContract
         }
 
         if ($data['image']) {
-            foreach ($data['image']['image'] as $key => $item) {
-                $this->imageService->update($key, $item, $id);
+            $this->deleteRelatedImages($id);
+            foreach ($data['image']['image'] as $image) {
+                $this->imageService->create($image, $id);
             }
         }
 
         if ($data['doc']) {
-            foreach ($data['doc'] as $arr) {
-                foreach ($arr as $key => $item) {
-                    $this->updateDoc($key, $item,  $listing->id);
-                }
+            $this->deleteRelatedDocs($id);
+            foreach ($data['doc']['doc'] as $document) {
+                $this->createDoc($document, $id);
             }
         }
 
         if ($data['url']) {
+            $this->deleteRelatedLinks($id);
             foreach ($data['url'] as $key => $arr) {
                 foreach ($arr as $urlKey => $item) {
-                    $type = ($key === 'link' ? Url::TYPE_LISTING_LINK : Url::TYPE_LISTING_YOUTUBE);
-                    $this->updateUrl($type , $urlKey, $item, $listing->id);
+                    $type = ($key === 'links' ? Url::TYPE_LISTING_LINK : Url::TYPE_LISTING_YOUTUBE);
+                    $this->updateUrl($type, $urlKey, $item, $listing->id);
                 }
             }
         }
@@ -305,7 +308,7 @@ class ListingService implements ListingServiceContract
         }
 
         $docs = $listing->docs;
-        if ($docs!== null) {
+        if ($docs !== null) {
             foreach ($docs as $doc) {
                 $this->deleteDoc($doc);
             }
@@ -375,7 +378,7 @@ class ListingService implements ListingServiceContract
      * @return bool
      * @throws Throwable
      */
-    protected function updateUrl(int $type , int $key, array $item, int $id): bool
+    protected function updateUrl(int $type, int $key, array $item, int $id): bool
     {
         if ($url = $this->listingRepo->findUrl($type, $key, $id)) {
             foreach ($item as $key => $property) {
@@ -387,4 +390,48 @@ class ListingService implements ListingServiceContract
         return $this->createUrl($type, $item, $id);
     }
 
+    /**
+     * @param int $id
+     * @throws Exception
+     */
+    protected function deleteRelatedImages(int $id): void
+    {
+        $listingImages = $this->listingRepo->findByPk($id)->images;
+
+        foreach ($listingImages as $image) {
+            $relation = FullsizePreview::query()->where('fullsize_id', $image->id)->first();
+
+            if ($relation) {
+                $imagePreview = $this->listingRepo->findImage($relation->preview_id, $id);
+                $this->imageService->delete($imagePreview);
+            }
+
+            $this->imageService->delete($image);
+        }
+    }
+
+    /**
+     * @param int $id
+     * @throws Exception
+     */
+    protected function deleteRelatedDocs(int $id): void
+    {
+        $listingDocs = $this->listingRepo->findByPk($id)->docs;
+
+        foreach ($listingDocs as $document) {
+            $this->deleteDoc($document);
+        }
+    }
+
+    /**
+     * @param int $id
+     */
+    protected function deleteRelatedLinks(int $id): void
+    {
+        $listingLinks = $this->listingRepo->findByPk($id)->links;
+
+        foreach ($listingLinks as $link) {
+                $link->delete();
+        }
+    }
 }

@@ -116,7 +116,7 @@ class ListingController extends Controller
 
     /**
      * Update Listing
-     * METHOD: put
+     * METHOD: post
      * URL: /land-for-sale/{id}
      * @param Request $request
      * @param int $id

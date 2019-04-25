@@ -41,7 +41,8 @@ class UpdateListingRequestValidator implements AbstractValidator
             'apn' => 'nullable|string',
             'title' => 'nullable|string|max:255|min:3',
             'description' => 'nullable|string',
-            'utilities' => 'nullable|numeric|exists:utilities,id',
+            'utilities' => 'array',
+            'utilities.*' => 'nullable|numeric|exists:utilities,id',
             'zoning' => 'nullable|numeric|exists:zonings,id',
             'zoning_desc' => 'nullable|string',
             'property_type' => 'nullable|numeric|exists:property_types,id',
@@ -137,14 +138,13 @@ class UpdateListingRequestValidator implements AbstractValidator
      */
     public function validateUrl(Request $request): array
     {
-        $urlRegex = '/^(http:\/\/www\.|https:\/\/www\.|http:\/\/|https:\/\/)?[a-z0-9]+([\-\.]{1}[a-z0-9]+)*\.[a-z]{2,5}(:[0-9]{1,5})?(\/.*)?$/';
 
-        $validator = Validator::make($request->only('link', 'video'), [
-            'link' => 'array',
-            'link.*.name' => ['nullable', 'string', 'regex:'. $urlRegex],
-            'link.*.desc' => 'nullable|string',
+        $validator = Validator::make($request->only('links', 'video'), [
+            'links' => 'array',
+            'links.*.name' => ['nullable', 'string', 'url'],
+            'links.*.description' => 'nullable|string',
             'video' => 'array',
-            'video.*.name' => ['nullable', 'string', 'regex:'. $urlRegex],
+            'video.*.name' => ['nullable', 'string', 'url'],
             'video.*.desc' => 'nullable|string',
         ]);
 

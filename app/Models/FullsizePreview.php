@@ -16,7 +16,7 @@ class FullsizePreview extends Model
 
     protected $guarded = ['id'];
 
-    protected $hidden = ['fullsize_id', 'preview_id', 'listing_id'];
+    protected $hidden = ['listing_id'];
 
     protected $appends = ['fullsize', 'preview'];
 
