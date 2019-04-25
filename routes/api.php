@@ -12,7 +12,7 @@
 */
 
 Route::namespace('API\v1')->group(function () {
-    Route::get('', 'AuthController@index');
+    Route::get('auth-links', 'AuthController@index');
     Route::post('register', 'AuthController@register');
     Route::get('confirm', 'AuthController@confirmRegister');
     Route::post('login', 'AuthController@login');
