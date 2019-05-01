@@ -211,6 +211,7 @@ class ListingService implements ListingServiceContract
 
         if ($data['url']) {
             $this->deleteRelatedLinks($id);
+            $this->deleteRelatedVideos($id);
             foreach ($data['url'] as $key => $arr) {
                 foreach ($arr as $urlKey => $item) {
                     $type = ($key === 'links' ? Url::TYPE_LISTING_LINK : Url::TYPE_LISTING_YOUTUBE);
@@ -432,6 +433,18 @@ class ListingService implements ListingServiceContract
 
         foreach ($listingLinks as $link) {
                 $link->delete();
+        }
+    }
+
+    /**
+     * @param int $id
+     */
+    protected function deleteRelatedVideos(int $id): void
+    {
+        $listingVideos = $this->listingRepo->findByPk($id)->videos;
+
+        foreach ($listingVideos as $video) {
+            $video->delete();
         }
     }
 }
