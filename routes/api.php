@@ -57,7 +57,7 @@ Route::namespace('API\v1')->group(function () {
             Route::post('admin/listing-export', 'AdminController@listingExport');
 
             Route::post('land-for-sale/create', 'ListingController@create');
-            Route::put('land-for-sale/{id}', 'ListingController@update');
+            Route::post('land-for-sale/{id}', 'ListingController@update');
             Route::delete('land-for-sale/{id}', 'ListingController@delete');
         });
 
