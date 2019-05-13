@@ -42,6 +42,7 @@ class UpdateListingRequestValidator implements AbstractValidator
             'title' => 'nullable|string|max:255|min:3',
             'description' => 'nullable|string',
             'utilities' => 'array',
+            'listing_id' => 'required|string',
             'utilities.*' => 'nullable|numeric|exists:utilities,id',
             'zoning' => 'nullable|numeric|exists:zonings,id',
             'zoning_desc' => 'nullable|string',

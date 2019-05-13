@@ -202,8 +202,8 @@ class ListingService implements ListingServiceContract
             }
         }
 
+        $this->deleteRelatedDocs($id);
         if ($data['doc']) {
-            $this->deleteRelatedDocs($id);
             foreach ($data['doc']['doc'] as $document) {
                 $this->createDoc($document, $id);
             }
