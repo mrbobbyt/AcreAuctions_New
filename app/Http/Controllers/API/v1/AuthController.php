@@ -12,7 +12,6 @@ use App\Services\Auth\Contracts\UserAuthServiceContract;
 use App\Services\Auth\Validators\ConfirmRegisterRequestValidator;
 use App\Services\Social\Contracts\FacebookServiceContract;
 use App\Services\Social\Contracts\GoogleServiceContract;
-use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use App\Http\Resources\UserResource;
 
@@ -67,19 +66,13 @@ class AuthController extends Controller
             $loginUrlGoogle = $this->googleService->getLogin();
         } catch (FacebookSDKException $e) {
             // When Graph returns an error
-            return response(
-                ['message' => $e->getMessage()],
-                Response::HTTP_BAD_REQUEST
-            );
+            return \response(['message' => $e->getMessage()], Response::HTTP_BAD_REQUEST);
 
         } catch (Throwable $e) {
-            return response(['message' => $e->getMessage()], Response::HTTP_I_AM_A_TEAPOT);
+            return \response(['message' => $e->getMessage()], Response::HTTP_I_AM_A_TEAPOT);
         }
 
-        return response([
-            'loginUrlFb' => $loginUrlFb,
-            'loginUrlGoogle' => $loginUrlGoogle
-        ]);
+        return \response(['loginUrlFb' => $loginUrlFb, 'loginUrlGoogle' => $loginUrlGoogle]);
     }
 
 
@@ -101,9 +94,9 @@ class AuthController extends Controller
      * METHOD: post
      * URL: /login
      * @param Request $request
-     * @return JsonResponse
+     * @return Response
      */
-    public function login(Request $request): JsonResponse
+    public function login(Request $request): Response
     {
         try {
             $data = app(LoginRequestUserServiceValidator::class)->attempt($request);
@@ -114,32 +107,16 @@ class AuthController extends Controller
             );
 
         } catch (ValidationException $e) {
-            return response()->json([
-                'status' => 'Error',
-                'message' => $e->validator->errors()->first(),
-            ], 400);
+            return \response(['message' => $e->validator->errors()->first()], Response::HTTP_BAD_REQUEST);
         } catch (ModelNotFoundException $e) {
-            return response()->json([
-                'status' => 'Error',
-                'message' => 'User not exist.'
-            ], 404);
+            return \response(['message' => 'User not exist.'], Response::HTTP_NOT_FOUND);
         } catch (NotEndedRegistrationException $e) {
-            return response()->json([
-                'status' => 'Error',
-                'message' => $e->getMessage()
-            ], 401);
+            return \response(['message' => $e->getMessage()], Response::HTTP_UNAUTHORIZED);
         } catch (JWTException | Throwable $e) {
-            return response()->json([
-                'status' => 'Error',
-                'message' => 'Can not login.'
-            ], 500);
+            return \response(['message' => 'Can not login.'], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
 
-        return response()->json([
-            'status' => 'Success',
-            'token' => $token,
-            'user' => UserResource::make($data['user'])
-        ]);
+        return \response(['token' => $token, 'user' => UserResource::make($data['user'])]);
     }
 
 
@@ -162,16 +139,10 @@ class AuthController extends Controller
             );
 
         } catch (ValidationException $e) {
-            return response(
-                ['message' => $e->validator->errors()->first()],
-                Response::HTTP_BAD_REQUEST
-            );
+            return \response(['message' => $e->validator->errors()->first()], Response::HTTP_BAD_REQUEST);
 
         } catch (Throwable $e) {
-            return response(
-                ['message' => $e->getMessage()],
-                Response::HTTP_I_AM_A_TEAPOT
-            );
+            return \response(['message' => $e->getMessage()], Response::HTTP_I_AM_A_TEAPOT);
         }
     }
 
@@ -193,25 +164,16 @@ class AuthController extends Controller
 
         } catch (FacebookResponseException | FacebookSDKException $e) {
             // When Graph returns an error
-            return response(['message' => $e->getMessage()], Response::HTTP_BAD_REQUEST);
+            return \response(['message' => $e->getMessage()], Response::HTTP_BAD_REQUEST);
 
         } catch (ValidationException $e) {
-            return response(
-                ['message' => $e->validator->errors()->first()],
-                Response::HTTP_BAD_REQUEST
-            );
+            return \response(['message' => $e->validator->errors()->first()], Response::HTTP_BAD_REQUEST);
 
         } catch (JWTException | Throwable $e) {
-            return response(
-                ['message' => $e->getMessage()],
-                Response::HTTP_I_AM_A_TEAPOT
-            );
+            return \response(['message' => $e->getMessage()], Response::HTTP_I_AM_A_TEAPOT);
         }
 
-        return response([
-            'token' => $user['token'],
-            'user' => UserResource::make($user['user'])
-        ]);
+        return \response(['token' => $user['token'], 'user' => UserResource::make($user['user'])]);
     }
 
 
@@ -231,43 +193,31 @@ class AuthController extends Controller
             }
 
         } catch (ValidationException $e) {
-            return response(
-                ['message' => $e->validator->errors()->first()],
-                Response::HTTP_BAD_REQUEST
-            );
+            return \response(['message' => $e->validator->errors()->first()], Response::HTTP_BAD_REQUEST);
 
         } catch (JWTException | Throwable $e) {
-            return response(['message' => $e->getMessage()], Response::HTTP_I_AM_A_TEAPOT);
+            return \response(['message' => $e->getMessage()], Response::HTTP_I_AM_A_TEAPOT);
         }
 
-        return response([
-            'token' => $user['token'],
-            'user' => UserResource::make($user['user'])
-        ]);
+        return \response(['token' => $user['token'], 'user' => UserResource::make($user['user'])]);
     }
 
 
     /**
      * METHOD: get
      * URL: /logout
-     * @return JsonResponse
+     * @return Response
      */
-    public function logout(): JsonResponse
+    public function logout(): Response
     {
         try {
             $this->userRepo->breakToken();
 
         } catch (JWTException | Throwable $e) {
-            return response()->json([
-                'status' => 'Error',
-                'message' => 'User logout error.'
-            ], 500);
+            return \response(['message' => 'User logout error.', Response::HTTP_INTERNAL_SERVER_ERROR]);
         }
 
-        return response()->json([
-            'status' => 'Success',
-            'message' => 'User logged out successfully.'
-        ]);
+        return \response(['User logged out successfully.', Response::HTTP_OK]);
     }
 
 
@@ -284,16 +234,10 @@ class AuthController extends Controller
             return $this->sendEmail(PasswordResets::EMAIL_REASON, $data['email']);
 
         } catch (ValidationException $e) {
-            return response(
-                ['message' => $e->validator->errors()->first()],
-                Response::HTTP_BAD_REQUEST
-            );
+            return \response(['message' => $e->validator->errors()->first()], Response::HTTP_BAD_REQUEST);
 
         } catch (Throwable $e) {
-            return response(
-                ['message' => $e->getMessage()],
-                Response::HTTP_I_AM_A_TEAPOT
-            );
+            return \response(['message' => $e->getMessage()], Response::HTTP_I_AM_A_TEAPOT);
         }
 
         /** when user went on link with received token - redirect him on reset password page **/
@@ -315,25 +259,16 @@ class AuthController extends Controller
             $token = $this->userService->createToken($data['email'], $data['password']);
 
         } catch (ValidationException $e) {
-            return response(
-                ['message' => $e->validator->errors()->first()],
-                Response::HTTP_BAD_REQUEST
-            );
+            return \response(['message' => $e->validator->errors()->first()], Response::HTTP_BAD_REQUEST);
 
         } catch (ModelNotFoundException $e) {
-            return response(
-                ['message' => 'User not exist.'],
-                Response::HTTP_NOT_FOUND
-            );
+            return \response(['message' => 'User not exist.'], Response::HTTP_NOT_FOUND);
 
         } catch (JWTException | Throwable $e) {
-            return response(
-                ['message' => $e->getMessage()],
-                Response::HTTP_I_AM_A_TEAPOT
-            );
+            return \response(['message' => $e->getMessage()], Response::HTTP_I_AM_A_TEAPOT);
         }
 
-        return response(['token' => $token]);
+        return \response(['token' => $token]);
     }
 
 
@@ -347,13 +282,10 @@ class AuthController extends Controller
         try {
             $token = \JWTAuth::refresh(\JWTAuth::getToken());
         } catch (Throwable $e) {
-            return response(
-                ['message' => $e->getMessage()],
-                Response::HTTP_I_AM_A_TEAPOT
-            );
+            return \response(['message' => $e->getMessage()], Response::HTTP_I_AM_A_TEAPOT);
         }
 
-        return response(['token' => $token]);
+        return \response(['token' => $token]);
     }
 
 
@@ -369,12 +301,12 @@ class AuthController extends Controller
         try {
             $this->userService->sendEmailWithToken($reason, $email, $clientUrl);
         } catch (BadRequestHttpException $e) {
-            return response(['message' => $e->getMessage()], Response::HTTP_BAD_REQUEST);
+            return \response(['message' => $e->getMessage()], Response::HTTP_BAD_REQUEST);
         } catch (Throwable $e) {
-            return response(['message' => $e->getMessage()], Response::HTTP_I_AM_A_TEAPOT);
+            return \response(['message' => $e->getMessage()], Response::HTTP_I_AM_A_TEAPOT);
         }
 
-        return response(['message' => 'The invitation token has been sent! Please check your email.']);
+        return \response(['message' => 'The invitation token has been sent! Please check your email.']);
     }
 
 
@@ -392,27 +324,15 @@ class AuthController extends Controller
             $token = $this->userService->createToken($user->email);
 
         } catch (ValidationException $e) {
-            return response(
-                ['message' => $e->validator->errors()->first()],
-                Response::HTTP_BAD_REQUEST
-            );
+            return \response(['message' => $e->validator->errors()->first()], Response::HTTP_BAD_REQUEST);
 
         } catch (ModelNotFoundException $e) {
-            return response(
-                ['message' => 'User not found'],
-                Response::HTTP_NOT_FOUND
-            );
+            return \response(['message' => 'User not found'], Response::HTTP_NOT_FOUND);
 
         } catch (Throwable $e) {
-            return response(
-                ['message' => $e->getMessage()],
-                Response::HTTP_I_AM_A_TEAPOT
-            );
+            return response(['message' => $e->getMessage()], Response::HTTP_I_AM_A_TEAPOT);
         }
 
-        return response([
-            'token' => $token,
-            'user' => UserResource::make($user)
-        ]);
+        return \response(['token' => $token, 'user' => UserResource::make($user)]);
     }
 }

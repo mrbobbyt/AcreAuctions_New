@@ -11,7 +11,6 @@ use App\Http\Resources\UserCollection;
 
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
-use Illuminate\Http\JsonResponse;
 
 use App\Services\Admin\Validators\VerifySellerRequestValidator;
 use App\Services\Admin\Validators\SearchUserRequestValidator;
@@ -43,35 +42,23 @@ class AdminController extends Controller
      * METHOD: put
      * URL: /admin/verify-seller
      * @param Request $request
-     * @return JsonResponse
+     * @return Response
      */
-    public function verifySeller(Request $request): JsonResponse
+    public function verifySeller(Request $request): Response
     {
         try {
             $data = app(VerifySellerRequestValidator::class)->attempt($request);
-            $this->adminService->verifySeller($data['seller']);
+            $result = $this->adminService->verifySeller($data['seller']);
 
         } catch (ValidationException $e) {
-            return response()->json([
-                'status' => 'Error',
-                'message' => $e->validator->errors()->first(),
-            ], 400);
+            return \response(['message' => $e->validator->errors()->first()], Response::HTTP_BAD_REQUEST);
         } catch (ModelNotFoundException $e) {
-            return response()->json([
-                'status' => 'Error',
-                'message' => 'Seller not exist.'
-            ], 404);
+            return \response(['message' => 'Seller not exist.'], Response::HTTP_NOT_FOUND);
         } catch (Throwable $e) {
-            return response()->json([
-                'status' => 'Error',
-                'message' => 'Verify seller error.'
-            ], 500);
+            return \response(['message' => $e->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
 
-        return response()->json([
-            'status' => 'Success',
-            'seller' => 'Seller successfully verified.'
-        ]);
+        return \response(new SellerCollection($result));
     }
 
 
@@ -103,10 +90,7 @@ class AdminController extends Controller
 
             return \response(new SellerCollection($sellers));
         } catch (Throwable $e) {
-            return \response(
-                ['message' => $e->getMessage()],
-                Response::HTTP_I_AM_A_TEAPOT
-            );
+            return \response(['message' => $e->getMessage()], Response::HTTP_I_AM_A_TEAPOT);
         }
     }
 
@@ -115,30 +99,21 @@ class AdminController extends Controller
      * METHOD: get
      * URL: /admin/user-search
      * @param Request $request
-     * @return JsonResponse
+     * @return Response
      */
-    public function userSearch(Request $request): JsonResponse
+    public function userSearch(Request $request): Response
     {
         try {
             $data = app(SearchUserRequestValidator::class)->attempt($request);
             $result = $this->adminRepo->findUsers($data);
 
         } catch (ValidationException $e) {
-            return response()->json([
-                'status' => 'Error',
-                'message' => $e->validator->errors()->first(),
-            ], 400);
+            return \response(['message' => $e->validator->errors()->first()], Response::HTTP_BAD_REQUEST);
         } catch (Throwable $e) {
-            return response()->json([
-                'status' => 'Error',
-                'message' => 'Search user error.'
-            ], 500);
+            return \response(['message' => 'Search user error.'], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
 
-        return response()->json([
-            'status' => 'Success',
-            'users' => new UserCollection($result)
-        ]);
+        return \response(['users' => new UserCollection($result)]);
     }
 
 
@@ -147,9 +122,9 @@ class AdminController extends Controller
      * METHOD: post
      * URL: /admin/user-export
      * @param Request $request
-     * @return JsonResponse
+     * @return Response
      */
-    public function userExport(Request $request): JsonResponse
+    public function userExport(Request $request): Response
     {
         try {
             $data = app(ExportRequestValidator::class)->attempt($request);
@@ -157,46 +132,28 @@ class AdminController extends Controller
                 ->download('users.' . $data['type']['type'], $data['format']);
 
         } catch (ValidationException $e) {
-            return response()->json([
-                'status' => 'Error',
-                'message' => $e->validator->errors()->first(),
-            ], 400);
+            return \response(['message' => $e->validator->errors()->first()], Response::HTTP_BAD_REQUEST);
         } catch (Throwable $e) {
-            return response()->json([
-                'status' => 'Error',
-                'message' => 'Search user error.'
-            ], 500);
+            return \response(['message' => 'Search user error.'], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
 
-        return response()->json([
-            'status' => 'Success',
-            'file' => $file
-        ]);
+        return \response(['file' => $file]);
     }
 
 
-    public function listingSearch(Request $request): JsonResponse
+    public function listingSearch(Request $request): Response
     {
         try {
             $data = app(SearchListingRequestValidator::class)->attempt($request);
             $result = $this->adminRepo->findListings($data);
 
         } catch (ValidationException $e) {
-            return response()->json([
-                'status' => 'Error',
-                'message' => $e->validator->errors()->first(),
-            ], 400);
+            return \response(['message' => $e->validator->errors()->first()], Response::HTTP_BAD_REQUEST);
         } catch (Throwable $e) {
-            return response()->json([
-                'status' => 'Error',
-                'message' => 'Search listing error.'
-            ], 500);
+            return \response(['message' => 'Search listing error.'], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
 
-        return response()->json([
-            'status' => 'Success',
-            'listings' => new ListingCollection($result)
-        ]);
+        return \response(['listings' => new ListingCollection($result)]);
     }
 
 
@@ -223,9 +180,9 @@ class AdminController extends Controller
      * METHOD: post
      * URL: /admin/listing-export
      * @param Request $request
-     * @return JsonResponse
+     * @return Response
      */
-    public function listingExport(Request $request): JsonResponse
+    public function listingExport(Request $request): Response
     {
         try {
             $data = app(ExportRequestValidator::class)->attempt($request);
@@ -233,21 +190,11 @@ class AdminController extends Controller
                 ->download('listings.' . $data['type']['type'], $data['format']);
 
         } catch (ValidationException $e) {
-            return response()->json([
-                'status' => 'Error',
-                'message' => $e->validator->errors()->first(),
-            ], 400);
+            return \response(['message' => $e->validator->errors()->first()], Response::HTTP_BAD_REQUEST);
         } catch (Throwable $e) {
-            return response()->json([
-                'status' => 'Error',
-                'message' => 'Search listing error.'
-            ], 500);
+            return \response(['message' => 'Search listing error.'], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
 
-        //return $file;
-        return response()->json([
-            'status' => 'Success',
-            'file' => $file
-        ]);
+        return \response(['file' => $file]);
     }
 }

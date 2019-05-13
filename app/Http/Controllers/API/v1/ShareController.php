@@ -6,8 +6,8 @@ namespace App\Http\Controllers\API\v1;
 use App\Repositories\Social\Contracts\ShareRepositoryContract;
 use App\Services\Social\Contracts\ShareServiceContract;
 use App\Services\Social\Validators\ShareRequestValidator;
-use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use App\Http\Controllers\Controller;
 use Throwable;
 
@@ -27,14 +27,11 @@ class ShareController extends Controller
      * Return list of networks
      * METHOD: get
      * URL: /share/list
-     * @return JsonResponse
+     * @return Response
      */
-    public function getNetworks(): JsonResponse
+    public function getNetworks(): Response
     {
-        return response()->json([
-            'status' => 'Success',
-            'networks' => $this->shareRepo->getNetworks()
-        ]);
+        return \response(['networks' => $this->shareRepo->getNetworks()]);
     }
 
 
@@ -43,24 +40,18 @@ class ShareController extends Controller
      * METHOD: post
      * URL: /share/create
      * @param Request $request
-     * @return JsonResponse
+     * @return Response
      */
-    public function create(Request $request): JsonResponse
+    public function create(Request $request): Response
     {
         try {
             $data = (new ShareRequestValidator)->attempt($request);
             $result = $this->shareService->create($data);
 
         } catch (Throwable $e) {
-            return response()->json([
-                'status' => 'Error',
-                'message' => 'Share save error.'
-            ], 500);
+            return \response(['message' => 'Share save error.'], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
 
-        return response()->json([
-            'status' => 'Success',
-            'result' => $result
-        ]);
+        return \response(['result' => $result]);
     }
 }

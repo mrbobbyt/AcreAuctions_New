@@ -8,7 +8,7 @@ use App\Repositories\User\Contracts\UserRepositoryContract;
 use App\Services\User\Contracts\UserServiceContract;
 use App\Services\User\Validators\UpdateRequestUserServiceValidator;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
-use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Response;
 use App\Http\Resources\UserResource;
 use Illuminate\Http\Request;
 
@@ -34,29 +34,20 @@ class UserController extends Controller
      * Return auth user profile
      * METHOD: get
      * URL: /user/profile
-     * @return JsonResponse
+     * @return Response
      */
-    public function profile(): JsonResponse
+    public function profile(): Response
     {
         try {
             $user = $this->userRepo->authenticate();
 
         } catch (TokenExpiredException | TokenInvalidException $e) {
-            return response()->json([
-                'status' => 'Error',
-                'message' => $e->getMessage()
-            ], 400);
+            return \response(['message' => $e->getMessage()], Response::HTTP_BAD_REQUEST);
         } catch (JWTException | Throwable $e) {
-            return response()->json([
-                'status' => 'Error',
-                'message' => 'Profile show error.'
-            ], 500);
+            return \response(['message' => 'Profile show error.'], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
 
-        return response()->json([
-            'status' => 'Success',
-            'user' => UserResource::make($user)
-        ]);
+        return \response(['user' => UserResource::make($user)]);
     }
 
 
@@ -65,29 +56,20 @@ class UserController extends Controller
      * METHOD: get
      * URL: /user/{id}
      * @param int $id
-     * @return JsonResponse
+     * @return Response
      */
-    public function view(int $id): JsonResponse
+    public function view(int $id): Response
     {
         try {
             $user = $this->userRepo->findByPk($id);
 
         } catch (ModelNotFoundException $e) {
-            return response()->json([
-                'status' => 'Error',
-                'message' => 'User not exist.'
-            ], 404);
+            return \response(['message' => 'User not exist.'], Response::HTTP_NOT_FOUND);
         } catch (Throwable $e) {
-            return response()->json([
-                'status' => 'Error',
-                'message' => 'User show error.'
-            ], 500);
+            return \response(['message' => 'User show error.'], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
 
-        return response()->json([
-            'status' => 'Success',
-            'user' => UserResource::make($user)
-        ]);
+        return \response(['user' => UserResource::make($user)]);
     }
 
 
@@ -97,35 +79,23 @@ class UserController extends Controller
      * URL: /{id}/update
      * @param Request $request
      * @param int $id
-     * @return JsonResponse
+     * @return Response
      */
-    public function update(Request $request, int $id): JsonResponse
+    public function update(Request $request, int $id): Response
     {
         try {
             $data = (new UpdateRequestUserServiceValidator)->attempt($request);
             $user = $this->userService->update($data, $id);
 
         } catch (ValidationException $e) {
-            return response()->json([
-                'status' => 'Error',
-                'message' => $e->validator->errors()->first(),
-            ], 400);
+            return \response(['message' => $e->validator->errors()->first()], Response::HTTP_BAD_REQUEST);
         } catch (ModelNotFoundException $e) {
-            return response()->json([
-                'status' => 'Error',
-                'message' => 'User not exist.'
-            ], 404);
+            return \response(['message' => 'User not exist.'], Response::HTTP_NOT_FOUND);
         } catch (JWTException | Throwable $e) {
-            return response()->json([
-                'status' => 'Error',
-                'message' => 'User update error.'
-            ], 500);
+            return \response(['message' => 'User update error.'], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
 
-        return response()->json([
-            'status' => 'Success',
-            'user' => UserResource::make($user)
-        ]);
+        return \response(['user' => UserResource::make($user)]);
     }
 
 
@@ -134,28 +104,19 @@ class UserController extends Controller
      * METHOD: delete
      * URL: /{id}/delete
      * @param int $id
-     * @return JsonResponse
+     * @return Response
      */
-    public function delete(int $id): JsonResponse
+    public function delete(int $id): Response
     {
         try {
             $this->userService->delete($id);
 
         } catch (ModelNotFoundException $e) {
-            return response()->json([
-                'status' => 'Error',
-                'message' => 'User not exist.'
-            ], 404);
+            return \response(['message' => 'User not exist.'], Response::HTTP_NOT_FOUND);
         } catch (Throwable $e) {
-            return response()->json([
-                'status' => 'Error',
-                'message' => 'User delete error.'
-            ], 500);
+            return \response(['message' => 'User delete error.'], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
 
-        return response()->json([
-            'status' => 'Success',
-            'message' => 'User successfully deleted.'
-        ]);
+        return \response(['message' => 'User successfully deleted.']);
     }
 }

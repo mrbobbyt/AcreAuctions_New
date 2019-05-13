@@ -4,7 +4,6 @@ declare(strict_types=1);
 namespace App\Http\Controllers\API\v1;
 
 use App\Services\Seller\Validators\ContinueAuthSellerRequestValidator;
-use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\SellerResource;
@@ -42,29 +41,20 @@ class SellerController extends Controller
      * METHOD: get
      * URL: /seller/{id}
      * @param string $slug
-     * @return JsonResponse
+     * @return Response
      */
-    public function view(string $slug): JsonResponse
+    public function view(string $slug): Response
     {
         try {
             $seller = $this->sellerRepo->findBySlug($slug);
 
         } catch (ModelNotFoundException $e) {
-            return response()->json([
-                'status' => 'Error',
-                'message' => 'Seller not exist.'
-            ], 404);
+            return \response(['message' => 'Seller not exist.'], Response::HTTP_NOT_FOUND);
         } catch (Throwable $e) {
-            return response()->json([
-                'status' => 'Error',
-                'message' => 'Seller show error.'
-            ], 500);
+            return \response(['message' => 'Seller show error.'], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
 
-        return response()->json([
-            'status' => 'Success',
-            'seller' => SellerResource::make($seller)
-        ]);
+        return \response(['seller' => SellerResource::make($seller)]);
     }
 
 
@@ -73,34 +63,22 @@ class SellerController extends Controller
      * METHOD: post
      * URL: /seller/create
      * @param Request $request
-     * @return JsonResponse
+     * @return Response
      */
-    public function create(Request $request): JsonResponse
+    public function create(Request $request): Response
     {
         try {
             $dataSeller = (new CreateSellerRequestValidator)->attempt($request);
             $seller = $this->sellerService->create($dataSeller);
         } catch (ValidationException $e) {
-            return response()->json([
-                'status' => 'Error',
-                'message' => $e->validator->errors()->first(),
-            ], 400);
+            return \response(['message' => $e->validator->errors()->first()], Response::HTTP_BAD_REQUEST);
         } catch (SellerAlreadyExistsException $e) {
-            return response()->json([
-                'status' => 'Error',
-                'message' => $e->getMessage()
-            ], 400);
+            return \response(['message' => $e->getMessage()], Response::HTTP_BAD_REQUEST);
         } catch (JWTException | Throwable $e) {
-            return response()->json([
-                'status' => 'Error',
-                'message' => $e->getMessage()
-            ], 500);
+            return \response(['message' => $e->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
 
-        return response()->json([
-            'status' => 'Success',
-            'seller' => SellerResource::make($seller)
-        ]);
+        return \response(['seller' => SellerResource::make($seller)]);
     }
 
 
@@ -110,33 +88,25 @@ class SellerController extends Controller
      * URL: /seller/{id}/update
      * @param Request $request
      * @param int $id
-     * @return JsonResponse
+     * @return Response
      */
-    public function update(Request $request, int $id): JsonResponse
+    public function update(Request $request, int $id): Response
     {
         try {
             $data = (new UpdateSellerRequestValidator)->attempt($request);
             $seller = $this->sellerService->update($data, $id);
 
         } catch (ValidationException $e) {
-            return response([
-                'message' => $e->validator->errors()->first()
-            ], Response::HTTP_BAD_REQUEST);
+            return \response(['message' => $e->validator->errors()->first()], Response::HTTP_BAD_REQUEST);
         } catch (SellerAlreadyExistsException $e) {
-            return response(
-                ['message' => $e->getMessage()],
-                Response::HTTP_BAD_REQUEST
-            );
+            return \response(['message' => $e->getMessage()], Response::HTTP_BAD_REQUEST);
         } catch (ModelNotFoundException $e) {
-            return response(
-                ['message' => 'Seller not found'],
-                Response::HTTP_NOT_FOUND
-            );
+            return \response(['message' => 'Seller not found'], Response::HTTP_NOT_FOUND);
         } catch (Throwable $e) {
-            return response(['message' => $e->getMessage()], Response::HTTP_I_AM_A_TEAPOT);
+            return \response(['message' => $e->getMessage()], Response::HTTP_I_AM_A_TEAPOT);
         }
 
-        return response(['seller' => SellerResource::make($seller)]);
+        return \response(['seller' => SellerResource::make($seller)]);
     }
 
 
@@ -145,7 +115,7 @@ class SellerController extends Controller
      * METHOD: delete
      * URL: /seller/{id}/delete
      * @param int $id
-     * @return JsonResponse
+     * @return Response
      */
     public function delete(int $id)
     {
@@ -153,21 +123,12 @@ class SellerController extends Controller
             $this->sellerService->delete($id);
 
         } catch (ModelNotFoundException $e) {
-            return response()->json([
-                'status' => 'Error',
-                'message' => 'Seller not exist.'
-            ], 404);
+            return \response(['message' => 'Seller not exist.'], Response::HTTP_NOT_FOUND);
         } catch (Throwable $e) {
-            return response()->json([
-                'status' => 'Error',
-                'message' => 'Seller delete error.'
-            ], 500);
+            return \response(['message' => 'Seller delete error.'], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
 
-        return response()->json([
-            'status' => 'Success',
-            'message' => 'Seller successfully deleted.'
-        ]);
+        return \response(['message' => 'Seller successfully deleted.']);
     }
 
     /**
@@ -175,28 +136,19 @@ class SellerController extends Controller
      * METHOD: post
      * URL: /seller/continue-auth
      * @param Request $request
-     * @return JsonResponse
+     * @return Response
      */
-    public function continueAuth(Request $request): JsonResponse
+    public function continueAuth(Request $request): Response
     {
         try {
             $data = (new ContinueAuthSellerRequestValidator)->attempt($request);
             $this->sellerService->authSeller($data);
         } catch (NoHaveRegisterToken $e) {
-            return response()->json([
-                'status' => 'Error',
-                'message' => $e->getMessage()
-            ], 404);
+            return \response(['message' => $e->getMessage()], Response::HTTP_NOT_FOUND);
         } catch (Throwable $e) {
-            return response()->json([
-                'status' => 'Error',
-                'message' => $e->getMessage()
-            ], 500);
+            return \response(['message' => $e->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
 
-        return response()->json([
-            'status' => 'Success',
-            'message' => 'Seller successfully updated.'
-        ]);
+        return \response(['message' => 'Seller successfully updated.']);
     }
 }

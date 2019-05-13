@@ -42,12 +42,12 @@ class SearchController extends Controller
             $searchData = $this->searchListingRequestValidator->attempt($request);
             $result = $this->searchRepo->findListings($searchData);
         } catch (ValidationException $e) {
-            return response(['message' => $e->validator->errors()->first()], Response::HTTP_BAD_REQUEST);
+            return \response(['message' => $e->validator->errors()->first()], Response::HTTP_BAD_REQUEST);
         } catch (Throwable $e) {
-            return response(['message' => $e->getMessage()], Response::HTTP_BAD_REQUEST);
+            return \response(['message' => $e->getMessage()], Response::HTTP_BAD_REQUEST);
         }
 
-        return response(['listings' => new ListingCollection($result)]);
+        return \response(['listings' => new ListingCollection($result)]);
     }
 
 
@@ -61,10 +61,10 @@ class SearchController extends Controller
         try {
             $states = $this->searchRepo->getStates();
         } catch (Throwable $e) {
-            return response(['message' => $e->getMessage()], Response::HTTP_BAD_REQUEST);
+            return \response(['message' => $e->getMessage()], Response::HTTP_BAD_REQUEST);
         }
 
-        return response([
+        return \response([
             'states' => $states,
             'property_type' => $this->listingRepo->getPropertyTypes(),
             'sale_types' => $this->listingRepo->getSaleTypes(),

@@ -9,7 +9,6 @@ use App\Services\Social\Contracts\ShareServiceContract;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use App\Http\Controllers\Controller;
-use Illuminate\Http\JsonResponse;
 
 use App\Repositories\Listing\Contracts\ListingRepositoryContract;
 use App\Services\Listing\Contracts\ListingServiceContract;
@@ -36,7 +35,8 @@ class ListingController extends Controller
         ListingServiceContract $listingService,
         ListingRepositoryContract $listingRepo,
         ShareServiceContract $shareService
-    ) {
+    )
+    {
         $this->listingService = $listingService;
         $this->listingRepo = $listingRepo;
         $this->shareService = $shareService;
@@ -53,22 +53,15 @@ class ListingController extends Controller
     {
         try {
             $listing = $this->listingRepo->findBySlug($slug);
-
-            if ($listing->status !== ListingStatus::TYPE_AVAILABLE) {
-                return response(['message' => 'Listing not found.'], Response::HTTP_NOT_FOUND);
-            }
-
             $shareLinks = $this->shareService->shareSocials(request()->url(), $listing->title);
 
-            return response([
-                'listing' => ListingResource::make($listing),
-                'shareLinks' => $shareLinks,
-            ]);
         } catch (ListingNotFoundException $e) {
-            return response(['message' => $e->getMessage()], Response::HTTP_NOT_FOUND);
+            return \response(['message' => $e->getMessage()], Response::HTTP_NOT_FOUND);
         } catch (Throwable $e) {
-            return response(['message' => $e->getMessage()], Response::HTTP_I_AM_A_TEAPOT);
+            return \response(['message' => $e->getMessage()], Response::HTTP_I_AM_A_TEAPOT);
         }
+
+        return \response(['listing' => ListingResource::make($listing), 'shareLinks' => $shareLinks]);
     }
 
 
@@ -77,40 +70,25 @@ class ListingController extends Controller
      * METHOD: post
      * URL: /land-for-sale/create
      * @param Request $request
-     * @return JsonResponse
+     * @return Response
      */
-    public function create(Request $request): JsonResponse
+    public function create(Request $request): Response
     {
         try {
             $data = (new CreateListingRequestValidator)->attempt($request);
             $listing = $this->listingService->create($data);
 
         } catch (ValidationException $e) {
-            return response()->json([
-                'status' => 'Error',
-                'message' => $e->validator->errors()->first(),
-            ], 400);
+            return \response(['message' => $e->validator->errors()->first()], Response::HTTP_BAD_REQUEST);
         } catch (TokenExpiredException | TokenInvalidException | ListingAlreadyExistsException $e) {
-            return response()->json([
-                'status' => 'Error',
-                'message' => $e->getMessage()
-            ], 400);
+            return \response(['message' => $e->getMessage()], Response::HTTP_BAD_REQUEST);
         } catch (ModelNotFoundException $e) {
-            return response()->json([
-                'status' => 'Error',
-                'message' => 'Seller not exist.'
-            ], 404);
+            return \response(['message' => 'Seller not exist.'], Response::HTTP_NOT_FOUND);
         } catch (JWTException | Throwable $e) {
-            return response()->json([
-                'status' => 'Error',
-                'message' => $e->getMessage()
-            ], 500);
+            return \response(['message' => $e->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
 
-        return response()->json([
-            'status' => 'Success',
-            'listing' => ListingResource::make($listing)
-        ]);
+        return \response(['listing' => ListingResource::make($listing)]);
     }
 
 
@@ -120,40 +98,25 @@ class ListingController extends Controller
      * URL: /land-for-sale/{id}
      * @param Request $request
      * @param int $id
-     * @return JsonResponse
+     * @return Response
      */
-    public function update(Request $request, int $id): JsonResponse
+    public function update(Request $request, int $id): Response
     {
         try {
             $data = (new UpdateListingRequestValidator)->attempt($request);
             $listing = $this->listingService->update($data, $id);
 
         } catch (ValidationException $e) {
-            return response()->json([
-                'status' => 'Error',
-                'message' => $e->validator->errors()->first(),
-            ], 400);
+            return \response(['message' => $e->validator->errors()->first()], Response::HTTP_BAD_REQUEST);
         } catch (ListingAlreadyExistsException $e) {
-            return response()->json([
-                'status' => 'Error',
-                'message' => $e->getMessage()
-            ], 400);
+            return \response(['message' => $e->getMessage()], Response::HTTP_BAD_REQUEST);
         } catch (ModelNotFoundException $e) {
-            return response()->json([
-                'status' => 'Error',
-                'message' => 'Listing not exist.'
-            ], 404);
+            return \response(['message' => 'Listing not exist.'], Response::HTTP_NOT_FOUND);
         } catch (Throwable $e) {
-            return response()->json([
-                'status' => 'Error',
-                'message' => 'Listing update error.'
-            ], 400);
+            return \response(['message' => 'Listing update error.'], Response::HTTP_BAD_REQUEST);
         }
 
-        return response()->json([
-            'status' => 'Success',
-            'listing' => ListingResource::make($listing)
-        ]);
+        return \response(['listing' => ListingResource::make($listing)]);
     }
 
 
@@ -162,29 +125,20 @@ class ListingController extends Controller
      * METHOD: delete
      * URL: /land-for-sale/{id}
      * @param int $id
-     * @return JsonResponse
+     * @return Response
      */
-    public function delete(int $id): JsonResponse
+    public function delete(int $id): Response
     {
         try {
             $this->listingService->delete($id);
 
         } catch (ModelNotFoundException $e) {
-            return response()->json([
-                'status' => 'Error',
-                'message' => 'Listing not exist.'
-            ], 404);
+            return \response(['message' => 'Listing not exist.'], Response::HTTP_NOT_FOUND);
         } catch (Throwable $e) {
-            return response()->json([
-                'status' => 'Error',
-                'message' => 'Listing delete error.'
-            ], 400);
+            return \response(['message' => 'Listing delete error.'], Response::HTTP_BAD_REQUEST);
         }
 
-        return response()->json([
-            'status' => 'Success',
-            'message' => 'Listing successfully deleted.'
-        ]);
+        return \response(['message' => 'Listing successfully deleted.']);
     }
 
 
@@ -192,18 +146,17 @@ class ListingController extends Controller
      * Return properties for create listing
      * METHOD: get
      * URL: /land-for-sale/properties
-     * @return JsonResponse
+     * @return Response
      */
-    public function getAvailableProperties(): JsonResponse
+    public function getAvailableProperties(): Response
     {
-        return response()->json([
-            'status' => 'Success',
+        return \response([
             'property_type' => $this->listingRepo->getPropertyTypes(),
             'sale_types' => $this->listingRepo->getSaleTypes(),
             'road_access' => $this->listingRepo->getRoadAccess(),
             'utilities' => $this->listingRepo->getUtilities(),
             'zoning' => $this->listingRepo->getZoning(),
-            'listing_status' => $this->listingRepo->getListingStatus()
+            'listing_status' => $this->listingRepo->getListingStatus(),
         ]);
     }
 

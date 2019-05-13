@@ -8,7 +8,7 @@ use App\Services\Favorite\Contracts\FavoriteServiceContract;
 use App\Services\Favorite\Validator\AddFavoriteValidateRequest;
 use Exception;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
-use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Response;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Throwable;
@@ -31,29 +31,20 @@ class FavoriteController extends Controller
      * METHOD: get
      * URL: /user/{id}/favorite
      * @param int $id
-     * @return JsonResponse
+     * @return Response
      */
-    public function view(int $id): JsonResponse
+    public function view(int $id): Response
     {
         try {
             $user = $this->userRepo->findByPk($id);
 
         } catch (ModelNotFoundException $e) {
-            return response()->json([
-                'status' => 'Error',
-                'message' => 'User not exist.'
-            ], 404);
+            return \response(['message' => 'User not exist.'], Response::HTTP_NOT_FOUND);
         } catch (Throwable $e) {
-            return response()->json([
-                'status' => 'Error',
-                'message' => ''
-            ], 500);
+            return \response(['message' => ''], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
 
-        return response()->json([
-            'status' => 'Success',
-            'favorite_listing' => $user->getAllFavorites,
-        ]);
+        return \response(['favorite_listing' => $user->getAllFavorites]);
     }
 
 
@@ -62,25 +53,19 @@ class FavoriteController extends Controller
      * METHOD: post
      * URL: /user/favorite/create
      * @param Request $request
-     * @return JsonResponse
+     * @return Response
      */
-    public function action(Request $request): JsonResponse
+    public function action(Request $request): Response
     {
         try {
             $data = (new AddFavoriteValidateRequest)->attempt($request);
             $result = $this->favorService->action($data);
 
         } catch (JWTException | Exception | Throwable $e) {
-            return response()->json([
-                'status' => 'Error',
-                'message' => 'Favorite listing action error.'
-            ], 500);
+            return \response(['message' => 'Favorite listing action error.'], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
 
-        return response()->json([
-            'status' => 'Success',
-            'result' => $result
-        ]);
+        return \response(['result' => $result]);
     }
 
 }
