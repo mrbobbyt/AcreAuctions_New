@@ -191,6 +191,10 @@ class ListingService implements ListingServiceContract
             $this->updatePrice($data['price'], $id);
         }
 
+        if ($data['utilities']) {
+            $listing->utilities()->sync($data['utilities']['utilities']);
+        }
+
         if ($data['subdivision']) {
             $this->updateSub($data['subdivision']['subdivision'], $id);
         }

@@ -20,6 +20,7 @@ class UpdateListingRequestValidator implements AbstractValidator
     {
         return [
             'body' => $this->validateBody($request),
+            'utilities' => $this->validateUtilities($request),
             'geo' => $this->validateGeo($request),
             'price' => $this->validatePrice($request),
             'image' => $this->validateImage($request),
@@ -41,13 +42,21 @@ class UpdateListingRequestValidator implements AbstractValidator
             'apn' => 'nullable|string',
             'title' => 'nullable|string|max:255|min:3',
             'description' => 'nullable|string',
-            'utilities' => 'array',
             'listing_id' => 'required|string',
-            'utilities.*' => 'nullable|numeric|exists:utilities,id',
             'zoning' => 'nullable|numeric|exists:zonings,id',
             'zoning_desc' => 'nullable|string',
             'property_type' => 'nullable|numeric|exists:property_types,id',
             'status' => 'nullable|numeric',
+        ]);
+
+        return $validator->validate();
+    }
+
+    public function validateUtilities(Request $request): array
+    {
+        $validator = Validator::make($request->all(), [
+            'utilities' => 'array',
+            'utilities.*' => 'numeric|exists:utilities,id',
         ]);
 
         return $validator->validate();
