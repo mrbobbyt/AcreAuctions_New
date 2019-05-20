@@ -23,6 +23,13 @@ interface AdminRepositoryContract
 
 
     /**
+     * Get all posts
+     * @return array
+     */
+    public function getAllPosts();
+
+
+    /**
      * Find Listings by state/county/price/acres/status
      * @param array $data
      * @return LengthAwarePaginator

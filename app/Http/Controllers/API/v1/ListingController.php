@@ -4,7 +4,6 @@ declare(strict_types=1);
 namespace App\Http\Controllers\API\v1;
 
 use App\Http\Resources\ListingResource;
-use App\Models\ListingStatus;
 use App\Services\Social\Contracts\ShareServiceContract;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;

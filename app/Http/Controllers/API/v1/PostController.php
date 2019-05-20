@@ -1,0 +1,97 @@
+<?php
+declare(strict_types=1);
+
+namespace App\Http\Controllers\API\v1;
+
+use App\Http\Resources\PostResource;
+use App\Repositories\Post\Contracts\PostRepositoryContract;
+use App\Repositories\Post\Exceptions\PostNotFoundException;
+use App\Services\Post\Validator\CreatePostRequestValidator;
+use Illuminate\Http\Request;
+use Illuminate\Http\Response;
+use App\Http\Controllers\Controller;
+
+use App\Services\Post\Contracts\PostServiceContract;
+use Throwable;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Tymon\JWTAuth\Exceptions\JWTException;
+
+class PostController extends Controller
+{
+    protected $postService;
+    protected $postRepository;
+
+    public function __construct(
+        PostServiceContract $postService,
+        PostRepositoryContract $postRepo
+    )
+    {
+        $this->postService = $postService;
+        $this->postRepository = $postRepo;
+
+
+    }
+
+    /**
+     * METHOD: get
+     * URL: /post/{slug}
+     * @param string $slug
+     * @return Response
+     */
+    public function view(string $slug): Response
+    {
+        try {
+            $post = $this->postRepository->findBySlug($slug);
+
+        } catch (PostNotFoundException $e) {
+            return \response(['message' => $e->getMessage()], Response::HTTP_NOT_FOUND);
+        } catch (Throwable $e) {
+            return \response(['message' => $e->getMessage()], Response::HTTP_I_AM_A_TEAPOT);
+        }
+
+        return \response(['post' => PostResource::make($post)]);
+    }
+
+    /**
+     * Create Post
+     * METHOD: post
+     * URL: /post/create
+     * @param Request $request
+     * @return Response
+     */
+    public function create(Request $request): Response
+    {
+        try {
+            $data = (new CreatePostRequestValidator)->attempt($request);
+            $post = $this->postService->create($data);
+
+        } catch (JWTException | Throwable $e) {
+            return \response(['message' => $e->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+
+        return \response(['post' => PostResource::make($post)]);
+    }
+
+
+    /**
+     * Delete Post
+     * METHOD: delete
+     * URL: /post/{id}
+     * @param int $id
+     * @return Response
+     */
+    public function delete(int $id): Response
+    {
+        try {
+            $this->postService->delete($id);
+
+        } catch (ModelNotFoundException $e) {
+            return \response(['message' => 'Post not exist.'], Response::HTTP_NOT_FOUND);
+        } catch (Throwable $e) {
+            return \response(['message' => 'Post delete error.'], Response::HTTP_BAD_REQUEST);
+        }
+
+        return \response(['message' => 'Post successfully deleted.']);
+    }
+
+}

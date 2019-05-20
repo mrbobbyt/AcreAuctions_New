@@ -5,6 +5,7 @@ namespace App\Repositories\Admin;
 
 use App\Models\Listing;
 use App\Models\User;
+use App\Models\Post;
 use App\Repositories\Admin\Contracts\AdminRepositoryContract;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 
@@ -56,6 +57,16 @@ class AdminRepository implements AdminRepositoryContract
     public function getAllUsers()
     {
         return User::all();
+    }
+
+
+    /**
+     * Get all users
+     * @return User[]|\Illuminate\Database\Eloquent\Collection
+     */
+    public function getAllPosts()
+    {
+        return Post::all();
     }
 
 

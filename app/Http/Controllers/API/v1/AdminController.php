@@ -6,6 +6,7 @@ namespace App\Http\Controllers\API\v1;
 use App\Exports\ListingsExport;
 use App\Exports\UsersExport;
 use App\Http\Resources\ListingCollection;
+use App\Http\Resources\PostCollection;
 use App\Http\Resources\SellerCollection;
 use App\Http\Resources\UserCollection;
 
@@ -76,6 +77,22 @@ class AdminController extends Controller
         }
 
         return \response(new UserCollection($result));
+    }
+
+    /**
+     * METHOD: get
+     * URL: /admin/all-posts
+     * @return Response
+     */
+    public function getAllPosts(): Response
+    {
+        try {
+            $result = $this->adminRepo->getAllPosts();
+        } catch (Throwable $e) {
+            return \response(['message' => $e->getMessage()], Response::HTTP_I_AM_A_TEAPOT);
+        }
+
+        return \response(new PostCollection($result));
     }
 
     /**
