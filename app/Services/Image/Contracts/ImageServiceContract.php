@@ -19,19 +19,29 @@ interface ImageServiceContract
     /**
      * @param UploadedFile $item
      * @param int $id
+     * @param string $type
      * @return bool
      */
-    public function create(UploadedFile $item, int $id);
+    public function create(UploadedFile $item, int $id, string $type);
+
+    /**
+     * @param string $imgUrl
+     * @param int $id
+     * @param string $type
+     * @return bool
+     */
+    public function createImageFromUrl(string $imgUrl, int $id, string $type);
 
 
     /**
      * @param UploadedFile $item
      * @param int $key
+     * @param string $type
      * @param int $id
      * @return bool
      * @throws Throwable
      */
-    public function update(int $key, UploadedFile $item, int $id);
+    public function update(int $key, UploadedFile $item, int $id, string $type);
 
 
     /**

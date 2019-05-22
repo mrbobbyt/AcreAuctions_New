@@ -20,7 +20,7 @@ class CreatePostRequestValidator implements AbstractValidator
     {
         return [
             'body' => $this->validateBody($request),
-            'image' => $this->validateMedia($request),
+            'image' => $this->validateImage($request),
         ];
     }
 
@@ -35,8 +35,10 @@ class CreatePostRequestValidator implements AbstractValidator
         $validator = Validator::make($request->all(), [
             'title' => 'required|string|max:255|min:3',
             'description' => 'required|string|min:3',
-            'allow_comments' => 'boolean',
-            'allow_somethings' => 'boolean',
+            'media' => 'array',
+            'media.*' => 'nullable|string',
+            'allow_comments' => 'required|boolean',
+            'allow_somethings' => 'required|boolean'
         ]);
 
         return $validator->validate();
@@ -47,11 +49,11 @@ class CreatePostRequestValidator implements AbstractValidator
      * @param Request $request
      * @return array
      */
-    public function validateMedia(Request $request): array
+    public function validateImage(Request $request): array
     {
         $validator = Validator::make($request->only('image'), [
-            'media' => 'array',
-            'media.*' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'image' => 'array',
+            'image.*' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
 
         return $validator->validate();

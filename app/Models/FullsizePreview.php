@@ -7,16 +7,17 @@ use Illuminate\Database\Eloquent\Model;
 /**
  * @property int id
  * @property int listing_id
+ * @property int post_id
  * @property int fullsize_id
  * @property int preview_id
  */
 class FullsizePreview extends Model
 {
-    protected $fillable = ['fullsize_id', 'preview_id', 'listing_id'];
+    protected $fillable = ['fullsize_id', 'preview_id', 'listing_id', 'post_id'];
 
     protected $guarded = ['id'];
 
-    protected $hidden = ['listing_id'];
+    protected $hidden = ['listing_id', 'post_id'];
 
     protected $appends = ['fullsize', 'preview'];
 

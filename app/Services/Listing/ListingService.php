@@ -92,7 +92,7 @@ class ListingService implements ListingServiceContract
 
         if ($data['image']) {
             foreach ($data['image']['image'] as $key => $item) {
-                $this->imageService->create($item, $listing->id);
+                $this->imageService->create($item, $listing->id, 'listing');
             }
         }
 
@@ -202,7 +202,7 @@ class ListingService implements ListingServiceContract
         if ($data['image']) {
             $this->deleteRelatedImages($id);
             foreach ($data['image']['image'] as $image) {
-                $this->imageService->create($image, $id);
+                $this->imageService->create($image, $id, 'listing');
             }
         }
 
