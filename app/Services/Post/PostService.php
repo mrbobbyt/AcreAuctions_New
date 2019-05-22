@@ -49,7 +49,9 @@ class PostService implements PostServiceContract
 
         if ($data['body']['media']) {
             foreach ($data['body']['media'] as $imgUrl) {
-                $this->imageService->createImageFromUrl($imgUrl, $post->id, 'post');
+                if (isset($imgUrl)) {
+                    $this->imageService->createImageFromUrl($imgUrl, $post->id, 'post');
+                }
             }
         }
 

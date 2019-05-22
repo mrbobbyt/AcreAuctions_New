@@ -54,7 +54,8 @@ class ImageService implements ImageServiceContract
      */
     public function createImageFromUrl(string $imgUrl, int $id, string $type): bool
     {
-        $image = file_get_contents($imgUrl);
+        //@todo change to curl or guzzle
+        $image = @file_get_contents($imgUrl);
 
         $full = $this->createImage($image, $id, 'fullsize', $type);
         $preview = $this->createImage($image, $id, 'preview', $type);
