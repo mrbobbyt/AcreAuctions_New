@@ -39,4 +39,13 @@ class Post extends Model
         return $this->hasMany(Image::class, 'post_id', 'id')
             ->where('entity_type', Image::TYPE_LISTING);
     }
+
+    /**
+     * Get related images - fullsize and preview
+     * @return HasMany
+     */
+    public function gallery()
+    {
+        return $this->hasMany(FullsizePreview::class, 'post_id', 'id');
+    }
 }

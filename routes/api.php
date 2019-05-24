@@ -29,6 +29,7 @@ Route::namespace('API\v1')->group(function () {
 
     Route::get('land-for-sale/filters', 'SearchController@getFilters');
     Route::get('land-for-sale/properties', 'ListingController@getAvailableProperties');
+    Route::get('blog', 'PostController@getAllPosts');
 
     Route::get('share/list', 'ShareController@getNetworks');
     Route::post('share/create', 'ShareController@create');
@@ -39,6 +40,8 @@ Route::namespace('API\v1')->group(function () {
         Route::get('user/profile', 'UserController@profile');
         Route::get('seller/{slug}', 'SellerController@view');
         Route::get('land-for-sale/{slug}', 'ListingController@view');
+        Route::get('blog/{slug}', 'PostController@view');
+
         Route::post('/user/favorite/action', 'FavoriteController@action');
         Route::get('logout', 'AuthController@logout');
 

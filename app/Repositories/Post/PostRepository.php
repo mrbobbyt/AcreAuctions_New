@@ -1,11 +1,12 @@
 <?php
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace App\Repositories\Post;
 
 use App\Models\Post;
 use App\Repositories\Post\Contracts\PostRepositoryContract;
 use App\Repositories\Post\Exceptions\PostNotFoundException;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Model;
 
 class PostRepository implements PostRepositoryContract
@@ -18,13 +19,22 @@ class PostRepository implements PostRepositoryContract
      */
     public function findBySlug(string $slug): Model
     {
-        $listing = Post::query()->where('slug', $slug)->first();
+        $posts = Post::query()->where('slug', $slug)->first();
 
-        if ($listing === null) {
+        if ($posts === null) {
             throw new PostNotFoundException();
         }
 
-        return $listing;
+        return $posts;
+    }
+
+    /**
+     * @return LengthAwarePaginator
+     */
+    public function getPosts(): LengthAwarePaginator
+    {
+        $posts = (new Post)->newQuery();
+        return $posts->get()->paginate(8);
     }
 
 
@@ -36,13 +46,13 @@ class PostRepository implements PostRepositoryContract
      */
     public function findByPk(int $id): Model
     {
-        $listing = Post::find($id);
+        $posts = Post::find($id);
 
-        if ($listing === null) {
+        if ($posts === null) {
             throw new PostNotFoundException();
         }
 
-        return $listing;
+        return $posts;
     }
 
 

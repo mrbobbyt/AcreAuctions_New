@@ -3,6 +3,7 @@ declare(strict_types = 1);
 
 namespace App\Repositories\Post\Contracts;
 
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Model;
 use App\Repositories\Post\Exceptions\PostNotFoundException;
 
@@ -15,6 +16,11 @@ interface PostRepositoryContract
      * @throws PostNotFoundException
      */
     public function findBySlug(string $slug);
+
+    /**
+     * @return LengthAwarePaginator
+     */
+    public function getPosts();
 
 
     /**

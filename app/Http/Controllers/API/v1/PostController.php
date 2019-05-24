@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\API\v1;
 
+use App\Http\Resources\PostCollection;
 use App\Http\Resources\PostResource;
 use App\Repositories\Post\Contracts\PostRepositoryContract;
 use App\Repositories\Post\Exceptions\PostNotFoundException;
@@ -34,7 +35,7 @@ class PostController extends Controller
 
     /**
      * METHOD: get
-     * URL: /post/{slug}
+     * URL: /blog/{slug}
      * @param string $slug
      * @return Response
      */
@@ -42,7 +43,6 @@ class PostController extends Controller
     {
         try {
             $post = $this->postRepository->findBySlug($slug);
-
         } catch (PostNotFoundException $e) {
             return \response(['message' => $e->getMessage()], Response::HTTP_NOT_FOUND);
         } catch (Throwable $e) {
@@ -92,6 +92,23 @@ class PostController extends Controller
         }
 
         return \response(['message' => 'Post successfully deleted.']);
+    }
+
+    /**
+     * Return posts
+     * METHOD: get
+     * URL: /blog
+     * @return Response
+     */
+    public function getAllPosts(): Response
+    {
+        try {
+            $result = $this->postRepository->getPosts();
+        }  catch (Throwable $e) {
+            return \response(['message' => $e->getMessage()], Response::HTTP_BAD_REQUEST);
+        }
+
+        return \response(['posts' => new PostCollection($result)]);
     }
 
 }

@@ -8,6 +8,7 @@ use Illuminate\Http\Resources\Json\JsonResource;
 /**
  * @property int id
  * @property string title
+ * @property string slug
  * @property string description
  * @property bool allow_comments
  * @property bool allow_somethings
@@ -25,10 +26,13 @@ class PostResource extends JsonResource
         return [
             'id' => $this->id,
             'title' => $this->title,
+            'slug' => $this->slug,
             'description' => $this->description,
             'allow_comments' => $this->allow_comments,
             'allow_somethings' => $this->allow_somethings,
             'created_at' => $this->created_at->toDateString(),
+
+            'gallery' => $this->gallery,
         ];
     }
 }
