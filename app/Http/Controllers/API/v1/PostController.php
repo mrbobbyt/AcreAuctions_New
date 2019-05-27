@@ -24,11 +24,11 @@ class PostController extends Controller
 
     public function __construct(
         PostServiceContract $postService,
-        PostRepositoryContract $postRepo
+        PostRepositoryContract $postRepository
     )
     {
         $this->postService = $postService;
-        $this->postRepository = $postRepo;
+        $this->postRepository = $postRepository;
 
 
     }
@@ -109,6 +109,23 @@ class PostController extends Controller
         }
 
         return \response(['posts' => new PostCollection($result)]);
+    }
+
+    /**
+     * Return random posts
+     * METHOD: get
+     * URL: /blog/recommend
+     * @return Response
+     */
+    public function getRecommendPosts(): Response
+    {
+        try {
+            $posts = $this->postRepository->getRecommendPosts();
+        }  catch (Throwable $e) {
+            return \response(['message' => $e->getMessage()], Response::HTTP_BAD_REQUEST);
+        }
+
+        return \response(['recommendPosts' => new PostCollection($posts)]);
     }
 
 }

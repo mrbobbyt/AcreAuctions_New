@@ -30,7 +30,7 @@ class PostResource extends JsonResource
             'description' => $this->description,
             'allow_comments' => $this->allow_comments,
             'allow_somethings' => $this->allow_somethings,
-            'created_at' => $this->created_at->toDateString(),
+            'created_at' => $this->created_at->toFormattedDateString(),
 
             'gallery' => $this->gallery,
         ];

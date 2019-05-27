@@ -18,6 +18,13 @@ interface PostRepositoryContract
     public function findBySlug(string $slug);
 
     /**
+     * Find recommend posts
+     * @return Model
+     * @throws PostNotFoundException
+     */
+    public function getRecommendPosts();
+
+    /**
      * @return LengthAwarePaginator
      */
     public function getPosts();

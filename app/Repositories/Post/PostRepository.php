@@ -8,6 +8,7 @@ use App\Repositories\Post\Contracts\PostRepositoryContract;
 use App\Repositories\Post\Exceptions\PostNotFoundException;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Collection;
 
 class PostRepository implements PostRepositoryContract
 {
@@ -35,6 +36,16 @@ class PostRepository implements PostRepositoryContract
     {
         $posts = (new Post)->newQuery();
         return $posts->get()->paginate(8);
+    }
+
+
+    /**
+     * @return Collection
+     */
+    public function getRecommendPosts(): Collection
+    {
+        $posts = (new Post)->newQuery();
+        return $posts->inRandomOrder()->limit(4)->get();
     }
 
 
