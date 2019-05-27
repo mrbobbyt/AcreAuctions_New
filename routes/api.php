@@ -32,7 +32,7 @@ Route::namespace('API\v1')->group(function () {
 
     Route::get('blog', 'PostController@getAllPosts');
     Route::get('blog/{slug}', 'PostController@view');
-    Route::get('blog/recommend', 'PostController@getRecommendPosts');
+    Route::get('post/recommend', 'PostController@getRecommendPosts');
 
     Route::get('share/list', 'ShareController@getNetworks');
     Route::post('share/create', 'ShareController@create');

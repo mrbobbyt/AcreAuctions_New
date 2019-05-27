@@ -114,7 +114,7 @@ class PostController extends Controller
     /**
      * Return random posts
      * METHOD: get
-     * URL: /blog/recommend
+     * URL: /post/recommend
      * @return Response
      */
     public function getRecommendPosts(): Response
