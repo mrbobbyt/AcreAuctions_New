@@ -6,6 +6,7 @@ namespace App\Models;
 use App\Traits\ModelBuilderScopes;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
  * Class Post
@@ -29,6 +30,15 @@ class Post extends Model
     protected $hidden = ['created_at', 'updated_at'];
 
     public $timestamps = true;
+
+    /**
+     * Get related author
+     * @return BelongsTo
+     */
+    public function author()
+    {
+        return $this->belongsTo(User::class, 'author_id', 'id');
+    }
 
     /**
      * Get related images

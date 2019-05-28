@@ -33,6 +33,7 @@ class CreatePostRequestValidator implements AbstractValidator
     {
 
         $validator = Validator::make($request->all(), [
+            'author_id' => 'required|numeric',
             'title' => 'required|string|max:255|min:3',
             'description' => 'required|string|min:3',
             'media' => 'array',
