@@ -84,7 +84,7 @@ class AuthController extends Controller
         // Handle request from socials
         if (request('code') && request('scope')) {
             return $this->handleGoogle();
-        } elseif (request('code') && request('state')) {
+        } else if (request('code') && request('state')) {
             return $this->handleFacebook();
         }
     }
@@ -279,11 +279,12 @@ class AuthController extends Controller
      */
     public function refreshToken(): Response
     {
-        try {
-            $token = \JWTAuth::refresh(\JWTAuth::getToken());
-        } catch (Throwable $e) {
-            return \response(['message' => $e->getMessage()], Response::HTTP_I_AM_A_TEAPOT);
-        }
+        //@todo need check why we have this exception
+//        try {
+        $token = \JWTAuth::refresh(\JWTAuth::getToken());
+//            } catch (Throwable $e) {
+//                return \response(['message' => $e->getMessage()], Response::HTTP_I_AM_A_TEAPOT);
+//            }
 
         return \response(['token' => $token]);
     }
