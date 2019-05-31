@@ -279,12 +279,11 @@ class AuthController extends Controller
      */
     public function refreshToken(): Response
     {
-        //@todo need check why we have this exception
-//        try {
+        try {
         $token = \JWTAuth::refresh(\JWTAuth::getToken());
-//            } catch (Throwable $e) {
-//                return \response(['message' => $e->getMessage()], Response::HTTP_I_AM_A_TEAPOT);
-//            }
+            } catch (Throwable $e) {
+                return \response(['message' => $e->getMessage()], Response::HTTP_I_AM_A_TEAPOT);
+            }
 
         return \response(['token' => $token]);
     }

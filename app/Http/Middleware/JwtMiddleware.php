@@ -28,8 +28,6 @@ class JwtMiddleware extends BaseMiddleware
             $user = JWTAuth::parseToken()->authenticate();
         } catch (TokenInvalidException | PayloadException $e) {
             return response(['message' => 'Token is Invalid'], Response::HTTP_UNAUTHORIZED);
-        } catch (TokenExpiredException $e) {
-            return response(['message' => 'Token is expired'], Response::HTTP_UNAUTHORIZED);
         } catch (JWTException | Throwable $e) {
             return response(['message' => 'Authorization Token not found'], Response::HTTP_UNAUTHORIZED);
         }
