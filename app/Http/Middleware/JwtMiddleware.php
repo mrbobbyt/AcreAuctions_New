@@ -1,5 +1,5 @@
 <?php
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace App\Http\Middleware;
 
@@ -24,13 +24,7 @@ class JwtMiddleware extends BaseMiddleware
      */
     public function handle(Request $request, Closure $next)
     {
-        try {
-            $user = JWTAuth::parseToken()->authenticate();
-        } catch (TokenInvalidException | PayloadException $e) {
-            return response(['message' => 'Token is Invalid'], Response::HTTP_UNAUTHORIZED);
-        } catch (JWTException | Throwable $e) {
-            return response(['message' => 'Authorization Token not found'], Response::HTTP_UNAUTHORIZED);
-        }
+        $user = JWTAuth::parseToken()->authenticate();
 
         if ($user->email_verified_at === null) {
             return response(
