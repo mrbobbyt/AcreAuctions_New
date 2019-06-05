@@ -6,13 +6,8 @@ namespace App\Http\Middleware;
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
-use Throwable;
-use Tymon\JWTAuth\Exceptions\JWTException;
-use Tymon\JWTAuth\Exceptions\PayloadException;
 use Tymon\JWTAuth\Http\Middleware\BaseMiddleware;
 use JWTAuth;
-use Tymon\JWTAuth\Exceptions\TokenInvalidException;
-use Tymon\JWTAuth\Exceptions\TokenExpiredException;
 
 class JwtMiddleware extends BaseMiddleware
 {
