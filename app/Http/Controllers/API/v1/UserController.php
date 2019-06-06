@@ -14,6 +14,8 @@ use Illuminate\Http\Request;
 
 use Illuminate\Validation\ValidationException;
 use Throwable;
+use Tymon\JWTAuth\Exceptions\TokenExpiredException;
+use Tymon\JWTAuth\Exceptions\TokenInvalidException;
 use Tymon\JWTAuth\Exceptions\JWTException;
 
 class UserController extends Controller
@@ -38,7 +40,8 @@ class UserController extends Controller
     {
         try {
             $user = $this->userRepo->authenticate();
-
+        } catch (TokenExpiredException | TokenInvalidException $e) {
+            return \response(['message' => $e->getMessage()], Response::HTTP_BAD_REQUEST);
         } catch (JWTException | Throwable $e) {
             return \response(['message' => 'Profile show error.'], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
