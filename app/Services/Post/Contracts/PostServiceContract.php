@@ -25,6 +25,15 @@ interface PostServiceContract
      */
     public function create(array $data);
 
+    /**
+     * Update post
+     * @param int $id
+     * @param array $data
+     * @return Model
+     * @throws Throwable
+     * @throws PostAlreadyExistsException
+     */
+    public function update(array $data, int $id);
 
     /**
      * Delete Post and related models

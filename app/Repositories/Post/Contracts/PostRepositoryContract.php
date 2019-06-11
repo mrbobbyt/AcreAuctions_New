@@ -29,6 +29,12 @@ interface PostRepositoryContract
      */
     public function getPosts();
 
+    /**
+     * @param int $key
+     * @param int $id
+     * @return Model | bool
+     */
+    public function findImage(int $key, int $id);
 
     /**
      * Find post by id

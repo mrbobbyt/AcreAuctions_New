@@ -110,7 +110,8 @@ class ListingRepository implements ListingRepositoryContract
     /**
      * @param int $key
      * @param int $id
-     * @return Model | bool
+     * @return bool|Model
+     * @throws ListingNotFoundException
      */
     public function findImage(int $key, int $id)
     {

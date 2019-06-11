@@ -69,6 +69,7 @@ Route::namespace('API\v1')->group(function () {
             Route::post('land-for-sale/{id}', 'ListingController@update');
             Route::delete('land-for-sale/{id}', 'ListingController@delete');
 
+            Route::post('post/{id}', 'PostController@update');
             Route::delete('post/{id}', 'PostController@delete');
         });
 

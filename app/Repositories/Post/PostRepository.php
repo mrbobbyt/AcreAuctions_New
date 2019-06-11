@@ -38,6 +38,18 @@ class PostRepository implements PostRepositoryContract
         return $posts->get()->paginate(8);
     }
 
+    /**
+     * @param int $key
+     * @param int $id
+     * @return bool|Model
+     * @throws PostNotFoundException
+     */
+    public function findImage(int $key, int $id)
+    {
+        $image = $this->findByPk($id)->images->where('id', $key)->first();
+
+        return ($image === null) ? false : $image;
+    }
 
     /**
      * @return Collection

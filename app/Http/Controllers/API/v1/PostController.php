@@ -7,11 +7,13 @@ use App\Http\Resources\PostCollection;
 use App\Http\Resources\PostResource;
 use App\Repositories\Post\Contracts\PostRepositoryContract;
 use App\Repositories\Post\Exceptions\PostNotFoundException;
+use App\Services\Post\Validator\UpdatePostRequestValidator;
 use App\Services\Post\Validator\CreatePostRequestValidator;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use App\Http\Controllers\Controller;
 
+use Illuminate\Validation\ValidationException;
 use App\Services\Post\Contracts\PostServiceContract;
 use Throwable;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
@@ -72,6 +74,30 @@ class PostController extends Controller
         return \response(['post' => PostResource::make($post)]);
     }
 
+    /**
+     * Update Post
+     * METHOD: post
+     * URL: /post/{id}
+     * @param Request $request
+     * @param int $id
+     * @return Response
+     */
+    public function update(Request $request, int $id): Response
+    {
+        try {
+            $data = (new UpdatePostRequestValidator)->attempt($request);
+            $post = $this->postService->update($data, $id);
+
+        } catch (ValidationException $e) {
+            return \response(['message' => $e->validator->errors()->first()], Response::HTTP_BAD_REQUEST);
+        } catch (ModelNotFoundException $e) {
+            return \response(['message' => 'Post not exist.'], Response::HTTP_NOT_FOUND);
+        } catch (Throwable $e) {
+            return \response(['message' => $e->getMessage()], Response::HTTP_BAD_REQUEST);
+        }
+
+        return \response(['post' => PostResource::make($post)]);
+    }
 
     /**
      * Delete Post
