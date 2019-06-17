@@ -21,5 +21,14 @@ class UsersTableSeeder extends Seeder
             'email_verified_at' => date('Y-m-d h:i:s'),
             'role' => 1,
         ]);
+
+        User::query()->create([
+            'fname' => 'John',
+            'lname' => 'Content Manager',
+            'email' => 'content.manager@example.com',
+            'password' => bcrypt('secret'),
+            'email_verified_at' => date('Y-m-d h:i:s'),
+            'role' => 4,
+        ]);
     }
 }

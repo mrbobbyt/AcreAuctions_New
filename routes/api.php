@@ -55,8 +55,6 @@ Route::namespace('API\v1')->group(function () {
 
             Route::get('admin/all-sellers', 'AdminController@getAllSellers');
 
-            Route::get('admin/all-posts', 'AdminController@getAllPosts');
-
             Route::get('admin/all-users', 'AdminController@getAllUsers');
             Route::get('admin/user-search', 'AdminController@userSearch');
             Route::post('admin/user-export', 'AdminController@userExport');
@@ -68,13 +66,16 @@ Route::namespace('API\v1')->group(function () {
             Route::post('land-for-sale/create', 'ListingController@create');
             Route::post('land-for-sale/{id}', 'ListingController@update');
             Route::delete('land-for-sale/{id}', 'ListingController@delete');
-
-            Route::post('post/{id}', 'PostController@update');
-            Route::delete('post/{id}', 'PostController@delete');
         });
 
         Route::middleware('owner')->group(function () {
             Route::get('user/{id}/favorite', 'FavoriteController@view');
+        });
+
+        Route::middleware('contentManagerOrAdmin')->group(function () {
+            Route::get('admin/all-posts', 'AdminController@getAllPosts');
+            Route::post('post/{id}', 'PostController@update');
+            Route::delete('post/{id}', 'PostController@delete');
         });
 
         Route::middleware('ownerOrAdmin')->group(function () {

@@ -4,6 +4,7 @@ namespace App\Http;
 
 use App\Http\Middleware\Authenticate;
 use App\Http\Middleware\CheckForMaintenanceMode;
+use App\Http\Middleware\ContentManagerOrAdmin;
 use App\Http\Middleware\EncryptCookies;
 use App\Http\Middleware\JwtMiddleware;
 use App\Http\Middleware\CheckRole;
@@ -91,6 +92,7 @@ class Kernel extends HttpKernel
         'role' => CheckRole::class,
         'owner' => Owner::class,
         'ownerOrAdmin' => OwnerOrAdmin::class,
+        'contentManagerOrAdmin' => ContentManagerOrAdmin::class,
     ];
 
     /**
