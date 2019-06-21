@@ -9,6 +9,7 @@ use Illuminate\Http\Resources\Json\JsonResource;
  * @property int id
  * @property string fname
  * @property string lname
+ * @property string payment_token
  * @property string email
  */
 class UserResource extends JsonResource
@@ -26,6 +27,7 @@ class UserResource extends JsonResource
             'slug' => url('/') . '/user/' . $this->id,
             'fname' => $this->fname,
             'lname' => $this->lname,
+            'payment_token' => $this->payment_token,
             'email' => $this->email,
             'role' => $this->userRole->name ?? null,
             'avatar' => $this->avatar,

@@ -51,4 +51,16 @@ return [
         'clientId' => env('GOOGLE_CLIENT_ID'),
         'clientSecret' => env('GOOGLE_CLIENT_SECRET'),
     ],
+
+    'braintree' => [
+        'merchantId' => env('BRAIN_TREE_MERCHANT_ID'),
+        'publicKey' => env('BRAIN_TREE_PUBLIC_KEY'),
+        'privateKey' => env('BRAIN_TREE_PRIVATE_KEY'),
+    ],
+
+    'sandbox' => [
+        'merchantId' => env('BRAIN_TREE_MERCHANT_ID'),
+        'publicKey' => env('BRAIN_TREE_PUBLIC_KEY'),
+        'privateKey' => env('BRAIN_TREE_PRIVATE_KEY'),
+    ],
 ];

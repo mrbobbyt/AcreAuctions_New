@@ -18,6 +18,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
  * @property string email
  * @property int email_verified_at
  * @property string rememberToken
+ * @property string payment_token
  * @property int role
  */
 class User extends Authenticatable implements JWTSubject
@@ -29,7 +30,7 @@ class User extends Authenticatable implements JWTSubject
     const ROLE_BUYER = 3;
     const ROLE_CONTENT_MANAGER = 4;
 
-    protected $fillable = ['fname', 'lname', 'email', 'password', 'role', 'email_verified_at'];
+    protected $fillable = ['fname', 'lname', 'email', 'password', 'role', 'email_verified_at', 'payment_token'];
 
     protected $guarded = ['id'];
 

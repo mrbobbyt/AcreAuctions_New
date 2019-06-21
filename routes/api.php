@@ -45,6 +45,8 @@ Route::namespace('API\v1')->group(function () {
         Route::get('land-for-sale/{slug}', 'ListingController@view');
 
         Route::post('post/create', 'PostController@create');
+        Route::post('payment/create', 'PaymentsController@create');
+        Route::post('payment/{id}', 'PaymentsController@generateNewPaymentToken');
 
         Route::post('/user/favorite/action', 'FavoriteController@action');
         Route::get('logout', 'AuthController@logout');

@@ -12,6 +12,7 @@
         "ext-json": "*",
         "aws/aws-sdk-php": "^3.87",
         "barryvdh/laravel-cors": "^0.11.2",
+        "braintree/braintree_php": "4.1.0",
         "chencha/share": "^5.2",
         "doctrine/dbal": "^2.9",
         "facebook/graph-sdk": "^5.7",

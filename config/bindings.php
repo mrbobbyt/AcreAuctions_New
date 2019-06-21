@@ -8,6 +8,8 @@ use App\Repositories\Listing\Contracts\ListingRepositoryContract;
 use App\Repositories\Listing\ListingRepository;
 use App\Repositories\Post\Contracts\PostRepositoryContract;
 use App\Repositories\Post\PostRepository;
+use App\Repositories\Payment\Contracts\PaymentRepositoryContract;
+use App\Repositories\Payment\PaymentRepository;
 use App\Repositories\SearchListing\Contracts\SearchListingRepositoryContract;
 use App\Repositories\SearchListing\SearchListingRepository;
 use App\Repositories\Favorite\Contracts\FavoriteRepositoryContract;
@@ -31,6 +33,8 @@ use App\Services\Listing\Contracts\ListingServiceContract;
 use App\Services\Listing\ListingService;
 use App\Services\Post\Contracts\PostServiceContract;
 use App\Services\Post\PostService;
+use App\Services\Payment\Contracts\PaymentServiceContract;
+use App\Services\Payment\PaymentService;
 use App\Services\Social\Contracts\ShareServiceContract;
 use App\Services\Social\ShareService;
 use App\Services\Favorite\Contracts\FavoriteServiceContract;
@@ -53,6 +57,7 @@ return [
             SellerRepositoryContract::class => SellerRepository::class,
             ListingRepositoryContract::class => ListingRepository::class,
             PostRepositoryContract::class => PostRepository::class,
+            PaymentRepositoryContract::class => PaymentRepository::class,
             SearchListingRepositoryContract::class => SearchListingRepository::class,
             FavoriteRepositoryContract::class => FavoriteRepository::class,
             ShareRepositoryContract::class => ShareRepository::class,
@@ -67,6 +72,7 @@ return [
             SellerServiceContract::class => SellerService::class,
             ListingServiceContract::class => ListingService::class,
             PostServiceContract::class => PostService::class,
+            PaymentServiceContract::class => PaymentService::class,
             ShareServiceContract::class => ShareService::class,
             FavoriteServiceContract::class => FavoriteService::class,
             ImageServiceContract::class => ImageService::class,
