@@ -29,6 +29,7 @@ Route::namespace('API\v1')->group(function () {
 
     Route::get('land-for-sale/filters', 'SearchController@getFilters');
     Route::get('land-for-sale/properties', 'ListingController@getAvailableProperties');
+    Route::get('land-for-sale/{slug}', 'ListingController@view');
 
     Route::get('blog', 'PostController@getAllPosts');
     Route::get('blog/{slug}', 'PostController@view');
@@ -42,7 +43,6 @@ Route::namespace('API\v1')->group(function () {
     Route::middleware('jwt.verify')->group(function () {
         Route::get('user/profile', 'UserController@profile');
         Route::get('seller/{slug}', 'SellerController@view');
-        Route::get('land-for-sale/{slug}', 'ListingController@view');
 
         Route::post('post/create', 'PostController@create');
         Route::post('payment/create', 'PaymentsController@create');
