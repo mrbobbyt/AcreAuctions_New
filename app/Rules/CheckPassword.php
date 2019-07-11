@@ -35,6 +35,6 @@ class CheckPassword implements Rule
      */
     public function message()
     {
-        return 'The email or the password is wrong.';
+        return 'Incorrect username or password.';
     }
 }

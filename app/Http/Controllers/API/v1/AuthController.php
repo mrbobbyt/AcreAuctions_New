@@ -109,7 +109,7 @@ class AuthController extends Controller
         } catch (ValidationException $e) {
             return \response(['message' => $e->validator->errors()->first()], Response::HTTP_BAD_REQUEST);
         } catch (ModelNotFoundException $e) {
-            return \response(['message' => 'User not exist.'], Response::HTTP_NOT_FOUND);
+            return \response(['message' => 'Incorrect username or password.'], Response::HTTP_NOT_FOUND);
         } catch (NotEndedRegistrationException $e) {
             return \response(['message' => $e->getMessage()], Response::HTTP_UNAUTHORIZED);
         } catch (JWTException | Throwable $e) {
