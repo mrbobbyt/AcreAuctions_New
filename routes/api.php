@@ -15,6 +15,7 @@ Route::namespace('API\v1')->group(function () {
     Route::get('auth-links', 'AuthController@index');
     Route::post('register', 'AuthController@register');
     Route::get('confirm', 'AuthController@confirmRegister');
+    Route::post('forgot-password', 'AuthController@updatePassword');
     Route::post('login', 'AuthController@login');
     Route::get('auth-callback', 'AuthController@handleSocials');
     Route::get('refresh-token', 'AuthController@refreshToken');

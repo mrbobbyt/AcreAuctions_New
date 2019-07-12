@@ -73,4 +73,12 @@ interface UserAuthServiceContract
      * @throws Exception
      */
     public function confirmUser(array $data);
+
+    /**
+     * Recovery password when user forgot him
+     * @param string $password
+     * @param string $token
+     * @return mixed
+     */
+    public function recoveryPassword(string $password, string $token);
 }

@@ -218,4 +218,21 @@ class UserAuthService implements UserAuthServiceContract
 
         return $user;
     }
+
+    /**
+     * @param string $password
+     * @param string $token
+     * @return Model
+     * @throws JWTException
+     */
+    public function recoveryPassword(string $password, string $token): Model
+    {
+        $recoveryToken = PasswordResets::query()->where('token', $token)->first();
+        if ($user = $this->userRepo->findByEmail($recoveryToken->email)) {
+            $user->password = bcrypt($password);
+            $user->save();
+            return $user;
+        }
+        throw new JWTException();
+    }
 }

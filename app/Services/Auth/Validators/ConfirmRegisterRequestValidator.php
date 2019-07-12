@@ -30,9 +30,8 @@ class ConfirmRegisterRequestValidator implements AbstractValidator
     public function validateBody(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'token' => 'required|string|exists:register_tokens,token',
-        ], [
-            'token.exists' => 'User not found.'
+            'token' => 'required|string',
+            'password' => 'required|string|max:255|min:6'
         ]);
 
         return $validator->validate();

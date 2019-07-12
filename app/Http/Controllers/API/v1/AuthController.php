@@ -231,7 +231,12 @@ class AuthController extends Controller
     {
         try {
             $data = (new ForgotRequestUserServiceValidator())->attempt($request);
-            return $this->sendEmail(PasswordResets::EMAIL_REASON, $data['email']);
+
+            return $this->sendEmail(
+                PasswordResets::EMAIL_REASON,
+                $data['email'],
+                $data['clientUrl']
+            );
 
         } catch (ValidationException $e) {
             return \response(['message' => $e->validator->errors()->first()], Response::HTTP_BAD_REQUEST);
@@ -334,5 +339,30 @@ class AuthController extends Controller
         }
 
         return \response(['token' => $token, 'user' => UserResource::make($user)]);
+    }
+
+    /**
+     * METHOD: post
+     * URL: /forgot-password
+     * @param Request $request
+     * @return Response
+     */
+    public function updatePassword(Request $request): Response
+    {
+        try {
+            $data = app(ConfirmRegisterRequestValidator::class)->attempt($request);
+            $user = $this->userService->recoveryPassword($data['password'],$data['token']);
+
+        } catch (ValidationException $e) {
+            return \response(['message' => $e->validator->errors()->first()], Response::HTTP_BAD_REQUEST);
+
+        } catch (ModelNotFoundException $e) {
+            return \response(['message' => 'User not found'], Response::HTTP_NOT_FOUND);
+
+        } catch (Throwable $e) {
+            return response(['message' => $e->getMessage()], Response::HTTP_I_AM_A_TEAPOT);
+        }
+
+        return \response(['user' => UserResource::make($user)]);
     }
 }

@@ -12,6 +12,7 @@ class ForgotRequestUserServiceValidator implements AbstractValidator
      * Return validated array of data
      * @param Request $request
      * @return array
+     * @throws \Illuminate\Validation\ValidationException
      */
     public function attempt(Request $request)
     {
@@ -22,13 +23,13 @@ class ForgotRequestUserServiceValidator implements AbstractValidator
      * Validate given data
      * @param Request $request
      * @return array
+     * @throws \Illuminate\Validation\ValidationException
      */
     public function validateBody(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'email' => 'required|string|email|max:255|exists:users,email',
-        ], [
-            'email.exists' => 'User not found.'
+            'email' => 'required|string|email|max:255',
+            'clientUrl' => 'required|string|max:255|min:5'
         ]);
 
         return $validator->validate();
