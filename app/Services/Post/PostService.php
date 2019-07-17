@@ -45,7 +45,27 @@ class PostService implements PostServiceContract
         }
 
         $data['body']['slug'] = make_url($data['body']['title']);
-        $post = $this->model->query()->make()->fill($data['body']);
+
+        $desc = $data['body']['description'];
+
+        preg_match('/data([^"]*)/i', $data['body']['description'], $results);
+
+        foreach ($results as $result) {
+            $name = str_random(20) . '_post_desc.jpg';
+            $data64 = explode(',', $result);
+
+            $unCodedImg = base64_decode($data64[1]);
+
+            file_put_contents(public_path('/images/post_desc/' . $name), $unCodedImg);
+
+            $desc = preg_replace('/data([^"]*)/', \Request::root() . '/images/post_desc/' . $name, $desc, 1);
+        }
+
+        $post = $this->model->query()->make()->fill(array_merge(
+            $data['body'],
+            ['description' => $desc]
+        ));
+
         $post->saveOrFail();
 
         if ($data['body']['media']) {
