@@ -97,7 +97,7 @@ class SearchListingRepository implements SearchListingRepositoryContract
         }
 
         // Get all available listings
-        $listings->where('status', ListingStatus::TYPE_AVAILABLE);
+        $listings->where('status', ListingStatus::TYPE_LISTED);
 
         // Return sort listings
         if (isset($data['sort'])) {
