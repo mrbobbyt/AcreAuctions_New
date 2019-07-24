@@ -31,7 +31,7 @@ class Seller extends Model
      */
     public function telephones()
     {
-        return $this->hasMany('App\Models\Telephone', 'entity_id', 'id');
+        return $this->hasMany(Telephone::class, 'entity_id', 'id');
     }
 
 
@@ -41,7 +41,7 @@ class Seller extends Model
      */
     public function getHead()
     {
-        return $this->belongsTo('App\Models\User', 'user_id');
+        return $this->belongsTo(User::class, 'user_id');
     }
 
 
@@ -51,7 +51,7 @@ class Seller extends Model
      */
     public function emails()
     {
-        return $this->hasMany('App\Models\Email', 'entity_id', 'id');
+        return $this->hasMany(Email::class, 'entity_id', 'id');
     }
 
 
@@ -61,7 +61,7 @@ class Seller extends Model
      */
     public function avatar()
     {
-        return $this->hasOne('App\Models\Image','entity_id', 'id')
+        return $this->hasOne(Image::class,'entity_id', 'id')
             ->where('entity_type', Image::TYPE_SELLER_LOGO);
     }
 }
