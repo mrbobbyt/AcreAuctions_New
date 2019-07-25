@@ -56,6 +56,7 @@ class Post extends Model
      */
     public function gallery()
     {
-        return $this->hasMany(FullsizePreview::class, 'post_id', 'id');
+        return $this->hasMany(FullsizePreview::class, 'post_id', 'id')
+            ->where('desc_image', FullsizePreview::IMAGE_NOT_IN_DESCRIPTION);
     }
 }

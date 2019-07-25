@@ -17,12 +17,13 @@ interface ImageServiceContract
     public const MAX_PREVIEW_HEIGHT = 156;
 
     /**
-     * @param UploadedFile $item
+     * @param UploadedFile|string $item
      * @param int $id
      * @param string $type
+     * @param boolean $descImg
      * @return bool
      */
-    public function create(UploadedFile $item, int $id, string $type);
+    public function create($item, int $id, string $type, bool $descImg = false);
 
     /**
      * @param string $imgUrl

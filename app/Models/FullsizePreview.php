@@ -13,11 +13,14 @@ use Illuminate\Database\Eloquent\Model;
  */
 class FullsizePreview extends Model
 {
-    protected $fillable = ['fullsize_id', 'preview_id', 'listing_id', 'post_id'];
+
+    const IMAGE_NOT_IN_DESCRIPTION = 0;
+
+    protected $fillable = ['fullsize_id', 'preview_id', 'listing_id', 'post_id', 'desc_image'];
 
     protected $guarded = ['id'];
 
-    protected $hidden = ['listing_id', 'post_id'];
+    protected $hidden = ['listing_id', 'post_id', 'desc_image'];
 
     protected $appends = ['fullsize', 'preview'];
 

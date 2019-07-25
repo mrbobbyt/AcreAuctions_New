@@ -46,24 +46,9 @@ class PostService implements PostServiceContract
 
         $data['body']['slug'] = make_url($data['body']['title']);
 
-        $desc = $data['body']['description'];
-
-        preg_match('/data([^"]*)/i', $data['body']['description'], $results);
-
-        foreach ($results as $result) {
-            $name = str_random(20) . '_post_desc.jpg';
-            $data64 = explode(',', $result);
-
-            $unCodedImg = base64_decode($data64[1]);
-
-            file_put_contents(public_path('/images/post_desc/' . $name), $unCodedImg);
-
-            $desc = preg_replace('/data([^"]*)/', \Request::root() . '/images/post_desc/' . $name, $desc, 1);
-        }
-
         $post = $this->model->query()->make()->fill(array_merge(
             $data['body'],
-            ['description' => $desc]
+            ['description' => '']
         ));
 
         $post->saveOrFail();
@@ -81,7 +66,33 @@ class PostService implements PostServiceContract
                 $this->imageService->create($item, $post->id, 'post');
             }
         }
+
+        $desc = $data['body']['description'];
+
+        preg_match_all('/data[^"]*/i', $data['body']['description'], $results);
+
+        foreach ($results[0] as $result) {
+            $descImg = true;
+            $data64 = explode(',', $result);
+            $image = $this->imageService->create($data64[1], $post->id, 'post', $descImg);
+
+            if ($image){
+                $desc = preg_replace('/data[^"]*/i', \Request::root() . $image->getFullsizeAttribute(), $desc, 1);
+            }
+        }
+
+        $this->updateDescPost($desc, $post->id);
         return $post;
+    }
+
+    /**
+     * @param string $newDesc
+     * @param int $id
+     */
+    private function updateDescPost(string $newDesc, int $id) {
+        $post = $this->postRepository->findByPk($id);
+        $post->description = $newDesc;
+        $post->save();
     }
 
     /**

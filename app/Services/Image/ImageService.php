@@ -1,5 +1,5 @@
 <?php
-declare(strict_types = 1);
+declare(strict_types=1);
 # only for listings, because have fullsize and preview
 
 namespace App\Services\Image;
@@ -26,22 +26,26 @@ class ImageService implements ImageServiceContract
 
 
     /**
-     * @param UploadedFile $item
+     * @param UploadedFile|string $item
      * @param int $id
      * @param string $type
-     * @return bool
+     * @param boolean $descImg
+     * @return bool|mixed
      * @throws Throwable
      */
-    public function create(UploadedFile $item, int $id, string $type): bool
+    public function create($item, int $id, string $type, bool $descImg = false)
     {
         $full = $this->createImage($item, $id, 'fullsize', $type);
         $preview = $this->createImage($item, $id, 'preview', $type);
 
-        return FullsizePreview::query()->make()->fill([
+        $model = FullsizePreview::query()->make();
+
+        return $model->fill([
             $type . '_id' => $id,
             'fullsize_id' => $full,
             'preview_id' => $preview,
-        ])->saveOrFail();
+            'desc_image' => $descImg,
+        ])->saveOrFail() ? $model->refresh() : false;
     }
 
 
