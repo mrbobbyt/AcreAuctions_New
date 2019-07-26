@@ -31,7 +31,6 @@ class ConfirmRegisterRequestValidator implements AbstractValidator
     {
         $validator = Validator::make($request->all(), [
             'token' => 'required|string',
-            'password' => 'required|string|max:255|min:6'
         ]);
 
         return $validator->validate();

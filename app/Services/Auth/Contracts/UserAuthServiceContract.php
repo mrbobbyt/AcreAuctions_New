@@ -68,11 +68,11 @@ interface UserAuthServiceContract
 
     /**
      * Confirm user after registration
-     * @param array $data
+     * @param array|string $data
      * @return Model
      * @throws Exception
      */
-    public function confirmUser(array $data);
+    public function confirmUser($data);
 
     /**
      * Recovery password when user forgot him

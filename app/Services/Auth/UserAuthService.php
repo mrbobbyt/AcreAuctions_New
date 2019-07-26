@@ -203,13 +203,13 @@ class UserAuthService implements UserAuthServiceContract
 
     /**
      * Confirm user after registration
-     * @param array $data
+     * @param array|string $data
      * @return Model
      * @throws Exception
      */
-    public function confirmUser(array $data): Model
+    public function confirmUser($data): Model
     {
-        $registerToken = RegisterToken::query()->where('token', $data['token'])->first();
+        $registerToken = RegisterToken::query()->where('token', $data)->first();
         if ($user = $this->userRepo->findByEmail($registerToken->email)) {
             $registerToken->delete();
         }
