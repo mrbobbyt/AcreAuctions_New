@@ -32,7 +32,9 @@ class FullsizePreview extends Model
      */
     public function getFullsizeAttribute()
     {
-        return '/images/fullsize/'. Image::query()->where('id', $this->fullsize_id)->first()->name;
+        $image = Image::query()->where('id', $this->fullsize_id)->first();
+
+        return $image ? '/images/fullsize/' . $image->name : false;
     }
 
 
@@ -41,6 +43,8 @@ class FullsizePreview extends Model
      */
     public function getPreviewAttribute()
     {
-        return '/images/preview/'. Image::query()->where('id', $this->preview_id)->first()->name;
+        $image = Image::query()->where('id', $this->preview_id)->first();
+
+        return $image ? '/images/preview/' . $image->name : false;
     }
 }

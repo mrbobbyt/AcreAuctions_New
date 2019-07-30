@@ -51,4 +51,11 @@ interface ImageServiceContract
      * @throws Exception
      */
     public function delete(Model $image);
+
+    /**
+     * @param Model $image
+     * @return bool
+     * @throws Exception
+     */
+    public function deleteImageWhenUpdatedPost(Model $image);
 }

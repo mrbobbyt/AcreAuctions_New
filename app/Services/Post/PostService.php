@@ -3,12 +3,13 @@ declare(strict_types=1);
 
 namespace App\Services\Post;
 
+use App\Models\Image;
 use App\Repositories\Post\Contracts\PostRepositoryContract;
 use App\Services\Image\ImageService;
 use App\Services\Post\Exceptions\PostAlreadyExistsException;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\Post;
-use App\Models\FullsizePreview;
+use File;
 
 use App\Services\Post\Contracts\PostServiceContract;
 
@@ -76,7 +77,7 @@ class PostService implements PostServiceContract
             $data64 = explode(',', $result);
             $image = $this->imageService->create($data64[1], $post->id, 'post', $descImg);
 
-            if ($image){
+            if ($image) {
                 $desc = preg_replace('/data[^"]*/i', \Request::root() . $image->getFullsizeAttribute(), $desc, 1);
             }
         }
@@ -89,7 +90,8 @@ class PostService implements PostServiceContract
      * @param string $newDesc
      * @param int $id
      */
-    private function updateDescPost(string $newDesc, int $id) {
+    private function updateDescPost(string $newDesc, int $id)
+    {
         $post = $this->postRepository->findByPk($id);
         $post->description = $newDesc;
         $post->save();
@@ -105,27 +107,84 @@ class PostService implements PostServiceContract
     {
         $post = $this->postRepository->findByPk($id);
 
+        /** Give array links from existing description */
+        preg_match_all("/src\s*=\s*\"(.+?)\"/i", $post->description, $linksFromDesc);
+
         if ($data['body']) {
             if (isset($data['body']['title']) && $data['body']['title']) {
-                if ($this->postRepository->findByTitle($data['body']['title'])) {
+                if ($this->postRepository->findByTitle(
+                        $data['body']['title']) && $post->title !== $data['body']['title']
+                ) {
                     throw new PostAlreadyExistsException();
                 }
                 $data['body']['slug'] = make_url($data['body']['title']);
             }
 
             foreach ($data['body'] as $key => $property) {
-                if ($key !== 'media') {
+                if ($key !== 'media' && $key !== 'description') {
                     $post->$key = $property;
                 }
             }
             $post->saveOrFail();
         }
 
-        if ($data['image']) {
-            $this->deleteRelatedImages($id);
-            foreach ($data['image']['image'] as $image) {
-                $this->imageService->create($image, $id, 'post');
+
+        if ($data['body']['description']) {
+            $desc = $data['body']['description'];
+
+            preg_match_all('/data[^"]*/i', $data['body']['description'], $results);
+
+            foreach ($results[0] as $result) {
+                $descImg = true;
+                $data64 = explode(',', $result);
+                $image = $this->imageService->create($data64[1], $post->id, 'post', $descImg);
+
+                if ($image) {
+                    $desc = preg_replace('/data[^"]*/i', \Request::root() . $image->getFullsizeAttribute(), $desc, 1);
+                }
             }
+
+            $this->updateDescPost($desc, $post->id);
+
+        }
+
+        $updatedPost = $this->postRepository->findByPk($id);
+
+        /** Give array links from updated description */
+        preg_match_all("/src\s*=\s*\"(.+?)\"/i", $updatedPost->description, $linksFromUpdatedDesc);
+
+        /** if removed images from desc, we need remove images also from server */
+        $unnecessaryImages = array_diff($linksFromDesc[1], $linksFromUpdatedDesc[1]);
+
+        foreach ($unnecessaryImages as $unnecessaryImage) {
+            $imagePath = stristr($unnecessaryImage, 'images');
+            if (File::exists($imagePath)) {
+                File::delete($imagePath);
+            }
+        }
+
+        if ($data['image']) {
+
+            $fullSizeImageNameFromDB = [];
+            $fullSizeImageNameFromData = [];
+
+            foreach ($post->gallery as $imageGallery) {
+                $imageNameFullSize = Image::query()->where('id', $imageGallery->fullsize_id)->first();
+                array_push($fullSizeImageNameFromDB, $imageNameFullSize->name);
+            }
+
+            foreach ($data['image']['image'] as $image) {
+                $imageFullSizeName = $image->getClientOriginalName();
+
+                array_push($fullSizeImageNameFromData, $imageFullSizeName);
+
+                if (!File::exists(public_path('images/fullsize/' . $imageFullSizeName))) {
+                    $this->imageService->create($image, $id, 'post');
+                }
+            }
+
+            $removedImages = array_diff($fullSizeImageNameFromDB, $fullSizeImageNameFromData);
+            $this->deleteRelatedFullSizeImages($removedImages);
         }
 
         if ($data['body']['media']) {
@@ -140,22 +199,15 @@ class PostService implements PostServiceContract
     }
 
     /**
-     * @param int $id
+     * @param array $removedImages
      * @throws Exception
      */
-    protected function deleteRelatedImages(int $id): void
+    protected function deleteRelatedFullSizeImages(array $removedImages): void
     {
-        $listingImages = $this->postRepository->findByPk($id)->images;
 
-        foreach ($listingImages as $image) {
-            $relation = FullsizePreview::query()->where('fullsize_id', $image->id)->first();
-
-            if ($relation) {
-                $imagePreview = $this->postRepository->findImage($relation->preview_id, $id);
-                $this->imageService->delete($imagePreview);
-            }
-
-            $this->imageService->delete($image);
+        foreach ($removedImages as $removedImage) {
+            $image = Image::query()->where('name', $removedImage)->first();
+            $this->imageService->deleteImageWhenUpdatedPost($image);
         }
     }
 

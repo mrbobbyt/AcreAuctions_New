@@ -28,6 +28,7 @@ class UpdatePostRequestValidator implements AbstractValidator
      * Validate given data
      * @param Request $request
      * @return array
+     * @throws ValidationException
      */
     public function validateBody(Request $request): array
     {
@@ -49,6 +50,7 @@ class UpdatePostRequestValidator implements AbstractValidator
      * Validate given data
      * @param Request $request
      * @return array
+     * @throws ValidationException
      */
     public function validateImage(Request $request): array
     {

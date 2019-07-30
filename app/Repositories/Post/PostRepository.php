@@ -48,7 +48,7 @@ class PostRepository implements PostRepositoryContract
     {
         $image = $this->findByPk($id)->images->where('id', $key)->first();
 
-        return ($image === null) ? false : $image;
+        return $image?: false;
     }
 
     /**
@@ -64,10 +64,10 @@ class PostRepository implements PostRepositoryContract
     /**
      * Find post by id
      * @param int $id
-     * @return Model
+     * @return Post
      * @throws PostNotFoundException
      */
-    public function findByPk(int $id): Model
+    public function findByPk(int $id): Post
     {
         $posts = Post::find($id);
 

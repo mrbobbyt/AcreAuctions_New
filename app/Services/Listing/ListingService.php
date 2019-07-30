@@ -171,7 +171,10 @@ class ListingService implements ListingServiceContract
 
         if ($data['body']) {
             if (isset($data['body']['title']) && $data['body']['title']) {
-                if ($this->listingRepo->findByTitle($data['body']['title'])) {
+                if (
+                    $this->listingRepo->findByTitle($data['body']['title'])
+                    && $listing->title !== $data['body']['title']
+                ) {
                     throw new ListingAlreadyExistsException();
                 }
                 $data['body']['slug'] = make_url($data['body']['title']);

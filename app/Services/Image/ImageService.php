@@ -154,4 +154,24 @@ class ImageService implements ImageServiceContract
 
         return $image->delete();
     }
+
+    /**
+     * @param Model $image
+     * @return bool
+     * @throws Exception
+     */
+    public function deleteImageWhenUpdatedPost(Model $image): bool
+    {
+        // delete full size file and db row
+        if ($relation = FullsizePreview::query()->where('fullsize_id', $image->id)->first()) {
+            $path = public_path('images/fullsize/' . $image->name);
+            $relation->delete();
+
+            if (File::exists($path)) {
+                File::delete($path);
+            }
+        }
+
+        return $image->delete();
+    }
 }
