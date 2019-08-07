@@ -23,6 +23,6 @@ class Share extends Model
      */
     public function getNetwork()
     {
-        return $this->belongsTo('App\Models\Network', 'network_id', 'id');
+        return $this->belongsTo(Network::class, 'network_id', 'id');
     }
 }

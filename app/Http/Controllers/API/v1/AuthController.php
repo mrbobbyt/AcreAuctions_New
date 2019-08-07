@@ -257,7 +257,6 @@ class AuthController extends Controller
      */
     public function resetPassword(Request $request): Response
     {
-        // TODO: we need to verify forgotPassword token that was sent by email
         try {
             $data = (new ResetPasswordRequestValidator())->attempt($request);
             $this->userService->resetPassword($data['email'], $data['password']);

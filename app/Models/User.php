@@ -65,7 +65,7 @@ class User extends Authenticatable implements JWTSubject
      */
     public function resetTokens()
     {
-        return $this->hasMany('App\Models\PasswordResets', 'email', 'email');
+        return $this->hasMany(PasswordResets::class, 'email', 'email');
     }
 
 
@@ -75,7 +75,7 @@ class User extends Authenticatable implements JWTSubject
      */
     public function userRole()
     {
-        return $this->belongsTo('App\Models\Role', 'role', 'id');
+        return $this->belongsTo(Role::class, 'role', 'id');
     }
 
 
@@ -95,7 +95,7 @@ class User extends Authenticatable implements JWTSubject
      */
     public function avatar()
     {
-        return $this->hasOne('App\Models\Image', 'entity_id', 'id')
+        return $this->hasOne(Image::class, 'entity_id', 'id')
             ->where('entity_type', Image::TYPE_USER_AVATAR);
     }
 
@@ -106,13 +106,13 @@ class User extends Authenticatable implements JWTSubject
      */
     public function seller()
     {
-        return $this->hasOne('App\Models\Seller', 'user_id');
+        return $this->hasOne(Seller::class, 'user_id');
     }
 
 
     public function getAllFavorites()
     {
-        return $this->belongsToMany('App\Models\Listing', 'favorites', 'user_id', 'listing_id');
+        return $this->belongsToMany(Listing::class, 'favorites', 'user_id', 'listing_id');
     }
 
 
@@ -122,7 +122,7 @@ class User extends Authenticatable implements JWTSubject
      */
     public function telephones()
     {
-        return $this->hasMany('App\Models\Telephone', 'entity_id', 'id')
+        return $this->hasMany(Telephone::class, 'entity_id', 'id')
             ->whereIn('entity_type', [Telephone::TYPE_USER_PHONE, Telephone::TYPE_USER_FAX, Telephone::TYPE_USER_TOLL_FREE]);
     }
 
@@ -133,7 +133,7 @@ class User extends Authenticatable implements JWTSubject
      */
     public function address()
     {
-        return $this->hasOne('App\Models\Address', 'entity_id')
+        return $this->hasOne(Address::class, 'entity_id')
             ->where('entity_type', Address::TYPE_USER);
     }
 }

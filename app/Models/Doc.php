@@ -31,7 +31,7 @@ class Doc extends Model
      */
     public function getListing()
     {
-        return $this->belongsTo('App\Models\Listing', 'entity_id', 'id');
+        return $this->belongsTo(Listing::class, 'entity_id', 'id');
     }
 
 

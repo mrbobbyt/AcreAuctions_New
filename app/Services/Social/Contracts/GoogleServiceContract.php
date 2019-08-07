@@ -8,7 +8,7 @@ use Google_Service_Oauth2_Userinfoplus;
 interface GoogleServiceContract
 {
     /**
-     * Get login url to fb
+     * Get login url to google
      * @return string
      */
     public function getLogin();

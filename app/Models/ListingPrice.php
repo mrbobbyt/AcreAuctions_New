@@ -36,6 +36,6 @@ class ListingPrice extends Model
      */
     public function getSaleType()
     {
-        return $this->belongsTo('App\Models\SaleType', 'sale_type', 'id');
+        return $this->belongsTo(SaleType::class, 'sale_type', 'id');
     }
 }

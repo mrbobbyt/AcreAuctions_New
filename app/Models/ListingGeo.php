@@ -39,6 +39,6 @@ class ListingGeo extends Model
      */
     public function getRoadAccess()
     {
-        return $this->belongsTo('App\Models\RoadAccess', 'road_access', 'id');
+        return $this->belongsTo(RoadAccess::class, 'road_access', 'id');
     }
 }

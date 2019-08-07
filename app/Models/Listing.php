@@ -189,7 +189,7 @@ class Listing extends Model
      */
     public function favorite()
     {
-        return $this->belongsToMany('App\Models\User', 'favorites', 'listing_id', 'user_id');
+        return $this->belongsToMany(User::class, 'favorites', 'listing_id', 'user_id');
     }
 
 
